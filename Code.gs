@@ -121,6 +121,16 @@ const FORMAT_REGISTRY = {
     url: 'https://www.hillspet.com/dog-food?lifestage=adult&productform=canned&productform=stew'
   },
 
+  HILLS_SR_DOG_DRY_LINK: {
+    text: "Hill's senior dog dry food",
+    url: 'https://www.hillspet.com/dog-food?lifestage=mature&lifestage=senior&productform=dry'
+  },
+
+  HILLS_SR_DOG_WET_LINK: {
+    text: "Hill's senior dog wet food",
+    url: 'https://www.hillspet.com/dog-food?lifestage=mature&lifestage=senior&productform=canned&productform=stew'
+  },
+
   PURINA_PUPPY_DRY_LINK: {
     text: 'Purina puppy dry food',
     url: 'https://www.purina.com/dogs/dog-food/dry/puppy-food'
@@ -141,6 +151,16 @@ const FORMAT_REGISTRY = {
     url: 'https://www.purina.com/dogs/dog-food/wet?items_per_page=10&sort_by=relevance&f%5B0%5D=life-stage%3A1504'
   },
 
+  PURINA_SR_DOG_DRY_LINK: {
+    text: 'Purina senior dog dry food',
+    url: 'https://www.purina.com/dogs/dog-food/senior?f%5B0%5D=category%3A14&f%5B1%5D=life-stage%3A1503&items_per_page=10&sort_by=relevance'
+  },
+
+  PURINA_SR_DOG_WET_LINK: {
+    text: 'Purina senior dog wet food',
+    url: 'https://www.purina.com/dogs/dog-food/senior?f%5B0%5D=category%3A13&f%5B1%5D=life-stage%3A1503&items_per_page=10&sort_by=relevance'
+  },
+
   ROYAL_CANIN_PUPPY_DRY_LINK: {
     text: 'RC puppy dry food',
     url: 'https://www.royalcanin.com/us/dogs/products/puppy-food?lifestage=baby|junior|puppy&digital_sub_category=dry_food'
@@ -159,6 +179,16 @@ const FORMAT_REGISTRY = {
   ROYAL_CANIN_DOG_WET_LINK: {
     text: 'RC dog wet food',
     url: 'https://www.royalcanin.com/us/dogs/products/adult-dog-food?lifestage=adult&digital_sub_category=wet_food'
+  },
+
+  ROYAL_CANIN_SR_DOG_DRY_LINK: {
+    text: 'RC senior dog dry food',
+    url: 'https://www.royalcanin.com/us/dogs/products/senior-dog-food?lifestage=ageing|mature&digital_sub_category=dry_food',
+  },
+
+  ROYAL_CANIN_SR_DOG_WET_LINK: {
+    text: 'RC senior dog wet food',
+    url: 'https://www.royalcanin.com/us/dogs/products/senior-dog-food?lifestage=ageing|mature&digital_sub_category=wet_food'
   },
 
 /* ------------------ Dental ------------------ */
@@ -442,7 +472,6 @@ const dentalProducts = [
   'animal safe toothpaste'
 ];
 
-
   // Adult vaccine text
   const adultVaccineText =
 `Vaccines: Your dog has received ${pronoun.his} first round of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your dog will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.
@@ -472,20 +501,16 @@ Next appointment: Bring your dog back in 3 - 4 weeks for a booster of ${pronoun.
   'LABWORK',
 ];
 
-  // Links same as 8-week except food
-  linkKeys: [
-      'VOHC_DOG_LINK',
-      'SMALL_DOG_TOOTHBRUSH_LINK',
-      'LARGE_TOOTHBRUSH_LINK',
-      'TOOTHPASTE_LINK',
-      'HILLS_DOG_DRY_LINK',
-      'HILLS_DOG_WET_LINK',
-      'PURINA_DOG_DRY_LINK',
-      'PURINA_DOG_WET_LINK',
-      'ROYAL_CANIN_DOG_DRY_LINK',
-      'ROYAL_CANIN_DOG_WET_LINK',
-    ],
-
+  // Update links from 8-week
+  template.linkKeys = [
+  ...(template.linkKeys || []),
+  'HILLS_DOG_DRY_LINK',
+  'HILLS_DOG_WET_LINK',
+  'PURINA_DOG_DRY_LINK',
+  'PURINA_DOG_WET_LINK',
+  'ROYAL_CANIN_DOG_DRY_LINK',
+  'ROYAL_CANIN_DOG_WET_LINK',
+],
 
   // Table same as 8-week
   template.table = get8WeekWellnessTable();
@@ -529,6 +554,7 @@ Next appointment: Bring your dog back one year from today for ${pronoun.his} nex
       'BORDETELLA_VXN',
       'LABWORK',
     ],
+
     boldUnderlineKeys: [
       'VXN_RXN',
       'IMMEDIATELY',
@@ -540,6 +566,7 @@ Next appointment: Bring your dog back one year from today for ${pronoun.his} nex
       'DENTAL_BRUSHING_CORE',
       'XYLITOL',
     ],
+
     greenKeys: [],
 
     linkKeys: [
@@ -591,10 +618,10 @@ function generate2YearAdultTemplate(sex) {
 
 
 // 3. Remove puppy food transition.
-template.text = template.text.replace(
-  /A high quality diet is the best way to keep your dog healthy\. If you haven’t already, you can transition (him|her) from (his|her) puppy diet to (his|her) adult diet\. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists\. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed\./,
-  adultFoodRecommendation
-);
+  template.text = template.text.replace(
+    /If you haven’t already, you can transition (him|her) from (his|her) puppy diet to (his|her) adult diet\.\s*/i,
+    ''
+  );
 
   return template;
 }
@@ -620,11 +647,54 @@ function generate7YearAdultTemplate(sex) {
   const template = generate2YearAdultTemplate(sex);
   const pronoun = getPronoun(sex);
 
-  // Adjust senior diet wording
+  // 1. Adjust senior diet wording
   template.text = template.text.replace(
-  /(A high quality diet is the best way to keep your dog healthy\.)/,
-  `$1 Dogs that are older than 7 years are advised to be on a senior diet.`
-);
+  /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of his weight\./,
+  `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of his weight.`
+  );
+
+  // 3. Add senior dog links
+  template.linkKeys = [
+  ...(template.linkKeys || []),
+  'HILLS_SR_DOG_DRY_LINK',
+  'HILLS_SR_DOG_WET_LINK',
+  'PURINA_SR_DOG_DRY_LINK',
+  'PURINA_SR_DOG_WET_LINK',
+  'ROYAL_CANIN_SR_DOG_DRY_LINK',
+  'ROYAL_CANIN_SR_DOG_WET_LINK',
+];
+
+  return template;
+}
+
+/* ------------------ 7-YEAR LEPTO WELLNESS TEMPLATE ------------------ */
+
+function generate7YearLeptoTemplate(sex) {
+  const template = generate2YearAdultTemplate(sex);
+  const pronoun = getPronoun(sex);
+
+  // 1. Replace the vaccine listing paragraph ONLY
+  template.text = template.text.replace(
+    /The 3 year rabies vaccine was given in the right hindlimb\. The 3 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb\. The 1 year bordetella vaccine was given orally\./,
+    'The 1 year lepto vaccine was given in the left hindlimb. The 1 year bordetella vaccine was given orally.'
+  );
+
+  // 2. Adjust senior diet wording
+  template.text = template.text.replace(
+  /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of his weight\./,
+  `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of his weight.`
+  );
+
+  // 3. Add senior dog links
+  template.linkKeys = [
+  ...(template.linkKeys || []),
+  'HILLS_SR_DOG_DRY_LINK',
+  'HILLS_SR_DOG_WET_LINK',
+  'PURINA_SR_DOG_DRY_LINK',
+  'PURINA_SR_DOG_WET_LINK',
+  'ROYAL_CANIN_SR_DOG_DRY_LINK',
+  'ROYAL_CANIN_SR_DOG_WET_LINK',
+];
 
   return template;
 }
@@ -669,6 +739,17 @@ const TEMPLATE_DEFINITIONS = {
     ...TEMPLATES_LEGACY_CCL
   }),
 
+  '/ieolibrary': function () {
+  return {
+    text: buildKeywordLibrary(),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    greenKeys: [],
+    linkKeys: []
+  };
+},
+
+/* ------------------ Puppy Wellness ------------------ */
   '/c8wkssmallmale': () => generate8WkWellnessTemplate('small', 'male'),
   '/c8wkslargemale': () => generate8WkWellnessTemplate('large', 'male'),
   '/c8wksfemale': () => generate8WkWellnessTemplate('small', 'female'),
@@ -681,6 +762,8 @@ const TEMPLATE_DEFINITIONS = {
   '/c16wkslargemale': () => generate16WkSmallMaleTemplate('large', 'male'),
   '/c16wksfemale': () => generate16WkSmallMaleTemplate('small', 'female'),
 
+/* ------------------ Puppy Wellness ------------------ */
+
   '/cinitialadultmale': () => generateInitialAdultTemplate('male'),
   '/cinitialadultfemale': () => generateInitialAdultTemplate('female'),
   '/c1yearmale': () => generate1YearAdultTemplate('male'),
@@ -691,6 +774,8 @@ const TEMPLATE_DEFINITIONS = {
   '/c2yearleptofemale': () => generate2YearLeptoTemplate('female'),
   '/c7yearmale': () => generate7YearAdultTemplate('male'),
   '/c7yearfemale': () => generate7YearAdultTemplate('female'),
+  '/c7yearleptomale': () => generate7YearLeptoTemplate('male'),
+  '/c7yearleptofemale': () => generate7YearLeptoTemplate('female'),
 
 };
 
@@ -703,6 +788,21 @@ function resolveTemplate(keyword) {
   }
 
   return templateFn();
+}
+
+function buildKeywordLibrary() {
+  const keys = Object.keys(TEMPLATE_DEFINITIONS)
+  .filter(k => k !== '/ieolibrary');
+
+  let output = [];
+  output.push('Dr. I.E. Osadiaye Keyword Library');
+  output.push('--------------------');
+
+  keys.forEach(key => {
+    output.push(key);
+  });
+
+  return output.join('\n');
 }
 
 /* ------------------ EXPAND KEYWORDS ------------------ */
