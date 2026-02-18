@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 10px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 6px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+
+      .category {
+        margin-bottom: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .category-header {
+        background-color: #f1f3f4;
+        padding: 6px 8px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .category-content {
+        display: none; /* auto-collapsed */
+        padding: 6px 8px;
+      }
+
+      .template-button {
+        display: block;
+        width: 100%;
+        margin: 4px 0;
+        padding: 6px;
+        text-align: left;
+        background-color: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .template-button:hover {
+        background-color: #e8f0fe;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <h3>Medical Template Picker</h3>
+    <input type="text" id="searchBox" placeholder="Search templates...">
+
+    <!-- DOG TEMPLATES -->
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">General Wellness</div>
+      <div class="category-content">
+        <button class="template-button" onclick="insertTemplate('/c8wksSmallMale')">8 Weeks – Small Male</button>
+        <button class="template-button" onclick="insertTemplate('/c8wksLargeMale')">8 Weeks – Large Male</button>
+        <button class="template-button" onclick="insertTemplate('/c8wksFemale')">8 Weeks – Female</button>
+        <button class="template-button" onclick="insertTemplate('/c12wksSmallMale')">12 Weeks – Small Male</button>
+        <button class="template-button" onclick="insertTemplate('/c12wksLargeMale')">12 Weeks – Large Male</button>
+        <button class="template-button" onclick="insertTemplate('/c12wksFemale')">12 Weeks – Female</button>
+        <button class="template-button" onclick="insertTemplate('/c16wksSmallMale')">16 Weeks – Small Male</button>
+        <button class="template-button" onclick="insertTemplate('/c16wksLargeMale')">16 Weeks – Large Male</button>
+        <button class="template-button" onclick="insertTemplate('/c16wksFemale')">16 Weeks – Female</button>
+        <button class="template-button" onclick="insertTemplate('/cInitialAdultMale')">Adult Initials ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cInitialAdultFemale')">Adult Initials ♀</button>
+        <button class="template-button" onclick="insertTemplate('/c1yearMale')">1st Annual  ♂</button>
+        <button class="template-button" onclick="insertTemplate('/c1yearFemale')">1st Annual ♀</button>
+        <button class="template-button" onclick="insertTemplate('/c2yearMale')">2nd Annual  ♂</button>
+        <button class="template-button" onclick="insertTemplate('/c2yearFemale')">2nd Annual ♀</button>
+        <button class="template-button" onclick="insertTemplate('/c2yearMaleLepto')">2nd Annual Lepto ♂</button>
+        <button class="template-button" onclick="insertTemplate('/c2yearFemaleLepto')">2nd Annual Lepto ♀</button>
+        <button class="template-button" onclick="insertTemplate('/c7yearMaleLepto')">7th Annual ♂</button>
+        <button class="template-button" onclick="insertTemplate('/c7yearFemaleLepto')">7th Annual ♀</button>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Ophthalmology</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Cardiovascular</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Respiratory</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Endocrine</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Gastrointestinal</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Urinary &amp; Renal</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Reproductive</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Musculoskeletal</div>
+      <div class="category-content">
+        <button class="template-button" onclick="insertTemplate('/cCCL1MM')">CCL Tear – Medical Management</button>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Neurology</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Immunology</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Integumentary</div>
+      <div class="category-content"></div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">Oncology</div>
+      <div class="category-content"></div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+      function toggleCategory(header) {
+        const content = header.nextElementSibling;
+        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+      }
+
+      function insertTemplate(keyword) {
+        google.script.run
+          .withFailureHandler(err => {
+            alert('Error inserting template: ' + err.message);
+          })
+          .expandKeywordsFromSidebar(keyword);
+      }
+
+      // SEARCH FUNCTIONALITY WITH AUTO-EXPAND
+      const searchBox = document.getElementById('searchBox');
+      searchBox.addEventListener('input', function() {
+        const query = searchBox.value.toLowerCase();
+        const buttons = document.querySelectorAll('.template-button');
+        const categories = document.querySelectorAll('.category');
+
+        categories.forEach(cat => {
+          let catHasMatch = false;
+          const catButtons = cat.querySelectorAll('.template-button');
+
+          catButtons.forEach(btn => {
+            const isMatch = btn.textContent.toLowerCase().includes(query);
+            btn.style.display = isMatch ? 'block' : 'none';
+            if (isMatch) catHasMatch = true;
+          });
+
+          // Show category content if any button matches
+          const content = cat.querySelector('.category-content');
+          content.style.display = catHasMatch ? 'block' : 'none';
+        });
+      });
+    </script>
+
+  </body>
+</html>
