@@ -57,10 +57,15 @@
 
     <h3>Medical Template Picker</h3>
     <input type="text" id="searchBox" placeholder="Search templates...">
+    <button class="template-button" onclick="insertTemplate('/cReset')">Canine Reset</button>
+    <button class="template-button" onclick="insertTemplate('/fReset')">Feline Reset</button>
+    <button class="template-button" onclick="expandKeywords()">Generate Templates</button>
+    <button class="template-button" onclick="runReverseGenerator()">Reverse Generator</button>
+    <button class="template-button" onclick="insertTemplate('/ieolibrary')">Template Library</button>
     
     <!-- DOG TEMPLATES -->
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">General Wellness</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 General Wellness 🐕</div>
       <div class="category-content">
         <button class="template-button" onclick="insertTemplate('/c8wksSmallMale')">8 Weeks – Small Male</button>
         <button class="template-button" onclick="insertTemplate('/c8wksLargeMale')">8 Weeks – Large Male</button>
@@ -79,14 +84,14 @@
         <button class="template-button" onclick="insertTemplate('/c2yearFemale')">2nd Annual ♀</button>
         <button class="template-button" onclick="insertTemplate('/c2yearLeptoMale')">2nd Annual Lepto ♂</button>
         <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemale')">2nd Annual Lepto ♀</button>
-        <button class="template-button" onclick="insertTemplate('/c7yearMaleLepto')">7th Annual ♂</button>
-        <button class="template-button" onclick="insertTemplate('/c7yearFemaleLepto')">7th Annual ♀</button>
+        <button class="template-button" onclick="insertTemplate('/c7yearMale')">7th Annual ♂</button>
+        <button class="template-button" onclick="insertTemplate('/c7yearFemale')">7th Annual ♀</button>
         <button class="template-button" onclick="insertTemplate('/c7yearLeptoMale')">7th Annual Lepto ♂</button>
         <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemale')">7th Annual Lepto ♀</button>
-        <button class="template-button" onclick="insertTemplate('/cDietMale')">Diet Program ♂</button>
-        <button class="template-button" onclick="insertTemplate('/cDietFemale')">Diet Program ♀</button>
-        <button class="template-button" onclick="insertTemplate('/cDiet2Male')">Diet Program | Continue ♂</button>
-        <button class="template-button" onclick="insertTemplate('/cDiet2Female')">Diet Program | Continue ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cOverweightMale')">Diet Program ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cOverweightFemale')">Diet Program ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cOverweight2Male')">Diet Program | Continue ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cOverweight2Female')">Diet Program | Continue ♀</button>
         <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale')">Healthy Weight ♂</button>
         <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemale')">Healthy Weight ♀</button>
         <button class="template-button" onclick="insertTemplate('/cUnderweightMale')">Underweight ♂</button>
@@ -95,107 +100,212 @@
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Ophthalmology</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Ophthalmology 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Cardiovascular</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Cardiovascular 🐕</div>
+      <div class="category-content">
+        <button class="template-button" onclick="insertTemplate('/cHeartMurmur0')">Heart Murmur 0, Discovered</button>
+        <button class="template-button" onclick="insertTemplate('/cHeartMurmur1RadiographsNormal')">Heart Murmur 1, Radiographs Normal</button>
+        <button class="template-button" onclick="insertTemplate('/cHeartMurmur1Cardiomegaly')">Heart Murmur 1, Cardiomegaly, Start Pimobendan</button>
+        <button class="template-button" onclick="insertTemplate('/cHeartMurmur3Known')">Heart Murmur 3, Known</button>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Respiratory 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Respiratory</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Endocrine 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Endocrine</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Gastrointestinal 🐕</div>
+      <div class="category-content">
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseMale1')">Mild Periodontal Disease ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseFemale1')">Mild Periodontal Disease ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseMale2')">Moderate Periodontal Disease ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseFemale2')">Moderate Periodontal Disease ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseMale3')">Severe Periodontal Disease ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseFemale3')">Severe Periodontal Disease ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseAgeMale4')">Severe Periodontal Disease | Age Restricted ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseAgeFemale4')">Severe Periodontal Disease | Age Restricted ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseConcurrentDiseaseMale4')">Severe Periodontal Disease | Concurrent Disease ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseConcurrentDiseaseFemale4')">Severe Periodontal Disease | Concurrent Disease ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseHeartMurmurMale4')">Severe Periodontal Disease | Heart Murmur ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseHeartMurmurFemale4')">Severe Periodontal Disease | Heart Murmur ♀</button>
+      </div>
+    </div>
+
+    <div class="category">
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Urinary &amp; Renal 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Gastrointestinal</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Reproductive 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Urinary &amp; Renal</div>
-      <div class="category-content"></div>
-    </div>
-
-    <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Reproductive</div>
-      <div class="category-content"></div>
-    </div>
-
-    <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Musculoskeletal</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Musculoskeletal 🐕</div>
       <div class="category-content">
         <button class="template-button" onclick="insertTemplate('/cCCL1MM')">CCL Tear – Medical Management</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1NSAID')">Osteoarthritis | 1st NSAID</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2NSAID')">Osteoarthritis | 2nd NSAID, Continue</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis3NSAID')">Osteoarthritis | 3rd NSAID, Switch</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Gabapentin')">Osteoarthritis | 1st Gabapentin</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Gabapentin')">Osteoarthritis | 2nd Gabapentin</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1JointSupplements')">Osteoarthritis | 1st Joint Supplements</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2JointSupplements')">Osteoarthritis | 2nd Joint Supplements, Continue</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Librela')">Osteoarthritis | 1st Librela</button>
+        <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Librela')">Osteoarthritis | 2nd Librela, Continue</button>
       </div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Neurology</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Neurology 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Immunology</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Immunology 🐕</div>
       <div class="category-content">
-      <button class="template-button" onclick="insertTemplate('/cVaccineInformation')">Vaccine Information ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cVaccineInformation')">Vaccine Information</button>
       </div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Dermatology</div>
-      <div class="category-content"></div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Dermatology 🐕</div>
+      <div class="category-content">
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Antihistamines')">Atopic Dermatitits | Antihistamines, 1st</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Antihistamines')">Atopic Dermatitits | Antihistamines, 2nd</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Apoquel')">Atopic Dermatitits | Apoquel | 1st</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Apoquel')">Atopic Dermatitits | Apoquel | 2nd, Maintenance</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Apoquel')">Atopic Dermatitits | Apoquel | 3rd, Add Cytopoint</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis4Apoquel')">Atopic Dermatitits | Apoquel | 4th Switch to Zenrelia</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Cytopoint')">Atopic Dermatitits | Cytopoint | 1st</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Cytopoint')">Atopic Dermatitits | Cytopoint | 2nd</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitisMedsDeclined')">Atopic Dermatitits | Meds Declined</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Zenrelia')">Atopic Dermatitits | Zenrelia | 1st</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Zenrelia')">Atopic Dermatitits | Zenrelia | 2nd, Maintenance</button>
+        <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Zenrelia')">Atopic Dermatitits | Zenrelia | 3rd, Add Cytopoint</button>
+      </div>
     </div>
 
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">Oncology</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Oncology 🐕</div>
       <div class="category-content"></div>
     </div>
 
     <!-- SCRIPT -->
     <script>
-      function toggleCategory(header) {
-        const content = header.nextElementSibling;
-        content.style.display = content.style.display === 'none' ? 'block' : 'none';
-      }
 
-      function insertTemplate(keyword) {
-        google.script.run
-          .withFailureHandler(err => {
-            alert('Error inserting template: ' + err.message);
-          })
-          .expandKeywordsFromSidebar(keyword);
-      }
+function expandKeywords() {
+  google.script.run
+    .withFailureHandler(err => {
+      alert('Error expanding keywords: ' + err.message);
+    })
+    .expandKeywords();
+}
 
-      // SEARCH FUNCTIONALITY WITH AUTO-EXPAND
-      const searchBox = document.getElementById('searchBox');
-      searchBox.addEventListener('input', function() {
-        const query = searchBox.value.toLowerCase();
-        const buttons = document.querySelectorAll('.template-button');
-        const categories = document.querySelectorAll('.category');
+function toggleCategory(header) {
+  const content = header.nextElementSibling;
+  content.style.display = content.style.display === 'block' ? 'none' : 'block';
+}
 
-        categories.forEach(cat => {
-          let catHasMatch = false;
-          const catButtons = cat.querySelectorAll('.template-button');
+function insertTemplate(keyword) {
+  const btn = event.currentTarget; // Get the clicked button
+  const originalText = btn.innerText;
+  btn.innerText = "Inserting...";
+  btn.disabled = true;
 
-          catButtons.forEach(btn => {
-            const isMatch = btn.textContent.toLowerCase().includes(query);
-            btn.style.display = isMatch ? 'block' : 'none';
-            if (isMatch) catHasMatch = true;
-          });
+  google.script.run
+    .withSuccessHandler(() => {
+      btn.innerText = originalText;
+      btn.disabled = false;
+    })
+    .withFailureHandler(err => {
+      btn.innerText = originalText;
+      btn.disabled = false;
+      alert('Error: ' + err.message);
+    })
+    .expandKeywordsFromSidebar(keyword);
+}
 
-          // Show category content if any button matches
-          const content = cat.querySelector('.category-content');
-          content.style.display = catHasMatch ? 'block' : 'none';
-        });
+function runReverseGenerator(){
+  google.script.run
+    .withFailureHandler(err => {
+      alert('Reverse generator error: ' + err.message);
+    })
+    .reverseGenerateTemplate();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const searchBox = document.getElementById('searchBox');
+
+  searchBox.addEventListener('input', function() {
+
+    const query = searchBox.value.toLowerCase().trim();
+    const categories = document.querySelectorAll('.category');
+    const topLevelButtons = document.querySelectorAll('body > .template-button');
+
+    // If search cleared → restore everything
+    if (query === '') {
+
+      topLevelButtons.forEach(btn => {
+        btn.style.display = 'block';
       });
-    </script>
 
+      categories.forEach(cat => {
+        cat.style.display = 'block';
+        const content = cat.querySelector('.category-content');
+        content.style.display = 'none';
+
+        const buttons = cat.querySelectorAll('.template-button');
+        buttons.forEach(btn => btn.style.display = 'block');
+      });
+
+      return;
+    }
+
+    // Filter top-level buttons
+    topLevelButtons.forEach(btn => {
+      const isMatch = btn.textContent.toLowerCase().includes(query);
+      btn.style.display = isMatch ? 'block' : 'none';
+    });
+
+    // Filter categories
+    categories.forEach(cat => {
+
+      const content = cat.querySelector('.category-content');
+      const buttons = cat.querySelectorAll('.template-button');
+
+      let categoryHasMatch = false;
+
+      buttons.forEach(btn => {
+        const isMatch = btn.textContent.toLowerCase().includes(query);
+        btn.style.display = isMatch ? 'block' : 'none';
+        if (isMatch) categoryHasMatch = true;
+      });
+
+      if (categoryHasMatch) {
+        cat.style.display = 'block';
+        content.style.display = 'block';
+      } else {
+        cat.style.display = 'none';
+      }
+
+    });
+  });
+  });
+
+</script>
   </body>
 </html>
