@@ -231,6 +231,179 @@
   purple: '#B4A7D6',
   };
 
+/* ------------------ Diagnosis Registry ------------------ */
+const DIAGNOSIS_REGISTRY = {
+  ATOPIC_DERMATITIS: {
+    text: "Atopic dermatitis",
+    rank: 5
+  },
+
+  BLIND: {
+    text: "Blind",
+    rank: 7
+  },
+
+  HEARTMURMUR: {
+    text: "Heart murmur",
+    rank: 1
+  },
+
+  OSTEOARTHRITIS: {
+    text: "Osteoarthritis",
+    rank: 2
+  },
+
+  OTITIS: {
+    text: "Otitis externa",
+    rank: 3
+  },
+
+  OVERWEIGHT: {
+    text: "Overweight",
+    rank: 6
+  },
+
+  PERIODONTAL_DISEASE: {
+    text: "Periodontal disease",
+    rank: 2
+  },
+
+  UNDERWEIGHT: {
+    text: "Underweight",
+    rank: 3
+  },
+  };
+
+/* ------------------ Diagnosis & Template Buffer ------------------ */
+
+  let diagnosisBuffer = [];
+  let templateBuffer = [];
+
+  /* ------------------ Add Diagnosis Codes ------------------ */
+  function bufferDiagnoses(keys) {
+
+  if (!keys) return;
+
+  keys.forEach(key => {
+
+    const diag = DIAGNOSIS_REGISTRY[key];
+    if (!diag) return;
+
+    if (!diagnosisBuffer.some(d => d.text === diag.text)) {
+      diagnosisBuffer.push({
+        text: diag.text,
+        rank: diag.rank
+      });
+    }
+
+  });
+  }
+
+  /* ------------------ Sort Buffer ------------------ */
+  function sortDiagnosisBuffer() {
+  diagnosisBuffer.sort((a, b) => a.rank - b.rank);
+  }
+
+  /* ------------------ Insert Diagnoses ------------------ */
+  function insertDiagnosesIntoDocument() {
+  if (diagnosisBuffer.length === 0) return;
+
+  const body = DocumentApp.getActiveDocument().getBody();
+  sortDiagnosisBuffer();
+
+  for (let i = 0; i < body.getNumChildren(); i++) {
+    const element = body.getChild(i);
+    if (element.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+
+    const paragraph = element.asParagraph();
+    const text = paragraph.getText().trim();
+
+    if (text.toLowerCase() !== "diagnosis") continue;
+
+    const textObj = paragraph.editAsText();
+    const isBold = textObj.isBold(0);
+    const isUnderline = textObj.isUnderline(0);
+    if (!isBold || !isUnderline) continue;
+
+    const color = textObj.getForegroundColor(0);
+    const isGreen = (color === "#008000" || color === "#6aa84f" || color === "#b6d7a8");
+    if (isGreen) continue; 
+
+    // --- NEW: Capture Indentation from the "Diagnosis" header ---
+    const indentFirstLine = paragraph.getIndentFirstLine();
+    const indentStart = paragraph.getIndentStart();
+    const lineSpacing = paragraph.getLineSpacing();
+
+    // Insertion Logic
+    let insertIndex = i + 1;
+    diagnosisBuffer.forEach(diag => {
+      const newPara = body.insertParagraph(insertIndex, diag.text);
+      
+      // --- NEW: Apply the captured indentation to the new line ---
+      newPara.setIndentFirstLine(indentFirstLine);
+      newPara.setIndentStart(indentStart);
+      newPara.setLineSpacing(lineSpacing);
+      
+      insertIndex++;
+    });
+
+    diagnosisBuffer = [];
+    return; 
+  }
+  }
+
+/* ------------------ Template Buffers ------------------ */
+function bufferTemplate(templateObj, rank = 99) {
+  if (!templateObj || !templateObj.text) return;
+  // Use the text as a unique ID to avoid duplicates
+  if (!templateBuffer.some(t => t.text === templateObj.text)) {
+    templateBuffer.push({ ...templateObj, rank: rank });
+  }
+}
+
+/* ------------------ Insert Templates ------------------ */
+function insertTemplatesIntoDocument() {
+  if (templateBuffer.length === 0) return;
+
+  const body = DocumentApp.getActiveDocument().getBody();
+  // Sort by medical priority rank
+  templateBuffer.sort((a, b) => a.rank - b.rank);
+
+  let targetIndex = -1;
+
+  // Search for the "Comprehensive Summary" header
+  for (let i = 0; i < body.getNumChildren(); i++) {
+    const element = body.getChild(i);
+    if (element.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+
+    const p = element.asParagraph();
+    const text = p.getText().trim().toLowerCase();
+
+    // Relaxed check: Just looking for the words "comprehensive summary"
+    if (text === "comprehensive summary") {
+      targetIndex = i + 1;
+      break;
+    }
+  }
+
+  // Fallback: If no "Comprehensive Summary" header exists, put at the end
+  if (targetIndex === -1) {
+    targetIndex = body.getNumChildren();
+  }
+
+  // Insert each template and apply your existing styling
+  templateBuffer.forEach(tmpl => {
+    // This calls your existing function that handles boldKeys, linkKeys, and greenKeys
+    const insertedParas = insertTemplateAtIndex(body, tmpl, targetIndex);
+    
+    // Move the target index down by the number of paragraphs inserted
+    targetIndex += insertedParas.length;
+  });
+
+  // Clear buffer for the next run
+  templateBuffer = [];
+  }
+
 /* ------------------ FORMAT REGISTRY | Reset ------------------ */  
   const FORMAT_REGISTRY = {  
   DOG_VETERINARY_VISIT_SUMMARY:
@@ -619,6 +792,18 @@
   WEIGHT_HEADER:
   'Weight:',
 
+/* ------------------ FORMAT REGISTRY | Ophthalmology ------------------ */
+  BLIND_HEADER:
+  "Blind:",
+
+  BLIND_OBSTACLE_COURSE:
+  "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake.",
+
+  HALO_HARNESS_ARTICLE: {
+    text: "Halo harness",
+    url: `https://www.muffinshalo.com/`
+  },
+  
 /* ------------------ FORMAT REGISTRY | Cardiology ------------------ */
   HEART_MURMUR_ARTICLE: {
   text: "Heart Murmurs in Dogs and Cats article",
@@ -1010,36 +1195,31 @@
 /* ------------------ Reverse Template Generator ------------------ */
   function reverseGenerateTemplate() {
   const body = DocumentApp.getActiveDocument().getBody();
-  
   const reverseRegistryMap = getReverseRegistryMap();
 
-  if (typeof MEDICINE_REGISTRY === 'undefined') {
-    var MEDICINE_REGISTRY = {}; 
-  }
-
+  if (typeof MEDICINE_REGISTRY === 'undefined') { var MEDICINE_REGISTRY = {}; }
+  
+  const NEW_LINKS_REGISTRY = {};
   const boldKeys = new Set();
   const boldUnderlineKeys = new Set();
   const italicKeys = new Set();
   const greenKeys = new Set();
   const redKeys = new Set();
   const linkKeys = new Set();
-  
   const paragraphs = [];
 
   for (let i = 0; i < body.getNumChildren(); i++) {
     const element = body.getChild(i);
-
     if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
       const paragraph = element.asParagraph();
-      let text = paragraph.getText();
+      let text = paragraph.getText() || "";
       if (!text.trim() || text.includes("/* --- REVERSE")) continue;
 
-      const dynamicText = convertToDynamicPronouns(text);
-      paragraphs.push("`" + escapeBackticks(dynamicText) + "`");
+      paragraphs.push("`" + escapeBackticks(convertToDynamicPronouns(text)) + "`");
 
       extractFormattingSpans(paragraph.editAsText(), {
         boldKeys, boldUnderlineKeys, italicKeys, greenKeys, redKeys, linkKeys
-      }, reverseRegistryMap);
+      }, reverseRegistryMap, NEW_LINKS_REGISTRY);
     }
 
     if (element.getType() === DocumentApp.ElementType.TABLE) {
@@ -1048,32 +1228,21 @@
         const row = table.getRow(r);
         const rowData = [];
         for (let c = 0; c < row.getNumCells(); c++) {
-          rowData.push(row.getCell(c).getText().trim());
+          rowData.push((row.getCell(c).getText() || "").trim());
         }
-
         const label = rowData[0] || "";
         let drugBase = label.split(' ')[0].replace(/[^A-Za-z]/g, "").toUpperCase();
         if (!drugBase) continue;
-
-        // --- Handle medication suffixes ---
+        
         let drugName = drugBase;
-        if (label.toLowerCase().includes("injection")) {
-          drugName = drugBase + "INJECTION";
-        } else if (label.toLowerCase().includes("liquid") || label.toLowerCase().includes("oral susp")) {
-          drugName = drugBase + "LIQUID";
-        }
-
-        let instructions = rowData[1] || "";
-        const prefixMatch = instructions.match(/^(Starting today|Continue|Wait 3 days then start|Starting tomorrow|Discontinue|Given in clinic|New dose|As needed)\s*\n?/i);
-        if (prefixMatch) {
-          instructions = instructions.slice(prefixMatch[0].length).trim();
-        }
+        if (label.toLowerCase().includes("injection")) drugName += "INJECTION";
+        else if (label.toLowerCase().includes("liquid") || label.toLowerCase().includes("oral susp")) drugName += "LIQUID";
 
         if (!MEDICINE_REGISTRY[drugName]) {
           MEDICINE_REGISTRY[drugName] = {
-            label: label,
-            instructions: instructions,
-            class: rowData[2] || "Unknown",
+            label: label, 
+            instructions: rowData[1] || "",
+            class: rowData[2] || "Unknown", 
             sideEffects: rowData[3] || "Unknown"
           };
         }
@@ -1081,37 +1250,34 @@
     }
   }
 
-  const formatKeys = (set, isString = true) => {
-    return Array.from(set)
-      .sort()
-      .map(k => isString ? `"${k}"` : k)
-      .join(",\n      ");
-  };
+  const formatKeys = (set) => Array.from(set).sort().map(k => `"${k}"`).join(",\n      ");
 
+  // --- GENERATE REGISTRY CODE ---
   let registryCode = "/* ------------------ Updated Prescription Registry ------------------ */\nconst PRESCRIPTION_REGISTRY = {\n";
-  const sortedMedKeys = Object.keys(MEDICINE_REGISTRY).sort();
-  for (const key of sortedMedKeys) {
+  Object.keys(MEDICINE_REGISTRY).sort().forEach(key => {
     const med = MEDICINE_REGISTRY[key];
-    registryCode += `  ${key}: {\n`;
-    registryCode += `    label: "${med.label.replace(/"/g, '\\"')}",\n`;
-    registryCode += `    instructions: "${med.instructions.replace(/"/g, '\\"').replace(/\n/g, "\\n")}",\n`;
-    registryCode += `    class: "${med.class}",\n`;
-    registryCode += `    sideEffects: "${med.sideEffects}"\n`;
-    registryCode += `  },\n`;
-  }
-  registryCode += "};";
+    // Added String() wrapper and fallback to prevent .replace errors
+    const safeLabel = String(med.label || "").replace(/"/g, '\\"');
+    const safeInstr = String(med.instructions || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
+    
+    registryCode += `  ${key}: { label: "${safeLabel}", instructions: "${safeInstr}", class: "${med.class}", sideEffects: "${med.sideEffects}" },\n`;
+  });
+  registryCode += "};\n\n/* ------------------ New Format Registry Entries ------------------ */\n";
+  
+  Object.keys(NEW_LINKS_REGISTRY).sort().forEach(key => {
+    const link = NEW_LINKS_REGISTRY[key];
+    registryCode += `${key} = {\n  text: "${String(link.text).replace(/"/g, '\\"')}",\n  url: \`${link.url}\`\n};\n`;
+  });
 
-  const templateCode = `
-  /* ------------------ Generated Template ------------------ */
+  const templateCode = 
+  `/* ------------------ Generated Template ------------------ */
   function generateTemplate(sex) {
   const p = getPronoun(sex);
-  const text = [
-    ${paragraphs.join(",\n    ")}
-  ].join('\\n');
-
   return {
     sex,
-    text,
+    text: [
+      ${paragraphs.join(",\n      ")}
+    ].join('\\n'),
     boldKeys: [
       ${formatKeys(boldKeys)}
     ],
@@ -1132,9 +1298,7 @@
     ],
   };
   }
-
-  ${registryCode}
-  `;
+  ${registryCode}`;
 
   body.appendPageBreak();
   body.appendParagraph("/* --- REVERSE GENERATED CODE --- */").setHeading(DocumentApp.ParagraphHeading.HEADING2);
@@ -1142,63 +1306,57 @@
   }
 
   /* ------------------ Helpers ------------------ */
+
+  function cleanSpaces(str) { 
+  return str ? String(str).replace(/[\u00a0\s]+/g, " ").trim() : ""; 
+  }
+
   function getReverseRegistryMap() {
-  const reverseMap = {};
+  const reverseMap = { textToKey: {}, urlToKey: {} };
   if (typeof FORMAT_REGISTRY === 'undefined') return reverseMap;
   for (const key in FORMAT_REGISTRY) {
-    const value = FORMAT_REGISTRY[key];
-    if (typeof value === 'string') {
-      reverseMap[value.trim()] = key;
-    } 
-    else if (value && typeof value === 'object' && value.text) {
-      reverseMap[value.text.trim()] = key;
-    }
-    else if (typeof value === 'function') {
-      const testVal = value({ he:'he', him:'him', his:'his', He:'He', His:'His' });
-      if (typeof testVal === 'string') reverseMap[testVal.trim()] = key;
+    const val = FORMAT_REGISTRY[key];
+    if (typeof val === 'string') reverseMap.textToKey[cleanSpaces(val).toLowerCase()] = key;
+    else if (val && typeof val === 'object') {
+      if (val.text) reverseMap.textToKey[cleanSpaces(val.text).toLowerCase()] = key;
+      if (val.url) reverseMap.urlToKey[String(val.url).trim()] = key;
     }
   }
   return reverseMap;
   }
 
-  function extractFormattingSpans(textElement, keys, reverseMap) {
-  const text = textElement.getText();
+  function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
+  const text = textElement.getText() || "";
   let start = 0;
   while (start < text.length) {
-    const isBold = textElement.isBold(start);
-    const isUnderline = textElement.isUnderline(start);
-    const isItalic = textElement.isItalic(start);
-    const color = textElement.getForegroundColor(start);
-    const linkUrl = textElement.getLinkUrl(start);
-    
+    const isBold = textElement.isBold(start), isUnderline = textElement.isUnderline(start),
+          isItalic = textElement.isItalic(start), color = textElement.getForegroundColor(start),
+          linkUrl = textElement.getLinkUrl(start);
     let end = start;
-    while (end < text.length && 
-           textElement.isBold(end) === isBold && 
-           textElement.isUnderline(end) === isUnderline &&
-           textElement.isItalic(end) === isItalic &&
-           textElement.getForegroundColor(end) === color &&
-           textElement.getLinkUrl(end) === linkUrl) {
+    while (end < text.length && textElement.isBold(end) === isBold && textElement.isUnderline(end) === isUnderline &&
+           textElement.isItalic(end) === isItalic && textElement.getForegroundColor(end) === color && textElement.getLinkUrl(end) === linkUrl) {
       end++;
     }
-    
-    let span = text.substring(start, end).trim();
-    if (span.length > 1) {
-      const identifier = reverseMap[span] || span;
-      
-      if (linkUrl && reverseMap[span]) {
-        keys.linkKeys.add(reverseMap[span]);
-      }
-      
-      // Color priorities
-      const isGreen = (color === "#008000" || color === "#b6d7a8");
-      const isRed = (color === "#ff0000" || color === "#ea9999");
+    let rawSpan = text.substring(start, end);
+    let spanClean = cleanSpaces(rawSpan);
+    if (spanClean.length > 1) {
+      let identifier = reverseMap.textToKey[spanClean.toLowerCase()] || reverseMap.urlToKey[linkUrl] || spanClean;
 
-      if (isGreen) {
-        keys.greenKeys.add(identifier);
-      } else if (isRed) {
-        keys.redKeys.add(identifier);
-      } else {
-        // Only check Bold/Underline/Italic if NOT green or red
+      if (linkUrl) {
+        let linkKey = reverseMap.urlToKey[linkUrl] || reverseMap.textToKey[spanClean.toLowerCase()];
+        if (!linkKey) {
+          // Creates a variable name like HALO_HARNESS_ARTICLE
+          linkKey = spanClean.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
+          newLinksRegistry[linkKey] = { text: spanClean, url: linkUrl };
+        }
+        keys.linkKeys.add(linkKey);
+        identifier = linkKey;
+      }
+
+      const isGreen = (color === "#008000" || color === "#b6d7a8"), isRed = (color === "#ff0000" || color === "#ea9999");
+      if (isGreen) keys.greenKeys.add(identifier);
+      else if (isRed) keys.redKeys.add(identifier);
+      else if (!linkUrl) {
         if (isBold && isUnderline) keys.boldUnderlineKeys.add(identifier);
         else if (isBold) keys.boldKeys.add(identifier);
         if (isItalic) keys.italicKeys.add(identifier);
@@ -1209,22 +1367,15 @@
   }
 
   function convertToDynamicPronouns(text) {
-  const pronouns = {
-    " he ": " \${p.he} ", " she ": " \${p.he} ",
-    " him ": " \${p.him} ", " her ": " \${p.him} ",
-    " his ": " \${p.his} ", " hers ": " \${p.his} ",
-    " He ": " \${p.His} ", " She ": " \${p.His} " 
-  };
+  if (!text) return "";
+  const pronouns = { " he ": " \${p.he} ", " she ": " \${p.he} ", " him ": " \${p.him} ", " her ": " \${p.him} ", " his ": " \${p.his} ", " hers ": " \${p.his} ", " He ": " \${p.His} ", " She ": " \${p.His} " };
   let newText = text;
-  for (const [key, val] of Object.entries(pronouns)) {
-    const reg = new RegExp(key, "g");
-    newText = newText.replace(reg, val);
-  }
+  for (const [key, val] of Object.entries(pronouns)) { newText = newText.replace(new RegExp(key, "g"), val); }
   return newText;
   }
 
   function escapeBackticks(text) { 
-  return text.replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
+  return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
   }
 
 /* ------------------ 8 Week Wellness Template ------------------ */
@@ -1273,6 +1424,7 @@
   return {
     sex,
     text,
+    diagnoses: ["WELLNESS"],
     boldKeys: [
       'VACCINES_HEADER',
       'HEARTWORMS_HEADER',
@@ -1644,8 +1796,7 @@
   return template;
   }
 
-/* ------------------ Canine Diet Program | 1st ------------------ */
-
+/* ------------------ Canine Overweight | 1st ------------------ */
   function generateCanineOverweightTemplate(sex) {
   const p = getPronoun(sex);
 
@@ -1657,6 +1808,7 @@
   return {
     sex,
     text,
+    diagnoses: ["OVERWEIGHT"],
     boldKeys: [
       'WEIGHT_HEADER',
     ],
@@ -1678,7 +1830,7 @@
   };
   }
 
-/* ------------------ Canine Diet Program | 2nd, Continue ------------------ */
+/* ------------------ Canine Overweight | 2nd, Continue ------------------ */
 
   function generateCanineOverweight2Template(sex) {
   const p = getPronoun(sex);
@@ -1811,6 +1963,384 @@
       'RABIES_IN_ANIMALS_LINK',
       'TEXAS_RABIES_LINK',
     ]
+  };
+  }
+
+/* ------------------ Canine Blind | 0, Partial ------------------ */
+  function generateDogBlind0PartialTemplate(sex) {
+  const p = getPronoun(sex);
+  return {
+    sex,
+    text: [
+      `Blind: Your dog shows signs of being partially blind. A small amount of vision (enough to see shadows & shapes) is present, but not enough to read or drive. Keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
+    ].join('\n'),
+    boldKeys: [
+      "BLIND_HEADER"
+    ],
+    boldUnderlineKeys: [
+      
+    ],
+
+    linkKeys: [
+      "HALO_HARNESS_ARTICLE"
+    ],
+  };
+  }
+
+/* ------------------ Canine Blind | 1, Diagnosed ------------------ */
+  function generateDogBlind1Template(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Blind: Your dog shows signs of being completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      "BLIND_HEADER"
+    ],
+    boldUnderlineKeys: [
+      "BLIND_OBSTACLE_COURSE",
+    ],
+    
+    linkKeys: [
+      "HALO_HARNESS_ARTICLE",
+    ],
+  };
+  }
+
+/* ------------------ Canine Blind | 2, Known ------------------ */
+  function generateDogBlind2KnownTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Blind: Your dog is known to be completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      "BLIND_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "BLIND_OBSTACLE_COURSE"
+    ],
+
+    linkKeys: [
+      "HALO_HARNESS_ARTICLE",
+    ],
+  };
+  }
+
+/* ------------------ Canine Heart Murmur | 0th Discovered, No Tests ------------------ */
+  function generateDogHeartMurmur0Template(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease. Diagnosis involves X-rays to see the shape & size of the heart can be performed in clinic and an echocardiogram to look at the inner workings of the heart and find a cause of disease can be scheduled as well. `,
+    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+  ].join('\n');
+
+
+  return {
+    sex,
+    text,
+    diagnoses: ["HEARTMURMUR"],
+    boldKeys: [
+      "HEART_MURMUR_HEADER"
+      ],
+
+    boldUnderlineKeys: [
+      "HEART_MURMUR_HEARD",
+      "HEART_MURMUR_GRADING",
+      "HEART_MURMUR_WARNING_SIGNS"
+      ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+    
+    linkKeys: [
+      "HEART_MURMUR_ARTICLE",
+    ],
+  };
+  }
+
+/* ------------------ Canine Heart Murmur | 1st, Normal Radiographs ------------------ */
+  function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
+    `X-rays to see the shape & size of the heart were performed and your dog’s heart doesn’t appear to be concerningly enlarged. At this time treatment with medication is not warranted, but an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
+    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      "HEART_MURMUR_HEADER" 
+    ],
+
+    boldUnderlineKeys: [
+      "HEART_MURMUR_HEARD",
+      "HEART_MURMUR_GRADING",
+      "HEART_MURMUR_WARNING_SIGNS",
+      "SCHEDULE_ECHO", 
+      ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "DIAGNOSE",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+
+    linkKeys: [
+      "HEART_MURMUR_ARTICLE",
+    ]
+  };
+  }
+
+/* ------------------ Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan ------------------ */
+  function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
+    `Diagnosis includes the x-rays that we performed to see the shape & size of the heart. These x-rays show that the heart is enlarged. It is compressing the lungs and trachea to an extent, so your dog will be started on medication to help improve heart function and slow the progression of disease. An echocardiogram to look at the inner workings of the heart and find a cause of disease will need to be scheduled.`,
+    `In the meantime, give the medicine prescribed below as treatment to manage the disease. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      "HEART_MURMUR_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "DIAGNOSIS_RESET",
+      "HEART_MURMUR_GRADING",
+      "HEART_MURMUR_HEARD",
+      "HEART_MURMUR_WARNING_SIGNS",
+      "SCHEDULE_ECHO"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+
+    linkKeys: [
+      "HEART_MURMUR_ARTICLE"
+    ],
+  };
+  }
+
+/* ------------------ Canine Heart Murmur | 3rd, Known ------------------ */
+  function generateDogHeartMurmur3KnownTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+    `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      "HEART_MURMUR_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HEART_MURMUR_WARNING_SIGNS",
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+
+    linkKeys: [
+      "HEART_MURMUR_ARTICLE",
+    ]
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Mild ------------------ */
+  function generateDog1PeriodontalDiseaseTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
+  `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+    `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+    `DENTAL_BRUSHING`,
+    `MILD_DENTAL_DZ`,
+    `XYLITOL`,
+    ],
+
+    linkKeys: [
+    `SMALL_DOG_TOOTHBRUSH_LINK`,
+    `LARGE_TOOTHBRUSH_LINK`,
+    `TOOTHPASTE_LINK`,
+    `VOHC_DOG_LINK`,
+    ],
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Moderate  ------------------ */
+  function generateDog2PeriodontalDiseaseTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
+  `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+      `BRUSHING_LESS_EFFECTIVE`,
+      `COHAT_RECOMMENDED`,
+      `DENTAL_BRUSHING`,
+      `SCHEDULE_DENTAL`,
+      `XYLITOL`,
+    ],
+
+    linkKeys: [
+      `SMALL_DOG_TOOTHBRUSH_LINK`,
+      `LARGE_TOOTHBRUSH_LINK`,
+      `TOOTHPASTE_LINK`,
+      `VOHC_DOG_LINK`,
+    ],
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Severe  ------------------ */
+  function generateDog3PeriodontalDiseaseTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
+  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+      `COHAT_RECOMMENDED`,
+      `DENTAL_BRUSHING`,
+      `SCHEDULE_DENTAL`,
+      `SOFTEN_FOOD`,
+      `XYLITOL`,
+    ],
+
+    linkKeys: [
+      `SMALL_DOG_TOOTHBRUSH_LINK`,
+      `LARGE_TOOTHBRUSH_LINK`,
+      `TOOTHPASTE_LINK`,
+      `VOHC_DOG_LINK`,
+    ],
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Age Restricted  ------------------ */
+  function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
+  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+      `SOFTEN_FOOD`,
+    ],
+
+    linkKeys: [
+      `VOHC_DOG_LINK`,
+    ],
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Concurrent Disease  ------------------ */
+  function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+      `SOFTEN_FOOD`,
+    ],
+
+    linkKeys: [
+      `VOHC_DOG_LINK`,
+    ],
+  };
+  }
+
+/* ------------------ Canine Periodontal Disease | Heart Murmur  ------------------ */
+  function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
+  const p = getPronoun(sex);
+  const text = [
+  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+  ].join('\n');
+
+  return {
+    sex,
+    text,
+    boldKeys: [
+      `PERIODONTAL_DISEASE_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+      `SOFTEN_FOOD`,
+    ],
+
+    linkKeys: [
+      `VOHC_DOG_LINK`,
+    ],
   };
   }
 
@@ -2085,176 +2615,6 @@
   };
   }
 
-/* ------------------ Canine Periodontal Disease | Mild ------------------ */
-  function generateDog1PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
-  `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-    `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-    `DENTAL_BRUSHING`,
-    `MILD_DENTAL_DZ`,
-    `XYLITOL`,
-    ],
-
-    linkKeys: [
-    `SMALL_DOG_TOOTHBRUSH_LINK`,
-    `LARGE_TOOTHBRUSH_LINK`,
-    `TOOTHPASTE_LINK`,
-    `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
-/* ------------------ Canine Periodontal Disease | Moderate  ------------------ */
-  function generateDog2PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
-  `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-      `BRUSHING_LESS_EFFECTIVE`,
-      `COHAT_RECOMMENDED`,
-      `DENTAL_BRUSHING`,
-      `SCHEDULE_DENTAL`,
-      `XYLITOL`,
-    ],
-
-    linkKeys: [
-      `SMALL_DOG_TOOTHBRUSH_LINK`,
-      `LARGE_TOOTHBRUSH_LINK`,
-      `TOOTHPASTE_LINK`,
-      `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
-/* ------------------ Canine Periodontal Disease | Severe  ------------------ */
-  function generateDog3PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
-  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-      `COHAT_RECOMMENDED`,
-      `DENTAL_BRUSHING`,
-      `SCHEDULE_DENTAL`,
-      `SOFTEN_FOOD`,
-      `XYLITOL`,
-    ],
-
-    linkKeys: [
-      `SMALL_DOG_TOOTHBRUSH_LINK`,
-      `LARGE_TOOTHBRUSH_LINK`,
-      `TOOTHPASTE_LINK`,
-      `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
-/* ------------------ Canine Periodontal Disease | Age Restricted  ------------------ */
-  function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
-  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-      `SOFTEN_FOOD`,
-    ],
-
-    linkKeys: [
-      `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
-/* ------------------ Canine Periodontal Disease | Concurrent Disease  ------------------ */
-  function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-      `SOFTEN_FOOD`,
-    ],
-
-    linkKeys: [
-      `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
-/* ------------------ Canine Periodontal Disease | Heart Murmur  ------------------ */
-  function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      `PERIODONTAL_DISEASE_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-      `SOFTEN_FOOD`,
-    ],
-
-    linkKeys: [
-      `VOHC_DOG_LINK`,
-    ],
-  };
-  }
-
 /* ------------------ Canine Osteoarthritis | 1st NSAID, Initial ------------------ */
   function generateDogOsteoarthritis1NSAIDTemplate(sex) {
   const p = getPronoun(sex);
@@ -2463,143 +2823,6 @@
   };
   }  
 
-/* ------------------ Canine Heart Murmur | 0th Discovered, No Tests ------------------ */
-  function generateDogHeartMurmur0Template(sex) {
-  const p = getPronoun(sex);
-  const text = [
-    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease. Diagnosis involves X-rays to see the shape & size of the heart can be performed in clinic and an echocardiogram to look at the inner workings of the heart and find a cause of disease can be scheduled as well. `,
-    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      "HEART_MURMUR_HEADER"
-      ],
-
-    boldUnderlineKeys: [
-      "HEART_MURMUR_HEARD",
-      "HEART_MURMUR_GRADING",
-      "HEART_MURMUR_WARNING_SIGNS"
-      ],
-
-    greenKeys: [
-      "COMMON_CAUSES",
-      "DIAGNOSIS",
-      "SYMPTOMS",
-      "TREATMENT",
-    ],
-    linkKeys: [
-      "HEART_MURMUR_ARTICLE",
-    ]
-  };
-  }
-
-/* ------------------ Canine Heart Murmur | 1st, Normal Radiographs ------------------ */
-  function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
-    `X-rays to see the shape & size of the heart were performed and your dog’s heart doesn’t appear to be concerningly enlarged. At this time treatment with medication is not warranted, but an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
-    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      "HEART_MURMUR_HEADER" 
-    ],
-
-    boldUnderlineKeys: [
-      "HEART_MURMUR_HEARD",
-      "HEART_MURMUR_GRADING",
-      "HEART_MURMUR_WARNING_SIGNS",
-      "SCHEDULE_ECHO", 
-      ],
-
-    greenKeys: [
-      "COMMON_CAUSES",
-      "DIAGNOSE",
-      "SYMPTOMS",
-      "TREATMENT",
-    ],
-
-    linkKeys: [
-      "HEART_MURMUR_ARTICLE",
-    ]
-  };
-  }
-
-/* ------------------ Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan ------------------ */
-  function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-    `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
-    `Diagnosis includes the x-rays that we performed to see the shape & size of the heart. These x-rays show that the heart is enlarged. It is compressing the lungs and trachea to an extent, so your dog will be started on medication to help improve heart function and slow the progression of disease. An echocardiogram to look at the inner workings of the heart and find a cause of disease will need to be scheduled.`,
-    `In the meantime, give the medicine prescribed below as treatment to manage the disease. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      "HEART_MURMUR_HEADER"
-    ],
-
-    boldUnderlineKeys: [
-      "DIAGNOSIS_RESET",
-      "HEART_MURMUR_GRADING",
-      "HEART_MURMUR_HEARD",
-      "HEART_MURMUR_WARNING_SIGNS",
-      "SCHEDULE_ECHO"
-    ],
-
-    greenKeys: [
-      "COMMON_CAUSES",
-      "DIAGNOSIS",
-      "SYMPTOMS",
-      "TREATMENT",
-    ],
-
-    linkKeys: [
-      "HEART_MURMUR_ARTICLE"
-    ],
-  };
-  }
-
-/* ------------------ Canine Heart Murmur | 3rd, Known ------------------ */
-  function generateDogHeartMurmur3KnownTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-    `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
-
-  return {
-    sex,
-    text,
-    boldKeys: [
-      "HEART_MURMUR_HEADER"
-    ],
-
-    boldUnderlineKeys: [
-      "HEART_MURMUR_WARNING_SIGNS",
-    ],
-
-    greenKeys: [
-      "COMMON_CAUSES",
-      "DIAGNOSIS",
-      "SYMPTOMS",
-      "TREATMENT",
-    ],
-
-    linkKeys: [
-      "HEART_MURMUR_ARTICLE",
-    ]
-  };
-  }
-
 /* ------------------ TEMPLATE DEFINITIONS ------------------ */
   const RAW_TEMPLATE_DEFINITIONS = {
   '/ieolibrary': function () {
@@ -2654,6 +2877,11 @@
   '/cHealthyWeightFemale': () => generateDogHealthyWeightTemplate('female'),
   '/cUnderweightMale': () => generateDogUnderweightTemplate('male'),
   '/cUnderweightFemale': () => generateDogUnderweightTemplate('female'),
+
+  /* ------------------ Canine Ophthalmology ------------------ */
+  '/cBlind0Partial': () => generateDogBlind0PartialTemplate(),
+  '/cBlind1': () => generateDogBlind1Template(),
+  '/cBlind2Known': () => generateDogBlind2KnownTemplate(),
 
   /* ------------------ Canine Cardiology ------------------ */
   '/cHeartMurmur0': () => generateDogHeartMurmur0Template(),
@@ -2736,64 +2964,88 @@
   return output.join('\n');
   }
 
+/* ------------------ EXPAND KEYWORDS ------------------ */
 function expandKeywords() {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
-  
-  // This pattern finds ANY word starting with / (Case Insensitive)
-  const combinedPattern = '\\/[a-zA-Z0-9]+'; 
+  // Improved pattern to capture brackets for medications
+  const combinedPattern = '\\/[a-zA-Z0-9]+(\\[.*?\\])*'; 
 
   let searchResult = null;
   const matches = [];
 
+  // 1. COLLECT ALL KEYWORDS
   while ((searchResult = body.findText(combinedPattern, searchResult))) {
-    matches.push(searchResult);
-  }
-
-  // Iterate BACKWARDS to keep document indices stable
-  for (let i = matches.length - 1; i >= 0; i--) {
-    const result = matches[i];
-    const textElement = result.getElement().asText();
-    if (!textElement || !textElement.getParent()) continue;
-
-    // Grab the exact text from the doc
+    const textElement = searchResult.getElement().asText();
     const matchedText = textElement.getText().substring(
-      result.getStartOffset(),
-      result.getEndOffsetInclusive() + 1
+      searchResult.getStartOffset(),
+      searchResult.getEndOffsetInclusive() + 1
     ).trim();
+    
+    matches.push({
+      text: matchedText,
+      normalized: matchedText.toLowerCase(),
+      element: textElement,
+      start: searchResult.getStartOffset(),
+      end: searchResult.getEndOffsetInclusive()
+    });
+  }
 
-    const normalized = matchedText.toLowerCase();
-    const parent = textElement.getParent();
-    const insertIndex = body.getChildIndex(parent);
+  // 2. DELETE KEYWORDS FROM DOC (Backwards to maintain indices)
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const m = matches[i];
+    const parent = m.element.getParent();
+    m.element.deleteText(m.start, m.end);
+    if (parent.asParagraph().getText().trim() === "") {
+      if (body.getNumChildren() > 1) body.removeChild(parent);
+    }
+  }
 
-    // 1. Check if it's a Standard Template
-    const templateFn = TEMPLATE_DEFINITIONS[normalized];
+  // 3. PRIORITY PASS: Handle Resets First
+  const resetMatch = matches.find(m => m.normalized.endsWith('reset'));
+  if (resetMatch) {
+    const templateFn = TEMPLATE_DEFINITIONS[resetMatch.normalized];
     if (templateFn) {
-      textElement.deleteText(result.getStartOffset(), result.getEndOffsetInclusive());
       const template = templateFn();
-      if (template.customAction) {
-        template.customAction();
-      } else {
-        insertTemplateAtIndex(body, template, insertIndex);
-      }
-      if (parent.asParagraph().getText() === "") body.removeChild(parent);
-      continue; 
-    }
+      
+      // CLEAR the body for a true reset
+      body.clear(); 
+      // Insert the structural template at the top (index 0)
+      insertTemplateAtIndex(body, template, 0);
 
-    // 2. Check if it's a Medication Command (Mixed Case handled inside)
-    if (normalized.startsWith("/c")) {
-      const medRow = processMedicationCommand(matchedText); // Pass original text!
-      if (medRow) {
-        TABLE_ROW_BUFFER.push(medRow);
-        textElement.deleteText(result.getStartOffset(), result.getEndOffsetInclusive());
-        if (parent.asParagraph().getText() === "") body.removeChild(parent);
-      }
+      // Run any custom logic if it exists
+      if (template.customAction) template.customAction();
     }
   }
 
-  if (TABLE_ROW_BUFFER.length > 0) {
-    generateMedicineTableFromBuffer();
-  }
+  // 4. SECOND PASS: Process medications and buffer standard templates
+  matches.forEach(m => {
+    if (m.normalized.endsWith('reset')) return; // Already handled
+
+    const templateFn = TEMPLATE_DEFINITIONS[m.normalized];
+    if (templateFn) {
+      const template = templateFn();
+      let rank = 99;
+      if (template.diagnoses && template.diagnoses.length > 0) {
+        bufferDiagnoses(template.diagnoses);
+        const firstKey = template.diagnoses[0];
+        rank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 99;
+      }
+      bufferTemplate(template, rank);
+      if (template.customAction) template.customAction();
+    }
+
+    // Medication Command Logic
+    if (m.normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[m.normalized]) {
+      const medRow = processMedicationCommand(m.text);
+      if (medRow) TABLE_ROW_BUFFER.push(medRow);
+    }
+  });
+
+  // 5. FINAL FLUSH: Insert into the now-existing structure
+  if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
+  insertDiagnosesIntoDocument();
+  insertTemplatesIntoDocument();
   }
 
 /* ------------------ REGEX HELPERS ------------------ */
@@ -2979,7 +3231,7 @@ function generateMedicineTableFromBuffer() {
 
   // 4. Define the Header (Standard for all medication tables)
   const headerRow = ["Medication", "Instructions", "Class", "Side Effects"];
-  const headerColor = "#f3f3f3"; // Light grey header
+  const headerColor = null; // Transparent
 
   // 5. Deduplicate and Sort
   const seen = new Set();
@@ -3187,20 +3439,15 @@ if (rowColor) {
   function expandKeywordsFromSidebar(keyword) {
   if (keyword.toLowerCase() === "/generatemedicinetable") {
     generateMedicineTableFromBuffer();
+    insertDiagnosesIntoDocument();
     return;
   }
 
   const body = DocumentApp.getActiveDocument().getBody();
-  const paragraphs = body.getParagraphs();
+  const insertIndex = body.getNumChildren();
 
-  // If there's only one paragraph, just replace its text instead of removing
-  if (paragraphs.length === 1) {
-    paragraphs[0].setText(resolveTemplate(keyword));
-  } else {
-    const insertIndex = body.getNumChildren();
-    insertTemplateAtIndex(body, resolveTemplate(keyword), insertIndex);
-  }
+  insertTemplateAtIndex(body, resolveTemplate(keyword), insertIndex);
 
-  // Always update the medicine table buffer
   generateMedicineTableFromBuffer();
+  insertDiagnosesIntoDocument();
   }
