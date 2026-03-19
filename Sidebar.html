@@ -208,108 +208,126 @@
     </div>
 
     <!-- SCRIPT -->
-    <script>
+  <script>
+    // Helper to clear search and reset UI
+    function clearSearch() {
+    const searchBox = document.getElementById('searchBox');
+    searchBox.value = '';
+    // Trigger the input event manually to reset the visibility of categories
+    const event = new Event('input');
+    searchBox.dispatchEvent(event);
+    }
 
-function expandKeywords() {
-  google.script.run
-    .withFailureHandler(err => {
-      alert('Error expanding keywords: ' + err.message);
-    })
-    .expandKeywords();
-}
+    function expandKeywords() {
+    const btn = event.currentTarget;
+    const originalText = btn.innerText;
+    btn.innerText = "Generating...";
+    btn.disabled = true;
 
-function toggleCategory(header) {
-  const content = header.nextElementSibling;
-  content.style.display = content.style.display === 'block' ? 'none' : 'block';
-}
+    google.script.run
+      .withSuccessHandler(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        clearSearch(); // Clear search after success
+      })
+      .withFailureHandler(err => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        alert('Error expanding keywords: ' + err.message);
+      })
+      .expandKeywords();
+    }
 
-function insertTemplate(keyword) {
-  const btn = event.currentTarget; // Get the clicked button
-  const originalText = btn.innerText;
-  btn.innerText = "Inserting...";
-  btn.disabled = true;
+    function toggleCategory(header) {
+    const content = header.nextElementSibling;
+    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    }
 
-  google.script.run
-    .withSuccessHandler(() => {
-      btn.innerText = originalText;
-      btn.disabled = false;
-    })
-    .withFailureHandler(err => {
-      btn.innerText = originalText;
-      btn.disabled = false;
-      alert('Error: ' + err.message);
-    })
-    .expandKeywordsFromSidebar(keyword);
-}
+    function insertTemplate(keyword) {
+    const btn = event.currentTarget; 
+    const originalText = btn.innerText;
+    btn.innerText = "Inserting...";
+    btn.disabled = true;
 
-function runReverseGenerator(){
-  google.script.run
-    .withFailureHandler(err => {
-      alert('Reverse generator error: ' + err.message);
-    })
-    .reverseGenerateTemplate();
-}
+    google.script.run
+      .withSuccessHandler(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        clearSearch(); // Clear search after success
+      })
+      .withFailureHandler(err => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        alert('Error: ' + err.message);
+      })
+      .expandKeywordsFromSidebar(keyword);
+    }
 
-document.addEventListener("DOMContentLoaded", function(){
+    function runReverseGenerator(){
+    const btn = event.currentTarget;
+    const originalText = btn.innerText;
+    btn.innerText = "...gnitareneG";
+    btn.disabled = true;
 
-  const searchBox = document.getElementById('searchBox');
+    google.script.run
+      .withSuccessHandler(() => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        clearSearch(); // Clear search after success
+      })
+      .withFailureHandler(err => {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        alert('Reverse generator error: ' + err.message);
+      })
+      .reverseGenerateTemplate();
+    }
 
-  searchBox.addEventListener('input', function() {
+    document.addEventListener("DOMContentLoaded", function(){
+    const searchBox = document.getElementById('searchBox');
 
-    const query = searchBox.value.toLowerCase().trim();
-    const categories = document.querySelectorAll('.category');
-    const topLevelButtons = document.querySelectorAll('body > .template-button');
+    searchBox.addEventListener('input', function() {
+      const query = searchBox.value.toLowerCase().trim();
+      const categories = document.querySelectorAll('.category');
+      const topLevelButtons = document.querySelectorAll('body > .template-button');
 
-    // If search cleared → restore everything
-    if (query === '') {
+      if (query === '') {
+        topLevelButtons.forEach(btn => { btn.style.display = 'block'; });
+        categories.forEach(cat => {
+          cat.style.display = 'block';
+          const content = cat.querySelector('.category-content');
+          content.style.display = 'none';
+          const buttons = cat.querySelectorAll('.template-button');
+          buttons.forEach(btn => btn.style.display = 'block');
+        });
+        return;
+      }
 
       topLevelButtons.forEach(btn => {
-        btn.style.display = 'block';
+        const isMatch = btn.textContent.toLowerCase().includes(query);
+        btn.style.display = isMatch ? 'block' : 'none';
       });
 
       categories.forEach(cat => {
-        cat.style.display = 'block';
         const content = cat.querySelector('.category-content');
-        content.style.display = 'none';
-
         const buttons = cat.querySelectorAll('.template-button');
-        buttons.forEach(btn => btn.style.display = 'block');
+        let categoryHasMatch = false;
+
+        buttons.forEach(btn => {
+          const isMatch = btn.textContent.toLowerCase().includes(query);
+          btn.style.display = isMatch ? 'block' : 'none';
+          if (isMatch) categoryHasMatch = true;
+        });
+
+        if (categoryHasMatch) {
+          cat.style.display = 'block';
+          content.style.display = 'block';
+        } else {
+          cat.style.display = 'none';
+        }
       });
-
-      return;
-    }
-
-    // Filter top-level buttons
-    topLevelButtons.forEach(btn => {
-      const isMatch = btn.textContent.toLowerCase().includes(query);
-      btn.style.display = isMatch ? 'block' : 'none';
     });
-
-    // Filter categories
-    categories.forEach(cat => {
-
-      const content = cat.querySelector('.category-content');
-      const buttons = cat.querySelectorAll('.template-button');
-
-      let categoryHasMatch = false;
-
-      buttons.forEach(btn => {
-        const isMatch = btn.textContent.toLowerCase().includes(query);
-        btn.style.display = isMatch ? 'block' : 'none';
-        if (isMatch) categoryHasMatch = true;
-      });
-
-      if (categoryHasMatch) {
-        cat.style.display = 'block';
-        content.style.display = 'block';
-      } else {
-        cat.style.display = 'none';
-      }
-
     });
-  });
-  });
-
-</script>
+    </script>
   </body>
 </html>
