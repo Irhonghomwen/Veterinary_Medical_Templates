@@ -1,4 +1,4 @@
-/* ------------------ Medical Template UI ------------------ */
+/* ------------------ UI, PRONOUN HELPER, & REGISTRY ------------------ */
   function onOpen() {
   const ui = DocumentApp.getUi();
   
@@ -11,17 +11,35 @@
     showSidebar();
   }
 
-/* ------------------ Pronoun Helper ------------------ */
+  /* ------------------ Pronoun Helper ------------------ */
   function getPronoun(sex) {
   return sex === 'female'
   ? { he: 'she', He: 'She', him: 'her', Him: 'Her', his: 'her', His: 'Her' }
   : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His' };
   }
-  
-/* ------------------ Global Row Buffer ------------------ */
-  let TABLE_ROW_BUFFER = [];
 
+  /* ------------------ Style Registry ------------------ */
+  const STYLE_REGISTRY = {
+  bold: { bold: true },
+  boldUnderline: { bold: true, underline: true },
+  italic: { italic: true },
+  green: { bold: true, underline: true, color: '#6aa84f' },
+  red: { bold: true, underline: true, color: '#ff0000' },
+  doubleSpaced: { lineSpacing: 2.0 },
+  title: { alignment: 'center', fontSize: 20, lineSpacing: 2.0 }
+  };
+
+  /* ------------------ Table Colour Registry ------------------ */
+  const TABLE_COLOR_REGISTRY = {
+  red: '#EA9999',
+  yellow: '#FFE599',
+  green: '#B6D7A8',
+  blue: '#A4C2F4',
+  purple: '#B4A7D6',
+  };
+  
 /* ------------------ Medicine Registry ------------------ */
+  let TABLE_ROW_BUFFER = [];
   const MEDICINE_REGISTRY = {
 
   ADEQUANINJECTION: {
@@ -150,6 +168,12 @@
   sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
   },
 
+  SYNOTICLIQUID: {
+  label: "Synotic Otic Solution",
+  instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
+  class: "Corticosteroid",
+  sideEffects: "May cause short term ear discomfort or increased thirst/urination." },
+
   ZENRELIA: {
   label: "Zenrelia 15mg (ilunocitinib)",
   instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
@@ -211,30 +235,11 @@
   return MED_COMMAND_LOOKUP[cmd] || null;
   }
 
-/* ------------------ Style Registry ------------------ */
-  const STYLE_REGISTRY = {
-  bold: { bold: true },
-  boldUnderline: { bold: true, underline: true },
-  italic: { italic: true },
-  green: { bold: true, underline: true, color: '#6aa84f' },
-  red: { bold: true, underline: true, color: '#ff0000' },
-  doubleSpaced: { lineSpacing: 2.0 },
-  title: { alignment: 'center', fontSize: 20, lineSpacing: 2.0 }
-  };
-
-/* ------------------ Table Colour Registry ------------------ */
-  const TABLE_COLOR_REGISTRY = {
-  red: '#EA9999',
-  yellow: '#FFE599',
-  green: '#B6D7A8',
-  blue: '#A4C2F4',
-  purple: '#B4A7D6',
-  };
-
-/* ------------------ Diagnosis Registry ------------------ */
-const DIAGNOSIS_REGISTRY = {
+/* ------------------ DIAGNOSIS & TEMPLATE BUFFER/RANKING ------------------ */
+  /* ------------------ Diagnosis Registry ------------------ */
+  const DIAGNOSIS_REGISTRY = {
   ATOPIC_DERMATITIS: {
-    text: "Atopic dermatitis",
+    text: "Atopic dermatitis (allergies)",
     rank: 5
   },
 
@@ -243,49 +248,86 @@ const DIAGNOSIS_REGISTRY = {
     rank: 7
   },
 
-  HEARTMURMUR: {
+  HEART_MURMUR: {
     text: "Heart murmur",
     rank: 1
   },
 
   OSTEOARTHRITIS: {
-    text: "Osteoarthritis",
+    text: "Osteoarthritis (arthritis)",
     rank: 2
   },
 
   OTITIS: {
-    text: "Otitis externa",
-    rank: 3
+    text: "Otitis externa (ear infection)",
+    rank: 4
   },
 
   OVERWEIGHT: {
     text: "Overweight",
-    rank: 6
+    rank: 7
   },
 
-  PERIODONTAL_DISEASE: {
+  PARTIALLY_BLIND: {
+    text: "Partially blind",
+    rank: 9
+  },
+
+  PARTIALLY_VACCINATED: {
+    text: "Partially vaccinated",
+    rank: 98
+  },
+
+  MILD_PERIODONTAL_DISEASE: {
+    text: "Mild periodontal disease",
+    rank: 3
+  },
+
+  MODERATE_PERIODONTAL_DISEASE: {
+    text: "Moderate periodontal disease",
+    rank: 3
+  },
+
+  PERIODONTAL_PERIODONTAL_DISEASE: {
     text: "Periodontal disease",
-    rank: 2
+    rank: 3
+  },
+
+  SEVERE_PERIODONTAL_DISEASE: {
+    text: "Severe periodontal disease",
+    rank: 3
   },
 
   UNDERWEIGHT: {
     text: "Underweight",
-    rank: 3
+    rank: 6
   },
   };
 
-/* ------------------ Diagnosis & Template Buffer ------------------ */
+  /* ------------------ Diagnosis & Template Buffers ------------------ */
+    let diagnosisBuffer = [];
+    let templateBuffer = [];
 
-  let diagnosisBuffer = [];
-  let templateBuffer = [];
+    /* ------------------ Shared: Insert With Format Break ------------------ */
+    function insertWithFormatBreak(body, index, insertFn) {
+    const breaker = body.insertParagraph(index, " ");
+    breaker.setBold(false);
+    breaker.setUnderline(false);
+    breaker.setItalic(false);
+    breaker.setForegroundColor("#000000");
+    breaker.setLineSpacing(1.0);
 
-  /* ------------------ Add Diagnosis Codes ------------------ */
-  function bufferDiagnoses(keys) {
+    const result = insertFn(index + 1);
 
-  if (!keys) return;
+    breaker.removeFromParent();
+    return result;
+    }
 
-  keys.forEach(key => {
+    /* ------------------ Add Diagnosis Codes ------------------ */
+    function bufferDiagnoses(keys) {
+    if (!keys) return;
 
+    keys.forEach(key => {
     const diag = DIAGNOSIS_REGISTRY[key];
     if (!diag) return;
 
@@ -295,23 +337,22 @@ const DIAGNOSIS_REGISTRY = {
         rank: diag.rank
       });
     }
+    });
+    }
 
-  });
-  }
+    /* ------------------ Sort Diagnosis Buffer ------------------ */
+    function sortDiagnosisBuffer() {
+    diagnosisBuffer.sort((a, b) => a.rank - b.rank);
+    }
 
-  /* ------------------ Sort Buffer ------------------ */
-  function sortDiagnosisBuffer() {
-  diagnosisBuffer.sort((a, b) => a.rank - b.rank);
-  }
+    /* ------------------ Insert Diagnoses ------------------ */
+    function insertDiagnosesIntoDocument() {
+    if (diagnosisBuffer.length === 0) return;
 
-  /* ------------------ Insert Diagnoses ------------------ */
-  function insertDiagnosesIntoDocument() {
-  if (diagnosisBuffer.length === 0) return;
+    const body = DocumentApp.getActiveDocument().getBody();
+    sortDiagnosisBuffer();
 
-  const body = DocumentApp.getActiveDocument().getBody();
-  sortDiagnosisBuffer();
-
-  for (let i = 0; i < body.getNumChildren(); i++) {
+    for (let i = 0; i < body.getNumChildren(); i++) {
     const element = body.getChild(i);
     if (element.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
@@ -327,84 +368,81 @@ const DIAGNOSIS_REGISTRY = {
 
     const color = textObj.getForegroundColor(0);
     const isGreen = (color === "#008000" || color === "#6aa84f" || color === "#b6d7a8");
-    if (isGreen) continue; 
+    if (isGreen) continue;
 
-    // --- NEW: Capture Indentation from the "Diagnosis" header ---
+    // Capture formatting from header
     const indentFirstLine = paragraph.getIndentFirstLine();
     const indentStart = paragraph.getIndentStart();
     const lineSpacing = paragraph.getLineSpacing();
 
-    // Insertion Logic
-    let insertIndex = i + 1;
-    diagnosisBuffer.forEach(diag => {
-      const newPara = body.insertParagraph(insertIndex, diag.text);
-      
-      // --- NEW: Apply the captured indentation to the new line ---
-      newPara.setIndentFirstLine(indentFirstLine);
-      newPara.setIndentStart(indentStart);
-      newPara.setLineSpacing(lineSpacing);
-      
-      insertIndex++;
+    insertWithFormatBreak(body, i + 1, (insertIndex) => {
+      diagnosisBuffer.forEach(diag => {
+        const newPara = body.insertParagraph(insertIndex, diag.text);
+
+        newPara.setIndentFirstLine(indentFirstLine);
+        newPara.setIndentStart(indentStart);
+        newPara.setLineSpacing(lineSpacing);
+
+        insertIndex++;
+      });
     });
 
     diagnosisBuffer = [];
-    return; 
-  }
-  }
+    return;
+    }
+    }
 
-/* ------------------ Template Buffers ------------------ */
-function bufferTemplate(templateObj, rank = 99) {
-  if (!templateObj || !templateObj.text) return;
-  // Use the text as a unique ID to avoid duplicates
-  if (!templateBuffer.some(t => t.text === templateObj.text)) {
+    /* ------------------ Template Buffer ------------------ */
+    function bufferTemplate(templateObj, rank = 99) {
+    if (!templateObj || !templateObj.text) return;
+
+    if (!templateBuffer.some(t => t.text === templateObj.text)) {
     templateBuffer.push({ ...templateObj, rank: rank });
-  }
-}
+    }
+    }
 
-/* ------------------ Insert Templates ------------------ */
-function insertTemplatesIntoDocument() {
-  if (templateBuffer.length === 0) return;
+    /* ------------------ Insert Templates ------------------ */
+    function insertTemplatesIntoDocument() {
+    if (templateBuffer.length === 0) return;
 
-  const body = DocumentApp.getActiveDocument().getBody();
-  // Sort by medical priority rank
-  templateBuffer.sort((a, b) => a.rank - b.rank);
+    const body = DocumentApp.getActiveDocument().getBody();
 
-  let targetIndex = -1;
+    // Sort templates by medical priority
+    templateBuffer.sort((a, b) => a.rank - b.rank);
 
-  // Search for the "Comprehensive Summary" header
-  for (let i = 0; i < body.getNumChildren(); i++) {
+    let targetIndex = -1;
+
+    // Locate "Comprehensive Summary"
+    for (let i = 0; i < body.getNumChildren(); i++) {
     const element = body.getChild(i);
     if (element.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
     const p = element.asParagraph();
     const text = p.getText().trim().toLowerCase();
 
-    // Relaxed check: Just looking for the words "comprehensive summary"
     if (text === "comprehensive summary") {
       targetIndex = i + 1;
       break;
     }
-  }
+    }
 
-  // Fallback: If no "Comprehensive Summary" header exists, put at the end
-  if (targetIndex === -1) {
+    // Fallback: end of document
+    if (targetIndex === -1) {
     targetIndex = body.getNumChildren();
-  }
+    }
 
-  // Insert each template and apply your existing styling
-  templateBuffer.forEach(tmpl => {
-    // This calls your existing function that handles boldKeys, linkKeys, and greenKeys
-    const insertedParas = insertTemplateAtIndex(body, tmpl, targetIndex);
-    
-    // Move the target index down by the number of paragraphs inserted
-    targetIndex += insertedParas.length;
-  });
+    insertWithFormatBreak(body, targetIndex, (insertIndex) => {
+    templateBuffer.forEach(tmpl => {
+      const insertedParas = insertTemplateAtIndex(body, tmpl, insertIndex);
+      insertIndex += insertedParas.length;
+    });
+    });
 
-  // Clear buffer for the next run
-  templateBuffer = [];
-  }
+    templateBuffer = [];
+    }
 
-/* ------------------ FORMAT REGISTRY | Reset ------------------ */  
+/* ------------------ FORMAT REGISTRY ------------------ */
+  /* ------------------ Reset ------------------ */  
   const FORMAT_REGISTRY = {  
   DOG_VETERINARY_VISIT_SUMMARY:
   `🐶 Your Dog's Veterinary Visit Summary 🐕`,
@@ -490,7 +528,7 @@ function insertTemplatesIntoDocument() {
   RESULTS_PENDING:
   `Results pending`,
 
-/* ------------------ FORMAT REGISTRY | Vaccines ------------------ */  
+  /* ------------------ Vaccines ------------------ */  
   BORDETELLA_VXN:
   'The 1 year bordetella vaccine',
 
@@ -544,7 +582,7 @@ function insertTemplatesIntoDocument() {
   VXN_RXN:
   'Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads).',
 
-/* ------------------ FORMAT REGISTRY | Heartworms & Labwork ------------------ */
+  /* ------------------ Heartworms & Labwork ------------------ */
   HEARTWORMS_HEADER:
   'Heartworms:',
 
@@ -557,7 +595,7 @@ function insertTemplatesIntoDocument() {
   LABWORK:
   'Early detection labwork:',
 
-/* ------------------ FORMAT REGISTRY | Spay & Neuter ------------------ */
+  /* ------------------ Spay & Neuter ------------------ */
   LARGE_NEUTER: pronoun =>
   `It is recommended you have ${pronoun.him} neutered once ${pronoun.he} is 10 - 12 months old if you don’t intend to breed ${pronoun.him}.`,
   
@@ -578,7 +616,7 @@ function insertTemplatesIntoDocument() {
 
   SPAY_HEADER: 'Spay:',
 
-/* ------------------ FORMAT REGISTRY | Diet ------------------ */
+  /* ------------------ Diet ------------------ */
   DIET_HEADER:
   'Food:',
 
@@ -675,7 +713,7 @@ function insertTemplatesIntoDocument() {
   url: 'https://www.royalcanin.com/us/dogs/products/senior-dog-food?lifestage=ageing|mature&digital_sub_category=wet_food'
   },
 
-/* ------------------ FORMAT REGISTRY | Dental ------------------ */
+  /* ------------------ Dental ------------------ */
   BRUSHING_LESS_EFFECTIVE:
   `Brushing can still be performed right now but will be most effective after the next cleaning.`,
 
@@ -725,7 +763,7 @@ function insertTemplatesIntoDocument() {
   XYLITOL:
   '(make sure xylitol isn’t listed as an ingredient),',
 
-/* ------------------ FORMAT REGISTRY | Weight Management ------------------ */
+  /* ------------------ Weight Management ------------------ */
   DIET_LIFESPAN: pronoun =>
   `Helping ${pronoun.him} to lose weight can increase ${pronoun.his} life span by as much as 1 ½ years.`,
 
@@ -792,7 +830,7 @@ function insertTemplatesIntoDocument() {
   WEIGHT_HEADER:
   'Weight:',
 
-/* ------------------ FORMAT REGISTRY | Ophthalmology ------------------ */
+  /* ------------------ Ophthalmology ------------------ */
   BLIND_HEADER:
   "Blind:",
 
@@ -804,7 +842,7 @@ function insertTemplatesIntoDocument() {
     url: `https://www.muffinshalo.com/`
   },
   
-/* ------------------ FORMAT REGISTRY | Cardiology ------------------ */
+  /* ------------------ Cardiology ------------------ */
   HEART_MURMUR_ARTICLE: {
   text: "Heart Murmurs in Dogs and Cats article",
   url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952593`
@@ -825,7 +863,7 @@ function insertTemplatesIntoDocument() {
   SCHEDULE_ECHO:
   /an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled./i,
 
-/* ------------------ FORMAT REGISTRY | Musculoskeletal ------------------ */
+  /* ------------------ Musculoskeletal ------------------ */
   ARTHRITIS_DETECTED:
   `Arthritis was detected in your dog’s joints.`,
 
@@ -856,7 +894,7 @@ function insertTemplatesIntoDocument() {
   OSTEOARTHRITIS_HEADER:
   `Osteoarthritis:`,
 
-/* ------------------ FORMAT REGISTRY | Dermatology ------------------ */
+  /* ------------------ Dermatology ------------------ */
   ALLERGY_EAR_RELATIONSHIP:
   `In fact, one of the most common causes of chronic ear infections is allergies.`,
   
@@ -890,7 +928,7 @@ function insertTemplatesIntoDocument() {
   ZENRELIA_STARTER:
   `Zenrelia has been sent home to resolve allergies. Give as prescribed.`,
 
-/* ------------------ FORMAT REGISTRY | Immunology ------------------ */
+  /* ------------------ Immunology ------------------ */
   ADENOVIRUS_LINK: {
   text: `adenovirus & parainfluenza article`,
   url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951478`,
@@ -950,7 +988,7 @@ function insertTemplatesIntoDocument() {
   url: `https://www.dshs.texas.gov/notifiable-conditions/zoonosis-control/zoonosis-control-diseases-and-conditions/rabies`,
   },
 
-/* ------------------ FORMAT REGISTRY | General Illness ------------------ */
+  /* ------------------ General Illness ------------------ */
   COMMON_CAUSES:
   /Common causes/i,
 
@@ -968,7 +1006,8 @@ function insertTemplatesIntoDocument() {
 
   };
 
-/* ------------------ Canine Reset ------------------ */
+/* ------------------ RESET & GENERIC ------------------ */
+  /* ------------------ Canine Reset ------------------ */
   function generateCanineResetTemplate(sex) {
   const p = getPronoun(sex);
   const text = [
@@ -1057,7 +1096,7 @@ function insertTemplatesIntoDocument() {
   };
   }
 
-/* ------------------ Feline Reset ------------------ */
+  /* ------------------ Feline Reset ------------------ */
   function generateFelineResetTemplate(sex) {
   const p = getPronoun(sex);
   const text = [
@@ -1146,7 +1185,7 @@ function insertTemplatesIntoDocument() {
   };
   }
 
-/* ------------------ Generic Template ------------------ */
+  /* ------------------ Generic Template ------------------ */
   function generateTemplate(sex) {
   const p = getPronoun(sex);
   const text = [
@@ -1278,6 +1317,7 @@ function insertTemplatesIntoDocument() {
     text: [
       ${paragraphs.join(",\n      ")}
     ].join('\\n'),
+    diagnoses: [""],
     boldKeys: [
       ${formatKeys(boldKeys)}
     ],
@@ -1378,53 +1418,53 @@ function insertTemplatesIntoDocument() {
   return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
   }
 
-/* ------------------ 8 Week Wellness Template ------------------ */
-  function generate8WkWellnessTemplate(size, sex) {
-  const pronoun = getPronoun(sex);
+/* ------------------ CANINE WELLNESS ------------------ */
+  /* ------------------ 8 Week Wellness Template ------------------ */
+    function generate8WkWellnessTemplate(size, sex) {
+    const pronoun = getPronoun(sex);
 
-  // Neuter paragraph for small vs large breed
-  const spayorneuterText = sex === 'female'
-   ? `Spay: It is recommended you have your dog spayed at 6 months if you do not intend to breed her. While it isn’t wrong to keep her intact, intact females are at risk of developing several life threatening diseases such as breast cancer, diabetes, & pyometra. 1 in 4 female dogs will get breast cancer if they are not spayed by their second heat cycle. In dogs there is a 50% chance breast cancer spreads throughout the body. The earliest time to have your dog spayed is when she is 6 months old before her first heat cycle. This will give her body enough time to grow while also reducing the risk of diseases that are associated with spaying too early. Even if she has already had her second heat cycle, spaying is still recommended since many mammary tumors are stimulated by estrogen & pyometra is still a possibility.`
-  : size === 'large'
-  ? `Neuter: On physical exam I was able to identify both of your dog’s testicles in ${pronoun.his} scrotum. It is recommended you have ${pronoun.him} neutered once ${pronoun.he} is 10 - 12 months old if you don’t intend to breed ${pronoun.him}. By 10 - 12 months of age, large breed dogs such as ${pronoun.him} have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep ${pronoun.him} intact, neutering ${pronoun.him} reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`
-  : `Neuter: On physical exam I was able to identify both of your dog’s testicles in ${pronoun.his} scrotum. It is recommended you have ${pronoun.him} neutered once ${pronoun.he} is 6 months old if you don’t intend to breed ${pronoun.him}. By 6 months of age, smaller breed dogs such as ${pronoun.him} have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep ${pronoun.him} intact, neutering ${pronoun.him} reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`;
+    // Neuter paragraph for small vs large breed
+    const spayorneuterText = sex === 'female'
+    ? `Spay: It is recommended you have your dog spayed at 6 months if you do not intend to breed her. While it isn’t wrong to keep her intact, intact females are at risk of developing several life threatening diseases such as breast cancer, diabetes, & pyometra. 1 in 4 female dogs will get breast cancer if they are not spayed by their second heat cycle. In dogs there is a 50% chance breast cancer spreads throughout the body. The earliest time to have your dog spayed is when she is 6 months old before her first heat cycle. This will give her body enough time to grow while also reducing the risk of diseases that are associated with spaying too early. Even if she has already had her second heat cycle, spaying is still recommended since many mammary tumors are stimulated by estrogen & pyometra is still a possibility.`
+    : size === 'large'
+    ? `Neuter: On physical exam I was able to identify both of your dog’s testicles in ${pronoun.his} scrotum. It is recommended you have ${pronoun.him} neutered once ${pronoun.he} is 10 - 12 months old if you don’t intend to breed ${pronoun.him}. By 10 - 12 months of age, large breed dogs such as ${pronoun.him} have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep ${pronoun.him} intact, neutering ${pronoun.him} reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`
+    : `Neuter: On physical exam I was able to identify both of your dog’s testicles in ${pronoun.his} scrotum. It is recommended you have ${pronoun.him} neutered once ${pronoun.he} is 6 months old if you don’t intend to breed ${pronoun.him}. By 6 months of age, smaller breed dogs such as ${pronoun.him} have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep ${pronoun.him} intact, neutering ${pronoun.him} reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`;
 
-  // Determine dental products based on size and sex
-  let dentalProducts = [
+    // Determine dental products based on size and sex
+    let dentalProducts = [
     'small dog toothbrush',
     'medium/large dog toothbrush',
     'animal safe toothpaste'
-  ];
+    ];
 
-  if (sex === 'female') {
-  dentalProducts = ['small dog toothbrush', 'medium/large dog toothbrush', 'animal safe toothpaste'];
-  } else if (size === 'large') {
-  dentalProducts = ['medium/large dog toothbrush', 'animal safe toothpaste'];
-  } else {
-  // small male
-  dentalProducts = ['small dog toothbrush', 'animal safe toothpaste'];
-  }
+    if (sex === 'female') {
+    dentalProducts = ['small dog toothbrush', 'medium/large dog toothbrush', 'animal safe toothpaste'];
+    } else if (size === 'large') {
+    dentalProducts = ['medium/large dog toothbrush', 'animal safe toothpaste'];
+    } else {
+    // small male
+    dentalProducts = ['small dog toothbrush', 'animal safe toothpaste'];
+    }
 
-  // Exact text for small male 8-week wellness, only substituting pronouns
+    // Exact text for small male 8-week wellness, only substituting pronouns
     const text = [
-  `Vaccines: Your dog has received ${pronoun.his} first round of puppy vaccines today. Because of the antibodies that ${pronoun.he} received from ${pronoun.his} mother’s milk, the vaccines won’t provide full immunity until 16 weeks of age when most of the mother’s antibodies have disappeared. For that reason, it’s important to booster them every 3 - 4 weeks as your dog’s immune system slowly takes over.`,
-  `Because your dog is still getting vaccines to better ${pronoun.his} immune system, it’s best to keep ${pronoun.him} away from dog parks & other dogs that aren’t part of your household until two weeks after ${pronoun.he} has finished ${pronoun.his} puppy vaccines.`,
-  `The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot in the left hindlimb. The 1 year bordetella vaccine was given orally. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
-  `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
-  `Heartworms: Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Simparica Trio, Revolution, etc. Depending on the brand, they can protect your dog from heartworms, fleas, ticks, & common intestinal parasites with a single treatment. These can be given orally or topically & are generally well tolerated. Because your dog is still growing, you will need to come back once a month to have ${pronoun.him} weighed & get the appropriate dose of preventative.`,
-  `${spayorneuterText}`,
-  `Food: A high quality diet is the best way to keep your dog healthy. Any puppy diet from Hill’s Science Diet (Hill's puppy dry food or Hill's puppy wet food), Purina Pro Plan (Purina puppy dry food or Purina puppy wet food), or Royal Canin (RC puppy dry food or RC puppy wet food) are all acceptable. A puppy diet is advised until your dog is a year old at which point you can transition to an adult diet. Dry food & wet food are both appropriate to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`,
-  `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
-  `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
+    `Vaccines: Your dog has received ${pronoun.his} first round of puppy vaccines today. Because of the antibodies that ${pronoun.he} received from ${pronoun.his} mother’s milk, the vaccines won’t provide full immunity until 16 weeks of age when most of the mother’s antibodies have disappeared. For that reason, it’s important to booster them every 3 - 4 weeks as your dog’s immune system slowly takes over.`,
+    `Because your dog is still getting vaccines to better ${pronoun.his} immune system, it’s best to keep ${pronoun.him} away from dog parks & other dogs that aren’t part of your household until two weeks after ${pronoun.he} has finished ${pronoun.his} puppy vaccines.`,
+    `The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot in the left hindlimb. The 1 year bordetella vaccine was given orally. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
+    `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
+    `Heartworms: Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Simparica Trio, Revolution, etc. Depending on the brand, they can protect your dog from heartworms, fleas, ticks, & common intestinal parasites with a single treatment. These can be given orally or topically & are generally well tolerated. Because your dog is still growing, you will need to come back once a month to have ${pronoun.him} weighed & get the appropriate dose of preventative.`,
+    `${spayorneuterText}`,
+    `Food: A high quality diet is the best way to keep your dog healthy. Any puppy diet from Hill’s Science Diet (Hill's puppy dry food or Hill's puppy wet food), Purina Pro Plan (Purina puppy dry food or Purina puppy wet food), or Royal Canin (RC puppy dry food or RC puppy wet food) are all acceptable. A puppy diet is advised until your dog is a year old at which point you can transition to an adult diet. Dry food & wet food are both appropriate to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`,
+    `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
+    `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
   
-  `Next appointment: Bring your dog back in 3 - 4 weeks for ${pronoun.his} next round of puppy vaccines.`
-  ].join('\n');
+    `Next appointment: Bring your dog back in 3 - 4 weeks for ${pronoun.his} next round of puppy vaccines.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-    diagnoses: ["WELLNESS"],
     boldKeys: [
       'VACCINES_HEADER',
       'HEARTWORMS_HEADER',
@@ -1466,116 +1506,116 @@ function insertTemplatesIntoDocument() {
       'ROYAL_CANIN_PUPPY_DRY_LINK',
       'ROYAL_CANIN_PUPPY_WET_LINK',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ 12 Week Wellness Template ------------------ */
-  function generate12WkWellnessTemplate(size, sex) {
-  const pronoun = getPronoun(sex);
+  /* ------------------ 12 Week Wellness Template ------------------ */
+    function generate12WkWellnessTemplate(size, sex) {
+    const pronoun = getPronoun(sex);
 
-  // 1. Start from the 8-week template
-  const template = generate8WkWellnessTemplate(size, sex);
+    // 1. Start from the 8-week template
+    const template = generate8WkWellnessTemplate(size, sex);
 
-  // 2. Replace ONLY the vaccine section
-  const newVaccineText12wks = [
-  `Vaccines: Your dog has received ${pronoun.his} next round of puppy vaccines today. Because of the antibodies that ${pronoun.he} received from ${pronoun.his} mother’s milk, ${pronoun.he} won’t have full immunity until 2 weeks after ${pronoun.his} last round of puppy vaccines. Keep ${pronoun.him} away from dog parks, training facilities, and other dogs until then.`,
-  `The distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the initial lepto vaccine in the left hindlimb. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
-  `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`
-  ].join('\n');
+    // 2. Replace ONLY the vaccine section
+    const newVaccineText12wks = [
+    `Vaccines: Your dog has received ${pronoun.his} next round of puppy vaccines today. Because of the antibodies that ${pronoun.he} received from ${pronoun.his} mother’s milk, ${pronoun.he} won’t have full immunity until 2 weeks after ${pronoun.his} last round of puppy vaccines. Keep ${pronoun.him} away from dog parks, training facilities, and other dogs until then.`,
+    `The distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the initial lepto vaccine in the left hindlimb. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
+    `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`
+    ].join('\n');
 
-  // 3. Replace the first vaccine block in the text
-  template.text = template.text.replace(
+    // 3. Replace the first vaccine block in the text
+    template.text = template.text.replace(
     /Vaccines:[\s\S]*?These reactions are rare & not expected to occur in your dog\./,
     newVaccineText12wks
-  );
+    );
 
-  // 4. Replace ONLY the next appointment sentence
-  template.text = template.text.replace(
+    // 4. Replace ONLY the next appointment sentence
+    template.text = template.text.replace(
     /Next appointment:[\s\S]*?\./,
     'Next appointment: Bring your dog back in 4 weeks for ' + pronoun.his + ' final round of puppy vaccines.'
-  );
+    );
 
-  // 5. Add to 8 week bold-only
-  template.boldKeys = [
-  ...(template.boldKeys || []),
-  'DAPP_BOOSTER',
-  'LEPTO_INITIAL',
-  ];
+    // 5. Add to 8 week bold-only
+    template.boldKeys = [
+    ...(template.boldKeys || []),
+    'DAPP_BOOSTER',
+    'LEPTO_INITIAL',
+    ];
 
-  // 6. Bold/underline
-  template.boldUnderlineKeys = template.boldUnderlineKeys.concat([
-  'Quarantine_12WK',
-  ]);
+    // 6. Bold/underline
+    template.boldUnderlineKeys = template.boldUnderlineKeys.concat([
+    'Quarantine_12WK',
+    ]);
   
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ 16 Week Wellness Template ------------------ */
-  function generate16WkSmallMaleTemplate(size, sex) {
-  const pronoun = getPronoun(sex);
+  /* ------------------ 16 Week Wellness Template ------------------ */
+    function generate16WkSmallMaleTemplate(size, sex) {
+    const pronoun = getPronoun(sex);
 
-  // 1. Start from the 8-week template
-  const template = generate8WkWellnessTemplate(size, sex);
+    // 1. Start from the 8-week template
+    const template = generate8WkWellnessTemplate(size, sex);
 
-  // 2. Replace ONLY the vaccine section
-  const newVaccineText16wks = [
-  `Vaccines: Your dog has received ${pronoun.his} final round of puppy vaccines today. The antibodies ${pronoun.he} received from ${pronoun.his} mother’s milk have mostly decreased at this point, so ${pronoun.his} own immune system should be in full effect. Starting from today, ${pronoun.he} can get ${pronoun.his} vaccines once a year.`,
-  `Over the next two weeks your dog will build up immunity to the vaccines given. During this time, keep ${pronoun.him} away from dog parks & other dogs that aren’t part of your household. Afterwards ${pronoun.he} is safe to interact with other dogs.`,
-  `The 1 year rabies vaccine was given in the right hindlimb. The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
-  `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`
-  ].join('\n');
+    // 2. Replace ONLY the vaccine section
+    const newVaccineText16wks = [
+    `Vaccines: Your dog has received ${pronoun.his} final round of puppy vaccines today. The antibodies ${pronoun.he} received from ${pronoun.his} mother’s milk have mostly decreased at this point, so ${pronoun.his} own immune system should be in full effect. Starting from today, ${pronoun.he} can get ${pronoun.his} vaccines once a year.`,
+    `Over the next two weeks your dog will build up immunity to the vaccines given. During this time, keep ${pronoun.him} away from dog parks & other dogs that aren’t part of your household. Afterwards ${pronoun.he} is safe to interact with other dogs.`,
+    `The 1 year rabies vaccine was given in the right hindlimb. The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
+    `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`
+    ].join('\n');
 
-  // 3. Replace the first vaccine block in the text
-  template.text = template.text.replace(
+    // 3. Replace the first vaccine block in the text
+    template.text = template.text.replace(
     /^Vaccines:[\s\S]*?These reactions are rare & not expected to occur in your dog\./,
     newVaccineText16wks
-  );
+    );
 
-  // 4. Replace ONLY the next appointment line with gender-specific text
-  template.text = template.text.replace(
-  /Next appointment:[\s\S]*$/,
-  `Next appointment: Bring your dog back once ${pronoun.he} is at least 6 months old for ${pronoun.his} ${sex === 'female' ? 'spay' : 'neuter'} & heartworm test. If you would not like to ${sex === 'female' ? 'spay' : 'neuter'} ${pronoun.him}, bring ${pronoun.him} back in 1 year for ${pronoun.his} annual adult vaccines.`
-  );
+    // 4. Replace ONLY the next appointment line with gender-specific text
+    template.text = template.text.replace(
+    /Next appointment:[\s\S]*$/,
+    `Next appointment: Bring your dog back once ${pronoun.he} is at least 6 months old for ${pronoun.his} ${sex === 'female' ? 'spay' : 'neuter'} & heartworm test. If you would not like to ${sex === 'female' ? 'spay' : 'neuter'} ${pronoun.him}, bring ${pronoun.him} back in 1 year for ${pronoun.his} annual adult vaccines.`
+    );
 
-  // 5. Add to 8 week bold-only
-  template.boldKeys = [
-  ...(template.boldKeys || []),
-  'RABIES_1YR',
-  'DAPP_1YR',
-  'LEPTO_VXN',
-  ];
+    // 5. Add to 8 week bold-only
+    template.boldKeys = [
+    ...(template.boldKeys || []),
+    'RABIES_1YR',
+    'DAPP_1YR',
+    'LEPTO_VXN',
+    ];
 
-  // 6. Bold/underline
-  template.boldUnderlineKeys = template.boldUnderlineKeys.concat([
-  'Quarantine_16WK',
-  ]);
+    // 6. Bold/underline
+    template.boldUnderlineKeys = template.boldUnderlineKeys.concat([
+    'Quarantine_16WK',
+    ]);
 
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ Initial Adult Vaccine Template  ------------------ */
-  function generateInitialAdultTemplate(sex) {
-  const pronoun = getPronoun(sex);
+  /* ------------------ Initial Adult Vaccine Template  ------------------ */
+    function generateInitialAdultTemplate(sex) {
+    const pronoun = getPronoun(sex);
 
-  const dentalProducts = [
-  'small dog toothbrush',
-  'medium/large dog toothbrush',
-  'animal safe toothpaste'
-  ];
+    const dentalProducts = [
+    'small dog toothbrush',
+    'medium/large dog toothbrush',
+    'animal safe toothpaste'
+    ];
 
-  const text = [
-  `Vaccines: Your dog has received ${pronoun.his} first round of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your dog will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.`,
-  `You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal. Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
-  `Heartworms: A heartworm test was performed on your dog. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
-  `Early detection labwork: Yearly blood work is recommended for dogs the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
-  `Food: A high quality diet is the best way to keep your dog healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of your dog’s weight.`,
-  `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
-  `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
-  `Next appointment: Bring your dog back in 3 - 4 weeks for a booster of ${pronoun.his} vaccines.`
-  ].join('\n');
+    const text = [
+    `Vaccines: Your dog has received ${pronoun.his} first round of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your dog will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.`,
+    `You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal. Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
+    `Heartworms: A heartworm test was performed on your dog. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
+    `Early detection labwork: Yearly blood work is recommended for dogs the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
+    `Food: A high quality diet is the best way to keep your dog healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of your dog’s weight.`,
+    `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
+    `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
+    `Next appointment: Bring your dog back in 3 - 4 weeks for a booster of ${pronoun.his} vaccines.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
     boldKeys: [
@@ -1616,32 +1656,32 @@ function insertTemplatesIntoDocument() {
       'ROYAL_CANIN_DOG_DRY_LINK',
       'ROYAL_CANIN_DOG_WET_LINK',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ 1-Year Adult Vaccine Template ------------------ */
-  function generate1YearAdultTemplate(sex) {
-  const pronoun = getPronoun(sex);
+  /* ------------------ 1-Year Adult Vaccine Template ------------------ */
+    function generate1YearAdultTemplate(sex) {
+    const pronoun = getPronoun(sex);
     
-  const dentalProducts = [
-  'small dog toothbrush',
-  'medium/large dog toothbrush',
-  'animal safe toothpaste'
-  ];
+    const dentalProducts = [
+    'small dog toothbrush',
+    'medium/large dog toothbrush',
+    'animal safe toothpaste'
+    ];
 
-  const text = [ `Vaccines: Your dog has received ${pronoun.his} first round of adult vaccinations. Because you have kept to ${pronoun.his} vaccination schedule, ${pronoun.his} immune system will not need another booster until next year.`,
-  `The 1 year rabies vaccine was given in the right hindlimb. The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
-  `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
-  `Heartworms: A heartworm test was performed on your dog. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
-  `Early detection labwork: Samples were drawn from your dog. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your dog’s overall health is closely monitored.`,
-  `Food: A high quality diet is the best way to keep your dog healthy. If you haven’t already, you can transition ${pronoun.him} from ${pronoun.his} puppy diet to ${pronoun.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`,
-  `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
-  `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
-  `Next appointment: Bring your dog back one year from today for ${pronoun.his} next annual vaccines.`
-  ].join('\n');
+    const text = [ `Vaccines: Your dog has received ${pronoun.his} first round of adult vaccinations. Because you have kept to ${pronoun.his} vaccination schedule, ${pronoun.his} immune system will not need another booster until next year.`,
+    `The 1 year rabies vaccine was given in the right hindlimb. The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. You may notice that after vaccination your dog is more tired than usual, eats less, or is sore at the injection site, & this is perfectly normal.`,
+    `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your dog back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your dog.`,
+    `Heartworms: A heartworm test was performed on your dog. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your dog on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
+    `Early detection labwork: Samples were drawn from your dog. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your dog’s overall health is closely monitored.`,
+    `Food: A high quality diet is the best way to keep your dog healthy. If you haven’t already, you can transition ${pronoun.him} from ${pronoun.his} puppy diet to ${pronoun.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`,
+    `Dental care: The best way to keep your dog’s teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your dog used to having ${pronoun.his} teeth brushed early will improve ${pronoun.his} overall health.`,
+    `You can start by having ${pronoun.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${pronoun.him} lick it off every day for a week. Finally, gently brush ${pronoun.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${pronoun.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${pronoun.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
+    `Next appointment: Bring your dog back one year from today for ${pronoun.his} next annual vaccines.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
     boldKeys: [
@@ -1681,131 +1721,125 @@ function insertTemplatesIntoDocument() {
       'ROYAL_CANIN_DOG_DRY_LINK',
       'ROYAL_CANIN_DOG_WET_LINK',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ 2-Year Adult Vaccine Template ------------------ */
-  function generate2YearAdultTemplate(sex) {
-  const template = generate1YearAdultTemplate(sex);
+  /* ------------------ 2-Year Adult Vaccine Template ------------------ */
+    function generate2YearAdultTemplate(sex) {
+    const template = generate1YearAdultTemplate(sex);
+    const pronoun = getPronoun(sex);
 
-  template.boldKeys = [
-  ...(template.boldKeys || []),
-  'RABIES_3YR',
-  'DAPP_3YR',
-  ];
+    template.boldKeys = [
+    ...(template.boldKeys || []),
+    'RABIES_3YR',
+    'DAPP_3YR',
+    ];
 
-  const pronoun = getPronoun(sex);
+    // 2. Replace the 1 year vaccines with 3 year vaccines instead.
+    template.text = template.text.replace(
+    /Your dog has received (his|her) first round of adult vaccinations\./,
+    `Your dog has received ${pronoun.his} annual adult vaccinations.`
+    );
 
-  const adultFoodRecommendation = "A high quality diet is the best way to keep your dog healthy. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed.";
-
-  // 2. Replace the 1 year vaccines with 3 year vaccines instead.
-  template.text = template.text.replace(
-  /Your dog has received (his|her) first round of adult vaccinations\./,
-  `Your dog has received ${pronoun.his} annual adult vaccinations.`
-  );
-
-  template.text = template.text
-  .replace(
+    template.text = template.text
+    .replace(
     /The 1 year rabies vaccine was given in the right hindlimb\./,
     'The 3 year rabies vaccine was given in the right hindlimb.'
-  )
-  .replace(
+    )
+    .replace(
     /The 1 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine/,
     'The 3 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine'
-  );
+    );
 
 
-  // 3. Remove puppy food transition.
-  template.text = template.text.replace(
+    // 3. Remove puppy food transition.
+    template.text = template.text.replace(
     /If you haven’t already, you can transition (him|her) from (his|her) puppy diet to (his|her) adult diet\.\s*/i,
     ''
-  );
+    );
 
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ 2-Year Lepto Vaccine Template ------------------ */
+  /* ------------------ 2-Year Lepto Vaccine Template ------------------ */
+    function generate2YearLeptoTemplate(sex) {
+    const template = generate2YearAdultTemplate(sex);
 
-  function generate2YearLeptoTemplate(sex) {
-  const template = generate2YearAdultTemplate(sex);
-  const pronoun = getPronoun(sex);
-
-  // Replace the vaccine listing paragraph ONLY
-  template.text = template.text.replace(
+    // Replace the vaccine listing paragraph ONLY
+    template.text = template.text.replace(
     /The 3 year rabies vaccine was given in the right hindlimb\. The 3 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb\. The 1 year bordetella vaccine was given orally\./,
     'The 1 year lepto vaccine was given in the left hindlimb. The 1 year bordetella vaccine was given orally.'
-  );
+    );
 
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ 7-Year Adult Vaccine Template ------------------ */
-  function generate7YearAdultTemplate(sex) {
-  const template = generate2YearAdultTemplate(sex);
-  const pronoun = getPronoun(sex);
+  /* ------------------ 7-Year Adult Vaccine Template ------------------ */
+    function generate7YearAdultTemplate(sex) {
+    const template = generate2YearAdultTemplate(sex);
+    const pronoun = getPronoun(sex);
 
-  // 1. Adjust senior diet wording
-  template.text = template.text.replace(
-  /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of (his|her) weight\./,
-  `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`
-  );
+    // 1. Adjust senior diet wording
+    template.text = template.text.replace(
+    /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of (his|her) weight\./,
+    `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${pronoun.his} weight.`
+    );
 
-  // 3. Add senior dog links
-  template.linkKeys = [
-  ...(template.linkKeys || []),
-  'HILLS_SR_DOG_DRY_LINK',
-  'HILLS_SR_DOG_WET_LINK',
-  'PURINA_SR_DOG_DRY_LINK',
-  'PURINA_SR_DOG_WET_LINK',
-  'ROYAL_CANIN_SR_DOG_DRY_LINK',
-  'ROYAL_CANIN_SR_DOG_WET_LINK',
-  ];
+    // 3. Add senior dog links
+    template.linkKeys = [
+    ...(template.linkKeys || []),
+    'HILLS_SR_DOG_DRY_LINK',
+    'HILLS_SR_DOG_WET_LINK',
+    'PURINA_SR_DOG_DRY_LINK',
+    'PURINA_SR_DOG_WET_LINK',
+    'ROYAL_CANIN_SR_DOG_DRY_LINK',
+    'ROYAL_CANIN_SR_DOG_WET_LINK',
+    ];
 
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ 7-Year Lepto Vaccine Template ------------------ */
+  /* ------------------ 7-Year Lepto Vaccine Template ------------------ */
+    function generate7YearLeptoTemplate(sex) {
+    const template = generate2YearAdultTemplate(sex);
+    const pronoun = getPronoun(sex);
 
-  function generate7YearLeptoTemplate(sex) {
-  const template = generate2YearAdultTemplate(sex);
-  const pronoun = getPronoun(sex);
-
-  // 1. Replace the vaccine listing paragraph ONLY
-  template.text = template.text.replace(
+    // 1. Replace the vaccine listing paragraph ONLY
+    template.text = template.text.replace(
     /The 3 year rabies vaccine was given in the right hindlimb\. The 3 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine was given as a combo shot with the 1 year lepto vaccine in the left hindlimb\. The 1 year bordetella vaccine was given orally\./,
     'The 1 year lepto vaccine was given in the left hindlimb. The 1 year bordetella vaccine was given orally.'
-  );
+    );
 
-  // 2. Adjust senior diet wording
-  template.text = template.text.replace(
-  /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of (his|her) weight\./,
-  `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of his weight.`
-  );
+    // 2. Adjust senior diet wording
+    template.text = template.text.replace(
+    /Food: A high quality diet is the best way to keep your dog healthy\.[\s\S]*?can for a dog of (his|her) weight\./,
+    `Food: A high quality diet is the best way to keep your dog healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of his weight.`
+    );
 
-  // 3. Add senior dog links
-  template.linkKeys = [
-  ...(template.linkKeys || []),
-  'HILLS_SR_DOG_DRY_LINK',
-  'HILLS_SR_DOG_WET_LINK',
-  'PURINA_SR_DOG_DRY_LINK',
-  'PURINA_SR_DOG_WET_LINK',
-  'ROYAL_CANIN_SR_DOG_DRY_LINK',
-  'ROYAL_CANIN_SR_DOG_WET_LINK',
-  ];
+    // 3. Add senior dog links
+    template.linkKeys = [
+    ...(template.linkKeys || []),
+    'HILLS_SR_DOG_DRY_LINK',
+    'HILLS_SR_DOG_WET_LINK',
+   'PURINA_SR_DOG_DRY_LINK',
+    'PURINA_SR_DOG_WET_LINK',
+    'ROYAL_CANIN_SR_DOG_DRY_LINK',
+    'ROYAL_CANIN_SR_DOG_WET_LINK',
+    ];
 
-  return template;
-  }
+    return template;
+    }
 
-/* ------------------ Canine Overweight | 1st ------------------ */
-  function generateCanineOverweightTemplate(sex) {
-  const p = getPronoun(sex);
+  /* ------------------ Canine Overweight | 1st ------------------ */
+    function generateCanineOverweightTemplate(sex) {
+    const p = getPronoun(sex);
 
-  const text = [`Weight: Your dog weighs more than the average dog of ${p.his} size. Ideally we would be able to feel ${p.his} ribs but not see them. Helping ${p.him} to lose weight can increase ${p.his} life span by as much as 1 ½ years. The best way to lose weight is through diet.`,
-  `You can use the diet ${p.he} is currently on or you can use a prescription weight loss food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food). Regardless, begin by measuring how much your dog eats using a measuring cup. Make sure to feed twice daily on a schedule rather than leaving food down at all times. If ${p.he} steals food from siblings, you may need to feed separately. Finally, decrease ${p.his} food by 10 - 25%.`,
-  `We’re aiming to have ${p.him} lose 1 - 2% of ${p.his} body weight per week. If ${p.he} begins losing more than that per week, increase the amount of food ${p.he} gets. Another way you can help ${p.him} lose weight is by converting ${p.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
-  ].join('\n');
+    const text = [`Weight: Your dog weighs more than the average dog of ${p.his} size. Ideally we would be able to feel ${p.his} ribs but not see them. Helping ${p.him} to lose weight can increase ${p.his} life span by as much as 1 ½ years. The best way to lose weight is through diet.`,
+    `You can use the diet ${p.he} is currently on or you can use a prescription weight loss food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food). Regardless, begin by measuring how much your dog eats using a measuring cup. Make sure to feed twice daily on a schedule rather than leaving food down at all times. If ${p.he} steals food from siblings, you may need to feed separately. Finally, decrease ${p.his} food by 10 - 25%.`,
+    `We’re aiming to have ${p.him} lose 1 - 2% of ${p.his} body weight per week. If ${p.he} begins losing more than that per week, increase the amount of food ${p.he} gets. Another way you can help ${p.him} lose weight is by converting ${p.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
     diagnoses: ["OVERWEIGHT"],
@@ -1827,23 +1861,23 @@ function insertTemplatesIntoDocument() {
       'ROYAL_CANIN_DOG_DIET_DRY_LINK',
       'ROYAL_CANIN_DOG_DIET_WET_LINK',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Overweight | 2nd, Continue ------------------ */
-
-  function generateCanineOverweight2Template(sex) {
-  const p = getPronoun(sex);
+  /* ------------------ Canine Overweight | 2nd, Continue ------------------ */
+    function generateCanineOverweight2Template(sex) {
+    const p = getPronoun(sex);
 
     const text = [
-  `Weight: Congrats on helping ${p.him} lose weight! Continuing to help ${p.him} lose weight can extend ${p.his} life span by as much as 1 ½ years.`,
-  `As a reminder, food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food) can be used as needed. Otherwise, continue measuring how much ${p.he} eats using a measuring cup and feeding on a twice daily schedule rather than leaving food down at all times. Separate ${p.him} from siblings at meal time if necessary.`,
-  `We’re aiming to have ${p.him} lose 1 - 2% of ${p.his} body weight per week. If ${p.he} begins losing more than that per week, increase the amount of food ${p.he} gets. Another way you can help ${p.him} lose weight is by converting ${p.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
-  ].join('\n');
+    `Weight: Congrats on helping ${p.him} lose weight! Continuing to help ${p.him} lose weight can extend ${p.his} life span by as much as 1 ½ years.`,
+    `As a reminder, food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food) can be used as needed. Otherwise, continue measuring how much ${p.he} eats using a measuring cup and feeding on a twice daily schedule rather than leaving food down at all times. Separate ${p.him} from siblings at meal time if necessary.`,
+    `We’re aiming to have ${p.him} lose 1 - 2% of ${p.his} body weight per week. If ${p.he} begins losing more than that per week, increase the amount of food ${p.he} gets. Another way you can help ${p.him} lose weight is by converting ${p.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OVERWEIGHT"],
     boldKeys: [
       'WEIGHT_HEADER',
     ],
@@ -1862,20 +1896,18 @@ function insertTemplatesIntoDocument() {
       'ROYAL_CANIN_DOG_DIET_DRY_LINK',
       'ROYAL_CANIN_DOG_DIET_WET_LINK',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Healthy Weight ------------------ */
+  /* ------------------ Canine Healthy Weight ------------------ */
+    function generateDogHealthyWeightTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Weight: Your dog is a healthy weight for a dog of ${p.his} size. ${p.His} ribs can be felt without difficulty and ${p.he} has a slight waist. Keeping ${p.him} around ${p.his} current weight will help ${p.him} live approximately 1 ½ years longer than ${p.he} would if ${p.he} were over or underweight.`,
+    `Continue to monitor ${p.his} weight and feed ${p.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${p.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${p.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
+    ].join('\n');
 
-  function generateDogHealthyWeightTemplate(sex) {
-  const p = getPronoun(sex);
-
-  const text = [
-  `Weight: Your dog is a healthy weight for a dog of ${p.his} size. ${p.His} ribs can be felt without difficulty and ${p.he} has a slight waist. Keeping ${p.him} around ${p.his} current weight will help ${p.him} live approximately 1 ½ years longer than ${p.he} would if ${p.he} were over or underweight.`,
-  `Continue to monitor ${p.his} weight and feed ${p.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${p.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${p.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
     boldKeys: [
@@ -1890,22 +1922,23 @@ function insertTemplatesIntoDocument() {
 
     greenKeys: [],
     linkKeys: [],
-  };
-  }
+    };
+    }
   
-/* ------------------ Canine Underweight ------------------ */
-  function generateDogUnderweightTemplate(sex) {
-  const p = getPronoun(sex);
+  /* ------------------ Canine Underweight ------------------ */
+    function generateDogUnderweightTemplate(sex) {
+    const p = getPronoun(sex);
 
-  const text = [
-  `Underweight: Your dog weighs less than the average dog of ${p.his} size. Ideally, we would be able to feel ${p.his} ribs but not see them. Helping ${p.him} gain weight can increase ${p.his} quality of life.`,
-  `The best way for ${p.him} to gain weight is through diet. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. You can also add lukewarm water to the food or low sodium chicken broth to increase the smell and flavor.`,
-  `Increase how much ${p.he} eats by as much as 25 - 50%. We're aiming to have ${p.him} gain approximately 10% of ${p.his} current weight. Failure to gain weight is concerning for disease and would prompt us to perform tests such as labwork, ultrasound, or x-rays.`
-  ].join('\n');
+    const text = [
+    `Underweight: Your dog weighs less than the average dog of ${p.his} size. Ideally, we would be able to feel ${p.his} ribs but not see them. Helping ${p.him} gain weight can increase ${p.his} quality of life.`,
+    `The best way for ${p.him} to gain weight is through diet. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. You can also add lukewarm water to the food or low sodium chicken broth to increase the smell and flavor.`,
+    `Increase how much ${p.he} eats by as much as 25 - 50%. We're aiming to have ${p.him} gain approximately 10% of ${p.his} current weight. Failure to gain weight is concerning for disease and would prompt us to perform tests such as labwork, ultrasound, or x-rays.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["UNDERWEIGHT"],
 
     boldKeys: [
       'UNDERWEIGHT_HEADER',
@@ -1917,23 +1950,23 @@ function insertTemplatesIntoDocument() {
       'UNDERWEIGHT_WARNING',
     ],
 
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Vaccine Information ------------------ */
-  function generateDogVaccineInformationTemplate() {
-  const text = [
-  `Rabies: Rabies is a fatal virus that is spread from wild animal bites to our pets & humans. The most common spreaders in Texas are raccoons, skunks, bats, foxes, & coyotes. Signs of rabies start with voice changes & becoming shy. Next the pet acts aggressive or becomes paralyzed. The animal then dies if it isn't euthanized by then.`,
-  `THERE IS NO CURE FOR RABIES. The only way to test for rabies involves decapitating an animal & taking samples of the brain. State law requires any animal that is exposed to rabies to either undergo quarantine for up to 6 months or be euthanized.`,
-  `For the sake of your pet’s health, get regular rabies vaccines. You can learn more about rabies from the Rabies in Animals article on Veterinary Partner or the Texas government website.`,
-  `DAPP: Distemper, adenovirus, parvovirus, & parainfluenza virus (DAPP) are a series of viruses that cause serious, contagious disease in our dogs. Dogs infected with distemper may have fever, coughing, difficulty breathing, skin infection, blindness, abortions, or seizures. Some studies suggest that distemper can be spread to humans. There is no cure for distemper. Similarly, parvovirus often causes fatal diarrhea in puppies & spreads rapidly. It requires hospitalization to effectively cure. Adenovirus & parainfluenza can cause respiratory infection in dogs. You can read the distemper article, the parvovirus article, & the adenovirus & parainfluenza article on Veterinary Partner for more information.`,
-  `Lepto: Leptospirosis is a bacteria spread in the waterways & anywhere that woodland creatures (squirrels, raccoons, etc.) urinate. It causes liver & kidney disease & requires hospitalization to treat. Lepto can quickly kill our pets & can be spread to humans. Vaccination is strongly recommended to prevent the disease. You can read more about lepto from the Leptospirosis in Dogs article on Veterinary Partner.`,
-  `Bordetella: Bordetella, also known as kennel cough, is a bacteria that is spread through the air whenever a dog enters an area that an infected dog has been. This includes dog parks, grooming facilities, & veterinary clinics. Most cases of bordetella resolve on their own without treatment, but some dogs get complicated cases that cause severe lung infections including pneumonia. The bordetella vaccine can be given orally, intranasally, or as an injection and rarely has reactions. You can learn more about bordetella from the Kennel Cough in Dogs article on Veterinary Partner.`
-  ].join('\n');
+  /* ------------------ Canine Vaccine Information ------------------ */
+    function generateDogVaccineInformationTemplate() {
+    const text = [
+    `Rabies: Rabies is a fatal virus that is spread from wild animal bites to our pets & humans. The most common spreaders in Texas are raccoons, skunks, bats, foxes, & coyotes. Signs of rabies start with voice changes & becoming shy. Next the pet acts aggressive or becomes paralyzed. The animal then dies if it isn't euthanized by then.`,
+    `THERE IS NO CURE FOR RABIES. The only way to test for rabies involves decapitating an animal & taking samples of the brain. State law requires any animal that is exposed to rabies to either undergo quarantine for up to 6 months or be euthanized.`,
+    `For the sake of your pet’s health, get regular rabies vaccines. You can learn more about rabies from the Rabies in Animals article on Veterinary Partner or the Texas government website.`,
+    `DAPP: Distemper, adenovirus, parvovirus, & parainfluenza virus (DAPP) are a series of viruses that cause serious, contagious disease in our dogs. Dogs infected with distemper may have fever, coughing, difficulty breathing, skin infection, blindness, abortions, or seizures. Some studies suggest that distemper can be spread to humans. There is no cure for distemper. Similarly, parvovirus often causes fatal diarrhea in puppies & spreads rapidly. It requires hospitalization to effectively cure. Adenovirus & parainfluenza can cause respiratory infection in dogs. You can read the distemper article, the parvovirus article, & the adenovirus & parainfluenza article on Veterinary Partner for more information.`,
+    `Lepto: Leptospirosis is a bacteria spread in the waterways & anywhere that woodland creatures (squirrels, raccoons, etc.) urinate. It causes liver & kidney disease & requires hospitalization to treat. Lepto can quickly kill our pets & can be spread to humans. Vaccination is strongly recommended to prevent the disease. You can read more about lepto from the Leptospirosis in Dogs article on Veterinary Partner.`,
+    `Bordetella: Bordetella, also known as kennel cough, is a bacteria that is spread through the air whenever a dog enters an area that an infected dog has been. This includes dog parks, grooming facilities, & veterinary clinics. Most cases of bordetella resolve on their own without treatment, but some dogs get complicated cases that cause severe lung infections including pneumonia. The bordetella vaccine can be given orally, intranasally, or as an injection and rarely has reactions. You can learn more about bordetella from the Kennel Cough in Dogs article on Veterinary Partner.`
+    ].join('\n');
 
-  return {
+    return {
     text,
-
+    diagnoses: ["PARTIALLY_VACCINATED"],
     boldKeys: [
       'RABIES_HEADER',
       'DAPP_HEADER',
@@ -1947,8 +1980,8 @@ function insertTemplatesIntoDocument() {
     ],
 
     italicKeys: [
-  'BORDETELLA_NAME'
-  ],
+    'BORDETELLA_NAME'
+    ],
 
     redKeys: [
       'RABIES_CURE',
@@ -1963,14 +1996,16 @@ function insertTemplatesIntoDocument() {
       'RABIES_IN_ANIMALS_LINK',
       'TEXAS_RABIES_LINK',
     ]
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Blind | 0, Partial ------------------ */
-  function generateDogBlind0PartialTemplate(sex) {
-  const p = getPronoun(sex);
-  return {
+/* ------------------ CANINE OPTHALMOLOGY------------------ */
+  /* ------------------ Canine Blind | 0, Partial ------------------ */
+    function generateDogBlind0PartialTemplate(sex) {
+    const p = getPronoun(sex);
+    return {
     sex,
+    diagnoses: ["PARTIALLY_BLIND"],
     text: [
       `Blind: Your dog shows signs of being partially blind. A small amount of vision (enough to see shadows & shapes) is present, but not enough to read or drive. Keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
     ].join('\n'),
@@ -1984,19 +2019,20 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HALO_HARNESS_ARTICLE"
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Blind | 1, Diagnosed ------------------ */
-  function generateDogBlind1Template(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Blind | 1, Diagnosed ------------------ */
+    function generateDogBlind1Template(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Blind: Your dog shows signs of being completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["BLIND"],
     boldKeys: [
       "BLIND_HEADER"
     ],
@@ -2007,19 +2043,20 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HALO_HARNESS_ARTICLE",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Blind | 2, Known ------------------ */
-  function generateDogBlind2KnownTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Blind | 2, Known ------------------ */
+    function generateDogBlind2KnownTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Blind: Your dog is known to be completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["BLIND"],
     boldKeys: [
       "BLIND_HEADER"
     ],
@@ -2031,22 +2068,23 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HALO_HARNESS_ARTICLE",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Heart Murmur | 0th Discovered, No Tests ------------------ */
-  function generateDogHeartMurmur0Template(sex) {
-  const p = getPronoun(sex);
-  const text = [
+/* ------------------ CANINE CARDIOLOGY ------------------ */
+  /* ------------------ Canine Heart Murmur | 0th Discovered, No Tests ------------------ */
+    function generateDogHeartMurmur0Template(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease. Diagnosis involves X-rays to see the shape & size of the heart can be performed in clinic and an echocardiogram to look at the inner workings of the heart and find a cause of disease can be scheduled as well. `,
     `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
+    ].join('\n');
 
 
-  return {
+    return {
     sex,
     text,
-    diagnoses: ["HEARTMURMUR"],
+    diagnoses: ["HEART_MURMUR"],
     boldKeys: [
       "HEART_MURMUR_HEADER"
       ],
@@ -2067,21 +2105,22 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HEART_MURMUR_ARTICLE",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Heart Murmur | 1st, Normal Radiographs ------------------ */
-  function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Heart Murmur | 1st, Normal Radiographs ------------------ */
+    function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `X-rays to see the shape & size of the heart were performed and your dog’s heart doesn’t appear to be concerningly enlarged. At this time treatment with medication is not warranted, but an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
     `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["HEART_MURMUR"],
     boldKeys: [
       "HEART_MURMUR_HEADER" 
     ],
@@ -2103,21 +2142,22 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HEART_MURMUR_ARTICLE",
     ]
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan ------------------ */
-  function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan ------------------ */
+    function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `Diagnosis includes the x-rays that we performed to see the shape & size of the heart. These x-rays show that the heart is enlarged. It is compressing the lungs and trachea to an extent, so your dog will be started on medication to help improve heart function and slow the progression of disease. An echocardiogram to look at the inner workings of the heart and find a cause of disease will need to be scheduled.`,
     `In the meantime, give the medicine prescribed below as treatment to manage the disease. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["HEART_MURMUR"],
     boldKeys: [
       "HEART_MURMUR_HEADER"
     ],
@@ -2140,19 +2180,20 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HEART_MURMUR_ARTICLE"
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Heart Murmur | 3rd, Known ------------------ */
-  function generateDogHeartMurmur3KnownTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Heart Murmur | 3rd, Known ------------------ */
+    function generateDogHeartMurmur3KnownTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["HEART_MURMUR"],
     boldKeys: [
       "HEART_MURMUR_HEADER"
     ],
@@ -2171,21 +2212,23 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       "HEART_MURMUR_ARTICLE",
     ]
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Mild ------------------ */
-  function generateDog1PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
-  `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+/* ------------------ CANINE GASTROINTESTINAL ------------------ */
+  /* ------------------ Canine Periodontal Disease | Mild ------------------ */
+    function generateDog1PeriodontalDiseaseTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
+    `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["MILD_PERIODONTAL_DISEASE"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2202,21 +2245,22 @@ function insertTemplatesIntoDocument() {
     `TOOTHPASTE_LINK`,
     `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Moderate  ------------------ */
-  function generateDog2PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
-  `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+  /* ------------------ Canine Periodontal Disease | Moderate  ------------------ */
+    function generateDog2PeriodontalDiseaseTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
+    `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["MODERATE_PERIODONTAL_DISEASE"],
     boldKeys: [
       `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2235,21 +2279,22 @@ function insertTemplatesIntoDocument() {
       `TOOTHPASTE_LINK`,
       `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Severe  ------------------ */
-  function generateDog3PeriodontalDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
-  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-  `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+  /* ------------------ Canine Periodontal Disease | Severe  ------------------ */
+    function generateDog3PeriodontalDiseaseTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
+    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["SEVERE_PERIODONTAL_DISEASE"],
     boldKeys: [
       `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2268,20 +2313,21 @@ function insertTemplatesIntoDocument() {
       `TOOTHPASTE_LINK`,
       `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Age Restricted  ------------------ */
-  function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
-  `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+  /* ------------------ Canine Periodontal Disease | Age Restricted  ------------------ */
+    function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
+    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
       `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2293,19 +2339,20 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Concurrent Disease  ------------------ */
-  function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+  /* ------------------ Canine Periodontal Disease | Concurrent Disease  ------------------ */
+    function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
       `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2317,19 +2364,20 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Periodontal Disease | Heart Murmur  ------------------ */
-  function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
-  ].join('\n');
+  /* ------------------ Canine Periodontal Disease | Heart Murmur  ------------------ */
+    function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
       `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -2341,22 +2389,23 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
       `VOHC_DOG_LINK`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Antihistamines 1 ------------------ */
-  function generateDogAtopicDermatitisMild1Template(sex) {
-  const p = getPronoun(sex);
+/* ------------------ CANINE DERMATOLOGY ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Antihistamines 1 ------------------ */
+    function generateDogAtopicDermatitisMild1Template(sex) {
+    const p = getPronoun(sex);
 
-  const text = [
-  `Atopic dermatitis: Unlike humans where allergies present in the respiratory tract (runny nose, sneezing/coughing, etc.), allergies in pets usually appear in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
-  `At this time we will not be starting with daily oral medicine (Apoquel and Zenrelia) or monthly injectable medicine (Cytopoint). You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Potential side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
-  ].join('\n');
+    const text = [
+    `Atopic dermatitis: Unlike humans where allergies present in the respiratory tract (runny nose, sneezing/coughing, etc.), allergies in pets usually appear in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
+    `At this time we will not be starting with daily oral medicine (Apoquel and Zenrelia) or monthly injectable medicine (Cytopoint). You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Potential side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER'
     ],
@@ -2365,21 +2414,20 @@ function insertTemplatesIntoDocument() {
       `ALLERGY_EAR_RELATIONSHIP`,
       'ANTIHISTAMINE_DOSAGE1',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Antihistamines 2 ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Antihistamines 2 ------------------ */
+    function generateDogAtopicDermatitisMild2Template(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies which you currently give over the counter antihistamines for. Continue to give Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours) as needed. If you feel like allergies are not well controlled, prescription medicine such as Cytopoint (an injection given every 4 - 8 weeks) or Apoquel OR Zenrelia (oral pills given every 24 hours) can be given for better control.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitisMild2Template(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies which you currently give over the counter antihistamines for. Continue to give Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours) as needed. If you feel like allergies are not well controlled, prescription medicine such as Cytopoint (an injection given every 4 - 8 weeks) or Apoquel OR Zenrelia (oral pills given every 24 hours) can be given for better control.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2387,20 +2435,21 @@ function insertTemplatesIntoDocument() {
     boldUnderlineKeys: [
       'ANTIHISTAMINE_DOSAGE2',
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Apoquel 1 ------------------ */
-  function generateDogAtopicDermatitis1ApoquelTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-  `Apoquel has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
-  ].join('\n');
+  /* ------------------ Canine Atopic Dermatitis | Apoquel 1 ------------------ */
+    function generateDogAtopicDermatitis1ApoquelTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
+    `Apoquel has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
     'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2412,20 +2461,20 @@ function insertTemplatesIntoDocument() {
 
     greenKeys: [],
     linkKeys: [],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Apoquel 2, Maintenance ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Apoquel 2, Maintenance ------------------ */
+    function generateDogAtopicDermatitis2ApoquelTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitis2ApoquelTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2436,18 +2485,18 @@ function insertTemplatesIntoDocument() {
     };
     }
 
-/* ------------------ Canine Atopic Dermatitis | Apoquel 3, Add Cytopoint ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Apoquel 3, Add Cytopoint ------------------ */
+    function generateDogAtopicDermatitis3ApoquelTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
+    `Continue to give Apoquel as you’ve been doing. If you see full allergy control, you can try discontinuing Apoquel in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitis3ApoquelTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
-  `Continue to give Apoquel as you’ve been doing. If you see full allergy control, you can try discontinuing Apoquel in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2456,21 +2505,21 @@ function insertTemplatesIntoDocument() {
       `ANTIHISTAMINE_ADDITION`,
       `SYNERGISTIC_MEDICINE`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Apoquel 4 Switch to Zenrelia ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Apoquel 4 Switch to Zenrelia ------------------ */
+    function generateDogAtopicDermatitis4ApoquelTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel doesn’t appear to be effective enough. We will be switching your dog to Zenrelia instead to see if this better controls allergies. Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
+    `If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitis4ApoquelTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel doesn’t appear to be effective enough. We will be switching your dog to Zenrelia instead to see if this better controls allergies. Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
-  `If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2479,22 +2528,21 @@ function insertTemplatesIntoDocument() {
       `ANTIHISTAMINE_ADDITION`,
       `ZENRELIA_AND_APOQUEL_WARNING`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Cytopoint 1 ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Cytopoint 1 ------------------ */
+    function generateDogAtopicDermatitis1CytopointTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
+    `Cytopoint has been given in clinic to resolve allergies. It typically lasts 4 - 8 weeks. If itching & scratching occurs before 4 weeks, Apoquel OR Zenrelia (oral pills given once a day) can be sent home in addition to monthly Cytopoint injections to better control allergies.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitis1CytopointTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-  `Cytopoint has been given in clinic to resolve allergies. It typically lasts 4 - 8 weeks. If itching & scratching occurs before 4 weeks, Apoquel OR Zenrelia (oral pills given once a day) can be sent home in addition to monthly Cytopoint injections to better control allergies.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2502,20 +2550,20 @@ function insertTemplatesIntoDocument() {
     boldUnderlineKeys: [
       `CYTOPOINT_STARTER`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Cytopoint 2 ------------------ */
-  function generateDogAtopicDermatitis2CytopointTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Cytopoint injections to control them. The injection was given today & typically lasts 4 - 8 weeks. If the allergies return before 4 weeks, your dog may need Apoquel or Zenrelia in addition to Cytopoint. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
-  ].join('\n');
+  /* ------------------ Canine Atopic Dermatitis | Cytopoint 2 ------------------ */
+    function generateDogAtopicDermatitis2CytopointTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Cytopoint injections to control them. The injection was given today & typically lasts 4 - 8 weeks. If the allergies return before 4 weeks, your dog may need Apoquel or Zenrelia in addition to Cytopoint. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2523,21 +2571,21 @@ function insertTemplatesIntoDocument() {
     boldUnderlineKeys: [
       `CYTOPOINT_ADDITIONAL_SUPPORT`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Meds Declined ------------------ */
-  function generateDogAtopicDermatitisMedsDeclinedTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
-  `Cytopoint (an injection given every 4 - 8 weeks) or either Apoquel OR Zenrelia (oral pills given every 24 hours) are more effective than over the counter medicine and are advised, but you have elected to try antihistamines first. You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
-  ].join('\n');
+  /* ------------------ Canine Atopic Dermatitis | Meds Declined ------------------ */
+    function generateDogAtopicDermatitisMedsDeclinedTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
+    `Cytopoint (an injection given every 4 - 8 weeks) or either Apoquel OR Zenrelia (oral pills given every 24 hours) are more effective than over the counter medicine and are advised, but you have elected to try antihistamines first. You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2545,20 +2593,21 @@ function insertTemplatesIntoDocument() {
     boldUnderlineKeys: [
       `ANTIHISTAMINE_DOSAGE1`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Zenrelia 1 ------------------ */
-  function generateDogAtopicDermatitis1ZenreliaTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-  `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies.`,
-  ].join('\n');
+  /* ------------------ Canine Atopic Dermatitis | Zenrelia 1 ------------------ */
+    function generateDogAtopicDermatitis1ZenreliaTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
+    `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies.`,
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
     'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2569,19 +2618,20 @@ function insertTemplatesIntoDocument() {
 
     greenKeys: [],
     linkKeys: [],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Zenrelia 2, Maintenance ------------------ */
-  function generateDogAtopicDermatitis2ZenreliaTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
-  ].join('\n');
+  /* ------------------ Canine Atopic Dermatitis | Zenrelia 2, Maintenance ------------------ */
+    function generateDogAtopicDermatitis2ZenreliaTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
     'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2589,21 +2639,21 @@ function insertTemplatesIntoDocument() {
     boldUnderlineKeys: [
     `ANTIHISTAMINE_ADDITION`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Atopic Dermatitis | Zenrelia 3, Add Cytopoint ------------------ */
+  /* ------------------ Canine Atopic Dermatitis | Zenrelia 3, Add Cytopoint ------------------ */
+    function generateDogAtopicDermatitis3ZenreliaTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. However, Zenrelia on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
+    `Continue to give Zenrelia as you’ve been doing. If you see full allergy control, you can try discontinuing Zenrelia in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    ].join('\n');
 
-  function generateDogAtopicDermatitis3ZenreliaTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. However, Zenrelia on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
-  `Continue to give Zenrelia as you’ve been doing. If you see full allergy control, you can try discontinuing Zenrelia in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
-  ].join('\n');
-
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
       'ATOPIC_DERMATITIS_HEADER',
     ],
@@ -2612,21 +2662,22 @@ function insertTemplatesIntoDocument() {
       `ANTIHISTAMINE_ADDITION`,
       `SYNERGISTIC_MEDICINE`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 1st NSAID, Initial ------------------ */
-  function generateDogOsteoarthritis1NSAIDTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
-  `Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+/* ------------------ CANINE MUSCULOSKELETAL ------------------ */
+  /* ------------------ Canine Osteoarthritis | 1st NSAID, Initial ------------------ */
+    function generateDogOsteoarthritis1NSAIDTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
+    `Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
       `OSTEOARTHRITIS_HEADER`,
     ],
@@ -2635,19 +2686,20 @@ function insertTemplatesIntoDocument() {
       `ARTHRITIS_DETECTED`,
       `NSAID_LABWORK_REQUIREMENT`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 2nd NSAID, Maintenance ------------------ */
-  function generateDogOsteoarthritis2NSAIDTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs. Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+  /* ------------------ Canine Osteoarthritis | 2nd NSAID, Maintenance ------------------ */
+    function generateDogOsteoarthritis2NSAIDTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs. Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
       `OSTEOARTHRITIS_HEADER`,
     ],
@@ -2659,20 +2711,21 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
 
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 3rd NSAID, Switch NSAIDs ------------------ */
-  function generateDogOsteoarthritis3NSAIDTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
-  `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. We will be switching to a different NSAID to see if better control is provided while still being safe for your pet. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
-  `If we still don’t see the improvement we’d like, we can discuss adding on alternatives such as Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+  /* ------------------ Canine Osteoarthritis | 3rd NSAID, Switch NSAIDs ------------------ */
+    function generateDogOsteoarthritis3NSAIDTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. We will be switching to a different NSAID to see if better control is provided while still being safe for your pet. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
+    `If we still don’t see the improvement we’d like, we can discuss adding on alternatives such as Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
       `OSTEOARTHRITIS_HEADER`,
     ],
@@ -2684,22 +2737,22 @@ function insertTemplatesIntoDocument() {
     linkKeys: [
 
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 1st Gabapentin ------------------ */
-  function generateDogOsteoarthritis1GabapentinTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 1st Gabapentin ------------------ */
+    function generateDogOsteoarthritis1GabapentinTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
     `Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen. Instead, immediate relief can be provided via NSAIDs such as carprofen & grapiprant. Bloodwork is recommended every 6 - 12 months while on NSAIDs. `,
     `You’ve elected to try gabapentin. While less effective than NSAIDs, they do not require bloodwork and still offer excellent pain control. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative that you can add on to improve mobility, but they do not reduce pain on their own. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
-
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
        'OSTEOARTHRITIS_HEADER'
        ],
@@ -2708,20 +2761,21 @@ function insertTemplatesIntoDocument() {
       `ARTHRITIS_DETECTED`, 
       `GABAPENTIN_DECISION`,
       ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 2nd Gabapentin, Continue ------------------ */
-  function generateDogOsteoarthritis2GabapentinTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 2nd Gabapentin, Continue ------------------ */
+    function generateDogOsteoarthritis2GabapentinTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Your dog is known to have arthritis & is currently on gabapentin. Alternatives to gabapentin include Librela, an injection that can be given once a month with minimal side effects. However, it may take 2 - 3 months before improvement is seen. Non-steroidal anti-inflammatory drugs such as carprofen & grapiprant can also control arthritis so long as steroids aren’t currently being given. Bloodwork is recommended every 6 - 12 months while on NSAIDs.`,
     `Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can also be added to any treatment plan to increase mobility but will not control pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
       `OSTEOARTHRITIS_HEADER`,
     ],
@@ -2730,20 +2784,21 @@ function insertTemplatesIntoDocument() {
       `ARTHRITIS_WEIGHT_MANAGEMENT`,
       `GABAPENTIN_ARTHRITIS_MANAGEMENT`,
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 1st Joint Supplements ------------------ */
-  function generateDogOsteoarthritis1JointSupplementsTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 1st Joint Supplements ------------------ */
+    function generateDogOsteoarthritis1JointSupplementsTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. Immediate relief can be provided via gabapentin or non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant. NSAIDs are more effective at controlling arthritis than gabapentin & require bloodwork every 6 months. Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen.`,
     `At this time you’ve elected to try joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
       "OSTEOARTHRITIS_HEADER" 
     ],
@@ -2753,20 +2808,21 @@ function insertTemplatesIntoDocument() {
       "ARTHRITIS_WEIGHT_MANAGEMENT",
       "JOINT_SUPPLEMENTS_DECISION",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 2nd Joint Supplements, Continue ------------------ */
-  function generateDogOsteoarthritis2JointSupplementsTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 2nd Joint Supplements, Continue ------------------ */
+    function generateDogOsteoarthritis2JointSupplementsTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Your dog is known to have arthritis & currently gets joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant provide immediate relief from arthritis so long as steroids aren’t currently being given. Bloodwork is required every 6 months while on NSAIDs. `,
     `Gabapentin can be used in addition to or instead of NSAIDs with minimal side effects, though it isn’t as effective as NSAIDs. Finally, the Librela injection can be given once a month though it can take 2 - 3 months to see improvement. If you have concerns about your dog’s arthritis, contact the clinic & we can discuss which medicine is best for your dog. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
       "OSTEOARTHRITIS_HEADER" 
     ],
@@ -2775,21 +2831,22 @@ function insertTemplatesIntoDocument() {
       "ARTHRITIS_WEIGHT_MANAGEMENT",
       "JOINT_SUPPLEMENTS_KNOWN",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 1st Librela ------------------ */
-  function generateDogOsteoarthritis1LibrelaTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 1st Librela ------------------ */
+    function generateDogOsteoarthritis1LibrelaTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
     `Librela, an injection given once a month that controls arthritis, was given today. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. If signs are seen, bring your dog back immediately as these are signs of a reaction. Librela may take 2 - 3 months before full effects are seen, so oral medicine (gabapentin, carprofen, grapiprant, etc.) can be used in the meantime if necessary.`,
     `You can continue giving joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) to help improve joint mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
       "OSTEOARTHRITIS_HEADER" 
     ],
@@ -2799,19 +2856,20 @@ function insertTemplatesIntoDocument() {
       "ARTHRITIS_WEIGHT_MANAGEMENT" ,
       "LIBRELA_ADVERSE_RXN",
     ],
-  };
-  }
+    };
+    }
 
-/* ------------------ Canine Osteoarthritis | 2nd Librela ------------------ */
-  function generateDogOsteoarthritis2LibrelaTemplate(sex) {
-  const p = getPronoun(sex);
-  const text = [
+  /* ------------------ Canine Osteoarthritis | 2nd Librela ------------------ */
+    function generateDogOsteoarthritis2LibrelaTemplate(sex) {
+    const p = getPronoun(sex);
+    const text = [
     `Osteoarthritis: Your dog is known to have arthritis & currently gets Librela injections. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. Bring your dog back immediately if any are seen. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can be added in addition to further improve mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
-  ].join('\n');
+    ].join('\n');
 
-  return {
+    return {
     sex,
     text,
+    diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
       "OSTEOARTHRITIS_HEADER" 
     ],
@@ -2820,8 +2878,8 @@ function insertTemplatesIntoDocument() {
       "ARTHRITIS_WEIGHT_MANAGEMENT",
       "LIBRELA_ADVERSE_RXN",
     ],
-  };
-  }  
+    };
+    }  
 
 /* ------------------ TEMPLATE DEFINITIONS ------------------ */
   const RAW_TEMPLATE_DEFINITIONS = {
@@ -3437,17 +3495,59 @@ if (rowColor) {
 
 /* ------------------ EXPAND KEYWORDS FROM SIDEBAR ------------------ */
   function expandKeywordsFromSidebar(keyword) {
-  if (keyword.toLowerCase() === "/generatemedicinetable") {
-    generateMedicineTableFromBuffer();
+  const body = DocumentApp.getActiveDocument().getBody();
+  const normalized = keyword.toLowerCase().trim();
+
+  // --- SPECIAL: Medication Table Trigger ---
+  if (normalized === "/generatemedicinetable") {
+    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     insertDiagnosesIntoDocument();
+    insertTemplatesIntoDocument();
     return;
   }
 
-  const body = DocumentApp.getActiveDocument().getBody();
-  const insertIndex = body.getNumChildren();
+  // --- RESET HANDLING (match main engine behavior) ---
+  if (normalized.endsWith("reset")) {
+    const templateFn = TEMPLATE_DEFINITIONS[normalized];
+    if (templateFn) {
+      const template = templateFn();
 
-  insertTemplateAtIndex(body, resolveTemplate(keyword), insertIndex);
+      body.clear();
+      insertTemplateAtIndex(body, template, 0);
 
-  generateMedicineTableFromBuffer();
+      if (template.customAction) template.customAction();
+    }
+    return;
+  }
+
+  // --- NORMAL TEMPLATE HANDLING (BUFFER, DON'T INSERT) ---
+  const templateFn = TEMPLATE_DEFINITIONS[normalized];
+  if (templateFn) {
+    const template = templateFn();
+
+    let rank = 99;
+
+    if (template.diagnoses && template.diagnoses.length > 0) {
+      bufferDiagnoses(template.diagnoses);
+
+      const firstKey = template.diagnoses[0];
+      rank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 99;
+    }
+
+    bufferTemplate(template, rank);
+
+    if (template.customAction) template.customAction();
+  }
+
+  // --- MEDICATION COMMANDS ---
+  if (normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[normalized]) {
+    const medRow = processMedicationCommand(keyword);
+    if (medRow) TABLE_ROW_BUFFER.push(medRow);
+  }
+
+  // --- FINAL FLUSH (same as expandKeywords) ---
+  if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
+
   insertDiagnosesIntoDocument();
+  insertTemplatesIntoDocument();
   }
