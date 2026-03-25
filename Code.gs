@@ -527,47 +527,66 @@
 
       // 2. Find the "Comprehensive Summary" anchor
       let summaryIndex = -1;
-      const numChildren = body.getNumChildren();
-      for (let i = 0; i < numChildren; i++) {
-      const text = body.getChild(i).asParagraph().getText().trim().toLowerCase();
+      for (let i = 0; i < body.getNumChildren(); i++) {
+      const child = body.getChild(i);
+      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+
+      const text = child.asParagraph().getText().trim().toLowerCase();
       if (text === "comprehensive summary") {
       summaryIndex = i;
       break;
       }
       }
-      const targetBase = (summaryIndex === -1) ? numChildren : summaryIndex + 1;
+
+      // --- CLEANUP WHITESPACE ---
+      if (summaryIndex !== -1) {
+      let nextIdx = summaryIndex + 1;
+      while (nextIdx < body.getNumChildren()) {
+      const nextChild = body.getChild(nextIdx);
+      if (nextChild.getType() === DocumentApp.ElementType.PARAGRAPH && 
+      nextChild.asParagraph().getText().trim() === "") {
+      if (body.getNumChildren() > 1) {
+      try {
+      nextChild.removeFromParent();
+      } catch (e) { break; }
+      } else { break; }
+      } else { break; }
+      }
+      }
+
+      // Define where the summary section starts
+      const targetBase = (summaryIndex === -1) ? body.getNumChildren() : summaryIndex + 1;
 
       templateBuffer.forEach(newTmpl => {
       let inserted = false;
       const newRank = newTmpl.rank || 999;
 
+      // Search existing paragraphs to see where to insert based on rank
       for (let i = targetBase; i < body.getNumChildren(); i++) {
-      const p = body.getChild(i).asParagraph();
-      const pText = p.getText().trim().toLowerCase();
-      if (!pText || !p.editAsText().isBold(0) || !pText.includes(':')) continue;
+      const child = body.getChild(i);
+      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
-      const headerText = pText.split(':')[0]; // Get text before the colon
+      const p = child.asParagraph();
+      const pText = p.getText().trim().toLowerCase();
+
+      // If we hit an empty line, the summary section has ended
+      if (!pText) break; 
+
+      if (!p.editAsText().isBold(0) || !pText.includes(':')) continue;
+
+      const headerText = pText.split(':')[0]; 
       let existingRank = null;
 
-      // 3. Deep Fuzzy Match: Word-by-word comparison
       for (const key in allDiags) {
       const diagText = allDiags[key].text.toLowerCase();
-
-      // Split the registry diagnosis into words (ignoring small words like "of", "the", "a")
       const diagWords = diagText.split(/\s+/).filter(word => word.length > 2);
-
-      // Count how many keywords from the Registry appear in the Document Header
       const matchCount = diagWords.filter(word => headerText.includes(word)).length;
-
-      // If most of the keywords match (e.g., "Atopic" and "Dermatitis" both found), 
-      // we've found our match regardless of extra info like "(Cytopoint)".
       if (matchCount >= Math.ceil(diagWords.length * 0.7)) {
       existingRank = allDiags[key].rank;
       break;
       }
       }
 
-      // 4. Rank Comparison
       if (existingRank !== null && existingRank > newRank) {
       insertTemplateAtIndex(body, newTmpl, i);
       inserted = true;
@@ -575,8 +594,19 @@
       }
       }
 
+      // --- FIXED FALLBACK LOGIC ---
       if (!inserted) {
-      insertTemplateAtIndex(body, newTmpl, body.getNumChildren());
+      // Instead of going to the absolute end of the doc, find the end of the text block
+      let fallbackIdx = targetBase;
+      while (fallbackIdx < body.getNumChildren()) {
+      const next = body.getChild(fallbackIdx);
+      // Stop if we hit a non-paragraph or an empty paragraph (the "floor")
+      if (next.getType() !== DocumentApp.ElementType.PARAGRAPH || next.asParagraph().getText().trim() === "") {
+      break;
+      }
+      fallbackIdx++;
+      }
+      insertTemplateAtIndex(body, newTmpl, fallbackIdx);
       }
       });
 
@@ -1340,198 +1370,198 @@
     }
 
 /* ------------------ Reverse Template Generator ------------------ */
-    // Main Function
-      function reverseGenerateTemplate() {
-      const body = DocumentApp.getActiveDocument().getBody();
-      const reverseMap = getReverseRegistryMap(); // Maps existing text/urls to keys
+  // Main Function
+    function reverseGenerateTemplate() {
+    const body = DocumentApp.getActiveDocument().getBody();
+    const reverseMap = getReverseRegistryMap(); // Maps existing text/urls to keys
 
-      if (typeof MEDICINE_REGISTRY === 'undefined') { var MEDICINE_REGISTRY = {}; }
+    if (typeof MEDICINE_REGISTRY === 'undefined') { var MEDICINE_REGISTRY = {}; }
 
-      const NEW_LINKS_REGISTRY = {};
-      const boldKeys = new Set();
-      const boldUnderlineKeys = new Set();
-      const italicKeys = new Set();
-      const greenKeys = new Set();
-      const redKeys = new Set();
-      const linkKeys = new Set();
-      const paragraphs = [];
+    const NEW_LINKS_REGISTRY = {};
+    const boldKeys = new Set();
+    const boldUnderlineKeys = new Set();
+    const italicKeys = new Set();
+    const greenKeys = new Set();
+    const redKeys = new Set();
+    const linkKeys = new Set();
+    const paragraphs = [];
 
-      for (let i = 0; i < body.getNumChildren(); i++) {
-      const element = body.getChild(i);
-      if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
-      const paragraph = element.asParagraph();
-      let text = paragraph.getText() || "";
-      if (!text.trim() || text.includes("/* --- REVERSE")) continue;
+    for (let i = 0; i < body.getNumChildren(); i++) {
+    const element = body.getChild(i);
+    if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
+    const paragraph = element.asParagraph();
+    let text = paragraph.getText() || "";
+    if (!text.trim() || text.includes("/* --- REVERSE")) continue;
 
-      paragraphs.push("`" + escapeBackticks(convertToGPronouns(text)) + "`");
+    paragraphs.push("`" + escapeBackticks(convertToGPronouns(text)) + "`");
 
-      extractFormattingSpans(paragraph.editAsText(), {
-      boldKeys, boldUnderlineKeys, italicKeys, greenKeys, redKeys, linkKeys
-      }, reverseMap, NEW_LINKS_REGISTRY);
-      }
+    extractFormattingSpans(paragraph.editAsText(), {
+    boldKeys, boldUnderlineKeys, italicKeys, greenKeys, redKeys, linkKeys
+    }, reverseMap, NEW_LINKS_REGISTRY);
+    }
 
-      if (element.getType() === DocumentApp.ElementType.TABLE) {
-      const table = element.asTable();
-      for (let r = 1; r < table.getNumRows(); r++) {
-      const row = table.getRow(r);
-      const rowData = [];
-      for (let c = 0; c < row.getNumCells(); c++) {
-      rowData.push((row.getCell(c).getText() || "").trim());
-      }
-      const label = rowData[0] || "";
-      let drugBase = label.split(' ')[0].replace(/[^A-Za-z]/g, "").toUpperCase();
-      if (!drugBase) continue;
+    if (element.getType() === DocumentApp.ElementType.TABLE) {
+    const table = element.asTable();
+    for (let r = 1; r < table.getNumRows(); r++) {
+    const row = table.getRow(r);
+    const rowData = [];
+    for (let c = 0; c < row.getNumCells(); c++) {
+    rowData.push((row.getCell(c).getText() || "").trim());
+    }
+    const label = rowData[0] || "";
+    let drugBase = label.split(' ')[0].replace(/[^A-Za-z]/g, "").toUpperCase();
+    if (!drugBase) continue;
 
-      let drugName = drugBase;
-      if (label.toLowerCase().includes("injection")) drugName += "INJECTION";
-      else if (label.toLowerCase().includes("liquid") || label.toLowerCase().includes("oral susp")) drugName += "LIQUID";
+    let drugName = drugBase;
+    if (label.toLowerCase().includes("injection")) drugName += "INJECTION";
+    else if (label.toLowerCase().includes("liquid") || label.toLowerCase().includes("oral susp")) drugName += "LIQUID";
 
-      if (!MEDICINE_REGISTRY[drugName]) {
-      MEDICINE_REGISTRY[drugName] = {
-      label: label, 
-      instructions: rowData[1] || "",
-      class: rowData[2] || "Unknown", 
-      sideEffects: rowData[3] || "Unknown"
-      };
-      }
-      }
-      }
-      }
+    if (!MEDICINE_REGISTRY[drugName]) {
+    MEDICINE_REGISTRY[drugName] = {
+    label: label, 
+    instructions: rowData[1] || "",
+    class: rowData[2] || "Unknown", 
+    sideEffects: rowData[3] || "Unknown"
+    };
+    }
+    }
+    }
+    }
 
-      const formatKeys = (set) => Array.from(set).sort().map(k => `"${k}"`).join(",\n      ");
+    const formatKeys = (set) => Array.from(set).sort().map(k => `"${k}"`).join(",\n      ");
 
-    // Generate Registry Code (New links only)
-      let registryCode = "";
-      const newLinkKeys = Object.keys(NEW_LINKS_REGISTRY);
-      if (newLinkKeys.length > 0) {
-      registryCode += "\n/* ------------------ New Format Registry Entries ------------------ */\n";
-      newLinkKeys.sort().forEach(key => {
-      const link = NEW_LINKS_REGISTRY[key];
-      registryCode += `${key} : {\n  text: "${String(link.text).replace(/"/g, '\\"')}",\n  url: \`${link.url}\`\n},\n`;
-      });
-      }
+  // Generate Registry Code (New links only)
+    let registryCode = "";
+    const newLinkKeys = Object.keys(NEW_LINKS_REGISTRY);
+    if (newLinkKeys.length > 0) {
+    registryCode += "\n/* ------------------ New Format Registry Entries ------------------ */\n";
+    newLinkKeys.sort().forEach(key => {
+    const link = NEW_LINKS_REGISTRY[key];
+    registryCode += `${key} : {\n  text: "${String(link.text).replace(/"/g, '\\"')}",\n  url: \`${link.url}\`\n},\n`;
+    });
+    }
 
-    // Prescription Registry
-      let prescripCode = "\n/* ------------------ Updated Prescription Registry ------------------ */\nconst PRESCRIPTION_REGISTRY = {\n";
-      Object.keys(MEDICINE_REGISTRY).sort().forEach(key => {
-      const med = MEDICINE_REGISTRY[key];
-      const safeLabel = String(med.label || "").replace(/"/g, '\\"');
-      const safeInstr = String(med.instructions || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
-      prescripCode += `  ${key}: { label: "${safeLabel}", instructions: "${safeInstr}", class: "${med.class}", sideEffects: "${med.sideEffects}" },\n`;
-      });
-      prescripCode += "};\n";
+  // Prescription Registry
+    let prescripCode = "\n/* ------------------ Updated Prescription Registry ------------------ */\nconst PRESCRIPTION_REGISTRY = {\n";
+    Object.keys(MEDICINE_REGISTRY).sort().forEach(key => {
+    const med = MEDICINE_REGISTRY[key];
+    const safeLabel = String(med.label || "").replace(/"/g, '\\"');
+    const safeInstr = String(med.instructions || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
+    prescripCode += `  ${key}: { label: "${safeLabel}", instructions: "${safeInstr}", class: "${med.class}", sideEffects: "${med.sideEffects}" },\n`;
+    });
+    prescripCode += "};\n";
 
-    // Generated Template
-      let templateCode = `// Generated Template
-      function generateTemplate(sex, plurality = 'singular') {
-      const g = getGrammar('wellness', plurality, sex);
-      return {
-      sex,
-      text: [
-      ${paragraphs.join(",\n      ")}
-      ].join('\\n'),
-      diagnoses: [""],\n`;
+  // Generated Template
+    let templateCode = `// Generated Template
+    function generateTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    text: [
+    ${paragraphs.join(",\n      ")}
+    ].join('\\n'),
+    diagnoses: [""],\n`;
 
-      // Only add keys if they have content
-      if (boldKeys.size > 0) templateCode += `    boldKeys: [\n      ${formatKeys(boldKeys)}\n    ],\n\n`;
-      if (boldUnderlineKeys.size > 0) templateCode += `    boldUnderlineKeys: [\n      ${formatKeys(boldUnderlineKeys)}\n    ],\n\n`;
-      if (italicKeys.size > 0) templateCode += `    italicKeys: [\n      ${formatKeys(italicKeys)}\n    ],\n\n`;
-      if (greenKeys.size > 0) templateCode += `    greenKeys: [\n      ${formatKeys(greenKeys)}\n    ],\n\n`;
-      if (redKeys.size > 0) templateCode += `    redKeys: [\n      ${formatKeys(redKeys)}\n    ],\n\n`;
-      if (linkKeys.size > 0) templateCode += `    linkKeys: [\n      ${formatKeys(linkKeys)}\n    ],\n\n`;
+    // Only add keys if they have content
+    if (boldKeys.size > 0) templateCode += `    boldKeys: [\n      ${formatKeys(boldKeys)}\n    ],\n\n`;
+    if (boldUnderlineKeys.size > 0) templateCode += `    boldUnderlineKeys: [\n      ${formatKeys(boldUnderlineKeys)}\n    ],\n\n`;
+    if (italicKeys.size > 0) templateCode += `    italicKeys: [\n      ${formatKeys(italicKeys)}\n    ],\n\n`;
+    if (greenKeys.size > 0) templateCode += `    greenKeys: [\n      ${formatKeys(greenKeys)}\n    ],\n\n`;
+    if (redKeys.size > 0) templateCode += `    redKeys: [\n      ${formatKeys(redKeys)}\n    ],\n\n`;
+    if (linkKeys.size > 0) templateCode += `    linkKeys: [\n      ${formatKeys(linkKeys)}\n    ],\n\n`;
 
-      templateCode += `  };\n}\n${registryCode}${prescripCode}`;
+    templateCode += `  };\n}\n${registryCode}${prescripCode}`;
 
-      body.appendPageBreak();
-      body.appendParagraph("/* --- REVERSE GENERATED CODE --- */").setHeading(DocumentApp.ParagraphHeading.HEADING2);
-      body.appendParagraph(templateCode);
-      }
+    body.appendPageBreak();
+    body.appendParagraph("/* --- REVERSE GENERATED CODE --- */").setHeading(DocumentApp.ParagraphHeading.HEADING2);
+    body.appendParagraph(templateCode);
+    }
 
-    // Helpers 
-      function cleanSpaces(str) { 
-      return str ? String(str).replace(/[\u00a0\s]+/g, " ").trim() : ""; 
-      }
+  // Helpers 
+    function cleanSpaces(str) { 
+    return str ? String(str).replace(/[\u00a0\s]+/g, " ").trim() : ""; 
+    }
 
-      function getReverseRegistryMap() {
-      const reverseMap = { textToKey: {}, urlToKey: {} };
-      if (typeof FORMAT_REGISTRY === 'undefined') return reverseMap;
-      for (const key in FORMAT_REGISTRY) {
-      const val = FORMAT_REGISTRY[key];
-      if (typeof val === 'string') {
-      reverseMap.textToKey[cleanSpaces(val).toLowerCase()] = key;
-      } else if (val && typeof val === 'object') {
-      if (val.text) reverseMap.textToKey[cleanSpaces(val.text).toLowerCase()] = key;
-      if (val.url) reverseMap.urlToKey[String(val.url).trim()] = key;
-      }
-      }
-      return reverseMap;
-      }
+    function getReverseRegistryMap() {
+    const reverseMap = { textToKey: {}, urlToKey: {} };
+    if (typeof FORMAT_REGISTRY === 'undefined') return reverseMap;
+    for (const key in FORMAT_REGISTRY) {
+    const val = FORMAT_REGISTRY[key];
+    if (typeof val === 'string') {
+    reverseMap.textToKey[cleanSpaces(val).toLowerCase()] = key;
+    } else if (val && typeof val === 'object') {
+    if (val.text) reverseMap.textToKey[cleanSpaces(val.text).toLowerCase()] = key;
+    if (val.url) reverseMap.urlToKey[String(val.url).trim()] = key;
+    }
+    }
+    return reverseMap;
+    }
 
-      function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
-      const text = textElement.getText() || "";
-      let start = 0;
-      while (start < text.length) {
-      const isBold = textElement.isBold(start), isUnderline = textElement.isUnderline(start),
-      isItalic = textElement.isItalic(start), color = textElement.getForegroundColor(start),
-      linkUrl = textElement.getLinkUrl(start);
-      let end = start;
-      while (end < text.length && textElement.isBold(end) === isBold && textElement.isUnderline(end) === isUnderline &&
-      textElement.isItalic(end) === isItalic && textElement.getForegroundColor(end) === color && textElement.getLinkUrl(end) === linkUrl) {
-      end++;
-      }
-      let rawSpan = text.substring(start, end);
-      let spanClean = cleanSpaces(rawSpan);
+    function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
+    const text = textElement.getText() || "";
+    let start = 0;
+    while (start < text.length) {
+    const isBold = textElement.isBold(start), isUnderline = textElement.isUnderline(start),
+    isItalic = textElement.isItalic(start), color = textElement.getForegroundColor(start),
+    linkUrl = textElement.getLinkUrl(start);
+    let end = start;
+    while (end < text.length && textElement.isBold(end) === isBold && textElement.isUnderline(end) === isUnderline &&
+    textElement.isItalic(end) === isItalic && textElement.getForegroundColor(end) === color && textElement.getLinkUrl(end) === linkUrl) {
+    end++;
+    }
+    let rawSpan = text.substring(start, end);
+    let spanClean = cleanSpaces(rawSpan);
 
-      if (spanClean.length > 1) {
-      // Check if this text or URL is ALREADY in the registry
-      let existingKey = reverseMap.textToKey[spanClean.toLowerCase()] || (linkUrl ? reverseMap.urlToKey[linkUrl] : null);
+    if (spanClean.length > 1) {
+    // Check if this text or URL is ALREADY in the registry
+    let existingKey = reverseMap.textToKey[spanClean.toLowerCase()] || (linkUrl ? reverseMap.urlToKey[linkUrl] : null);
 
-      if (linkUrl) {
-      let linkKey = existingKey;
-      if (!linkKey) {
-      // Truly new link: create key and add to new registry
-      linkKey = spanClean.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
-      newLinksRegistry[linkKey] = { text: spanClean, url: linkUrl };
-      }
-      keys.linkKeys.add(linkKey);
-      } else {
-      const isGreen = (color === "#008000" || color === "#b6d7a8"), 
-        isRed = (color === "#ff0000" || color === "#ea9999");
+    if (linkUrl) {
+    let linkKey = existingKey;
+    if (!linkKey) {
+    // Truly new link: create key and add to new registry
+    linkKey = spanClean.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
+    newLinksRegistry[linkKey] = { text: spanClean, url: linkUrl };
+    }
+    keys.linkKeys.add(linkKey);
+    } else {
+    const isGreen = (color === "#008000" || color === "#b6d7a8"), 
+      isRed = (color === "#ff0000" || color === "#ea9999");
 
-      let identifier = existingKey || spanClean;
+    let identifier = existingKey || spanClean;
 
-      if (isGreen) keys.greenKeys.add(identifier);
-      else if (isRed) keys.redKeys.add(identifier);
-      else {
-      if (isBold && isUnderline) keys.boldUnderlineKeys.add(identifier);
-      else if (isBold) keys.boldKeys.add(identifier);
-      if (isItalic) keys.italicKeys.add(identifier);
-      }
-      }
-      }
-      start = end;
-      }
-      }
+    if (isGreen) keys.greenKeys.add(identifier);
+    else if (isRed) keys.redKeys.add(identifier);
+    else {
+    if (isBold && isUnderline) keys.boldUnderlineKeys.add(identifier);
+    else if (isBold) keys.boldKeys.add(identifier);
+    if (isItalic) keys.italicKeys.add(identifier);
+    }
+    }
+    }
+    start = end;
+    }
+    }
 
-      function convertToGPronouns(text) {
-      if (!text) return "";
-      const pronouns = { 
-      " he ": " ${g.he} ", " she ": " ${g.he} ", 
-      " him ": " ${g.him} ", " her ": " ${g.him} ", 
-      " his ": " ${g.his} ", " hers ": " ${g.his} ", 
-      " He ": " ${g.he} ", " She ": " ${g.he} ",
-      " His ": " ${g.his} ", " Her ": " ${g.his} "
-      };
-      let newText = text;
-      for (const [key, val] of Object.entries(pronouns)) { 
-      newText = newText.replace(new RegExp(key, "g"), val); 
-      }
-      return newText;
-      }
+    function convertToGPronouns(text) {
+    if (!text) return "";
+    const pronouns = { 
+    " he ": " ${g.he} ", " she ": " ${g.he} ", 
+    " him ": " ${g.him} ", " her ": " ${g.him} ", 
+    " his ": " ${g.his} ", " hers ": " ${g.his} ", 
+    " He ": " ${g.he} ", " She ": " ${g.he} ",
+    " His ": " ${g.his} ", " Her ": " ${g.his} "
+    };
+    let newText = text;
+    for (const [key, val] of Object.entries(pronouns)) { 
+    newText = newText.replace(new RegExp(key, "g"), val); 
+    }
+    return newText;
+    }
 
-      function escapeBackticks(text) { 
-      return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
-      }
+    function escapeBackticks(text) { 
+    return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
+    }
 
 /* ------------------ CANINE WELLNESS ------------------ */
   // 8 Week Wellness Template
@@ -2258,7 +2288,7 @@
     }
 
 /* ------------------ CANINE CARDIOLOGY ------------------ */
-  //  Canine Heart Murmur | 0th Discovered, No Tests
+  // Canine Heart Murmur | 0th Discovered, No Tests
     function generateDogHeartMurmur0Template(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2294,7 +2324,7 @@
     };
     }
 
-  //  Canine Heart Murmur | 1st, Normal Radiographs
+  // Canine Heart Murmur | 1st, Normal Radiographs
     function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2331,7 +2361,7 @@
     };
     }
 
-  //  Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan
+  // Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan
     function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2402,7 +2432,7 @@
     }
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
-  //  Canine Periodontal Disease | Mild
+  // Canine Periodontal Disease | Mild
     function generateDog1PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2434,7 +2464,7 @@
     };
     }
 
-  //  Canine Periodontal Disease | Moderate
+  // Canine Periodontal Disease | Moderate
     function generateDog2PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2468,7 +2498,7 @@
     };
     }
 
-  //  Canine Periodontal Disease | Severe
+  // Canine Periodontal Disease | Severe
     function generateDog3PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2502,7 +2532,7 @@
     };
     }
 
-  //  Canine Periodontal Disease | Age Restricted
+  // Canine Periodontal Disease | Age Restricted
     function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2528,7 +2558,7 @@
     };
     }
 
-  //  Canine Periodontal Disease | Concurrent Disease
+  // Canine Periodontal Disease | Concurrent Disease
     function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2553,7 +2583,7 @@
     };
     }
 
-  //  Canine Periodontal Disease | Heart Murmur
+  // Canine Periodontal Disease | Heart Murmur
     function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2579,7 +2609,7 @@
     }
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
-  //  Canine Atopic Dermatitis | Antihistamines 1
+  // Canine Atopic Dermatitis | Antihistamines 1
     function generateDogAtopicDermatitisMild1Template(sex) {
     const p = getPronoun(sex);
 
@@ -2603,7 +2633,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Antihistamines 2
+  // Canine Atopic Dermatitis | Antihistamines 2
     function generateDogAtopicDermatitisMild2Template(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2624,7 +2654,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Apoquel 1
+  // Canine Atopic Dermatitis | Apoquel 1
     function generateDogAtopicDermatitis1ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2650,7 +2680,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Apoquel 2, Maintenance
+  // Canine Atopic Dermatitis | Apoquel 2, Maintenance
     function generateDogAtopicDermatitis2ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2671,7 +2701,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Apoquel 3, Add Cytopoint
+  // Canine Atopic Dermatitis | Apoquel 3, Add Cytopoint
     function generateDogAtopicDermatitis3ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2694,7 +2724,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
+  // Canine Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
     function generateDogAtopicDermatitis4ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2717,7 +2747,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Cytopoint 1
+  // Canine Atopic Dermatitis | Cytopoint 1
     function generateDogAtopicDermatitis1CytopointTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2739,7 +2769,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Cytopoint 2
+  // Canine Atopic Dermatitis | Cytopoint 2
     function generateDogAtopicDermatitis2CytopointTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2760,7 +2790,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Meds Declined
+  // Canine Atopic Dermatitis | Meds Declined
     function generateDogAtopicDermatitisMedsDeclinedTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2782,7 +2812,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Zenrelia 1
+  // Canine Atopic Dermatitis | Zenrelia 1
     function generateDogAtopicDermatitis1ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2807,7 +2837,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Zenrelia 2, Maintenance
+  // Canine Atopic Dermatitis | Zenrelia 2, Maintenance
     function generateDogAtopicDermatitis2ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2828,7 +2858,7 @@
     };
     }
 
-  //  Canine Atopic Dermatitis | Zenrelia 3, Add Cytopoint
+  // Canine Atopic Dermatitis | Zenrelia 3, Add Cytopoint
     function generateDogAtopicDermatitis3ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2852,7 +2882,7 @@
     }
 
 /* ------------------ CANINE MUSCULOSKELETAL ------------------ */
-  //  Canine Osteoarthritis | 1st NSAID, Initial
+  // Canine Osteoarthritis | 1st NSAID, Initial
     function generateDogOsteoarthritis1NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2875,7 +2905,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 2nd NSAID, Maintenance
+  // Canine Osteoarthritis | 2nd NSAID, Maintenance
     function generateDogOsteoarthritis2NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2900,7 +2930,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 3rd NSAID, Switch NSAIDs
+  // Canine Osteoarthritis | 3rd NSAID, Switch NSAIDs
     function generateDogOsteoarthritis3NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2926,7 +2956,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 1st Gabapentin
+  // Canine Osteoarthritis | 1st Gabapentin
     function generateDogOsteoarthritis1GabapentinTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2950,7 +2980,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 2nd Gabapentin, Continue
+  // Canine Osteoarthritis | 2nd Gabapentin, Continue
     function generateDogOsteoarthritis2GabapentinTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2973,7 +3003,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 1st Joint Supplements
+  // Canine Osteoarthritis | 1st Joint Supplements
     function generateDogOsteoarthritis1JointSupplementsTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2997,7 +3027,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 2nd Joint Supplements, Continue
+  // Canine Osteoarthritis | 2nd Joint Supplements, Continue
     function generateDogOsteoarthritis2JointSupplementsTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3020,7 +3050,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 1st Librela
+  // Canine Osteoarthritis | 1st Librela
     function generateDogOsteoarthritis1LibrelaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3045,7 +3075,7 @@
     };
     }
 
-  //  Canine Osteoarthritis | 2nd Librela
+  // Canine Osteoarthritis | 2nd Librela
     function generateDogOsteoarthritis2LibrelaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3085,7 +3115,7 @@
     customAction: generateMedicineTableFromBuffer
     }),
 
-  //  Puppy Wellness
+  // Puppy Wellness
     '/cReset': () => generateCanineResetTemplate(),
     '/fReset': () => generateFelineResetTemplate(),
     '/c8wksSmallMale': () => generate8WkWellnessTemplate('small', 'male'),
@@ -3109,7 +3139,7 @@
     '/c16wksFemale': () => generate16WkWellnessTemplate('small', 'female'),
     '/c16wksFemales': () => generate16WkWellnessTemplate('small', 'female', 'plural'),
 
-  //  Canine Adult Wellness
+  // Canine Adult Wellness
     '/cInitialAdultMale': () => generateInitialAdultTemplate('male'),
     '/cInitialAdultMales': () => generateInitialAdultTemplate('male', 'plural'),
     '/cInitialAdultFemale': () => generateInitialAdultTemplate('female'),
@@ -3152,20 +3182,20 @@
     '/cUnderweightFemale': () => generateDogUnderweightTemplate('female'),
     '/cUnderweightFemales': () => generateDogUnderweightTemplate('female', 'plural'),
 
-  //  Canine Ophthalmology
+  // Canine Ophthalmology
     '/cBlind0Partial': () => generateDogBlind0PartialTemplate(),
     '/cBlind1': () => generateDogBlind1Template(),
     '/cBlind2Known': () => generateDogBlind2KnownTemplate(),
     '/cCherryEye': () => generateDogCherryEyeTemplate(),
     '/cCherryEyes': () => generateDogCherryEyeTemplate('male','plural'),
 
-  //  Canine Cardiology
+  // Canine Cardiology
     '/cHeartMurmur0': () => generateDogHeartMurmur0Template(),
     '/cHeartMurmur1RadiographsNormal': () => generateDogHeartMurmur1RadiographsNormalTemplate(),
     '/cHeartMurmur1Cardiomegaly': () => generateDogHeartMurmur1CardiomegalyTemplate(),
     '/cHeartMurmur3Known': () => generateDogHeartMurmur3KnownTemplate(),
 
-  //  Gastrointestinal
+  // Gastrointestinal
     '/cPeriodontalDisease1Male': () => generateDog1PeriodontalDiseaseTemplate('male'),
     '/cPeriodontalDisease1Female': () => generateDog1PeriodontalDiseaseTemplate('female'),
     '/cPeriodontalDisease2Male': () => generateDog2PeriodontalDiseaseTemplate('male'),
@@ -3174,12 +3204,12 @@
     '/cPeriodontalDisease3Female': () => generateDog3PeriodontalDiseaseTemplate('female'),
     '/cPeriodontalDisease4AgeMale': () => generateDog4PeriodontalDiseaseAgeTemplate('male'),
     '/cPeriodontalDisease4AgeFemale': () => generateDog4PeriodontalDiseaseAgeTemplate('female'),
-    '/cPeriodontalDiseaseConcurrentDisease4Male': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('male'),
-    '/cPeriodontalDiseaseConcurrentDisease4Female': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('female'),
-    '/cPeriodontalDiseaseHeartMurmur4Male': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('male'),
-    '/cPeriodontalDiseaseHeartMurmur4Female': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('female'),
+    '/cPeriodontalDisease4ConcurrentDiseaseMale': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('male'),
+    '/cPeriodontalDisease4ConcurrentDiseaseFemale': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('female'),
+    '/cPeriodontalDisease4HeartMurmurMale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('male'),
+    '/cPeriodontalDisease4HeartMurmurFemale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('female'),
 
-  //  Musculoskeletal
+  // Musculoskeletal
     '/cOsteoarthritis1NSAID': () => generateDogOsteoarthritis1NSAIDTemplate(),
     '/cOsteoarthritis2NSAID': () => generateDogOsteoarthritis2NSAIDTemplate(),
     '/cOsteoarthritis3NSAID': () => generateDogOsteoarthritis3NSAIDTemplate(),
@@ -3190,10 +3220,10 @@
     '/cOsteoarthritis1Librela': () => generateDogOsteoarthritis1LibrelaTemplate(),
     '/cOsteoarthritis2Librela': () => generateDogOsteoarthritis2LibrelaTemplate(),
 
-  //  Immunology
+  // Immunology
     '/cVaccineInformation': () => generateDogVaccineInformationTemplate(),
 
-  //  Dermatology/
+  // Dermatology/
     '/cAtopicDermatitis1Antihistamines': () => generateDogAtopicDermatitisMild1Template(),
     '/cAtopicDermatitis2Antihistamines': () => generateDogAtopicDermatitisMild2Template(),
     '/cAtopicDermatitis1Apoquel': () => generateDogAtopicDermatitis1ApoquelTemplate(),
@@ -3208,7 +3238,7 @@
     '/cAtopicDermatitis3Zenrelia': () => generateDogAtopicDermatitis3ZenreliaTemplate(),
     };
 
-  //  Template Definitions
+  // Template Definitions
     const TEMPLATE_DEFINITIONS = {};
 
     Object.keys(RAW_TEMPLATE_DEFINITIONS).forEach(key => {
@@ -3242,7 +3272,7 @@
     }
 
 /* ------------------ EXPAND KEYWORDS ------------------ */
-  //  Main Function 
+  // Main Function 
     function expandKeywords() {
     const doc = DocumentApp.getActiveDocument();
     const body = doc.getBody();
@@ -3273,9 +3303,22 @@
     for (let i = matches.length - 1; i >= 0; i--) {
     const m = matches[i];
     const parent = m.element.getParent();
+
+    // Delete the actual keyword text (e.g., /cReset)
     m.element.deleteText(m.start, m.end);
+
+    // Check if the paragraph is now totally empty
     if (parent.asParagraph().getText().trim() === "") {
-    if (body.getNumChildren() > 1) body.removeChild(parent);
+    try {
+    // Only attempt removal if there is more than one element in the doc
+    if (body.getNumChildren() > 1) {
+    body.removeChild(parent);
+    }
+    } catch (e) {
+    // If Google still refuses to delete it (e.g., it's the last line),
+    // we just "catch" the error here and let the script keep running.
+    console.warn("Skipped paragraph removal to prevent crash: " + e.message);
+    }
     }
     }
 
@@ -3321,17 +3364,17 @@
     });
 
     // 5. FINAL FLUSH: Insert into the now-existing structure
-    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument();
+    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     }
 
-    /*  REGEX HELPERS ------------------ */
+  // Regex Helpers
     function escapeForRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    /*  INSERT TEMPLATE AT INDEX ------------------ */
+  // Insert Template at Index
     function insertTemplateAtIndex(body, template, insertIndex) {
     const paragraphs = template.text.split('\n');
     const insertedParagraphs = [];
@@ -3776,9 +3819,9 @@
     if (medRow) TABLE_ROW_BUFFER.push(medRow);
     }
 
-    // --- FINAL FLUSH (same as expandKeywords) ---
-    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
-
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument();
+
+    // --- FINAL FLUSH (same as expandKeywords) ---
+    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     }
