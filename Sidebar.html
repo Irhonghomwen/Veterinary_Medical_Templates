@@ -1,59 +1,60 @@
 <!DOCTYPE html>
-<html>
-  <head>
+  <!-- Main Function -->
+    <html>
+    <head>
     <base target="_top">
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        padding: 10px;
-      }
+    body {
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    }
 
-      input[type="text"] {
-        width: 100%;
-        padding: 6px;
-        margin-bottom: 10px;
-        box-sizing: border-box;
-        font-size: 14px;
-      }
+    input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    }
 
-      .category {
-        margin-bottom: 6px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
+    .category {
+    margin-bottom: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    }
 
-      .category-header {
-        background-color: #f1f3f4;
-        padding: 6px 8px;
-        font-weight: bold;
-        cursor: pointer;
-        user-select: none;
-      }
+    .category-header {
+    background-color: #f1f3f4;
+    padding: 6px 8px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    }
 
-      .category-content {
-        display: none; /* auto-collapsed */
-        padding: 6px 8px;
-      }
+    .category-content {
+    display: none; /* auto-collapsed */
+    padding: 6px 8px;
+    }
 
-      .template-button {
-        display: block;
-        width: 100%;
-        margin: 4px 0;
-        padding: 6px;
-        text-align: left;
-        background-color: #ffffff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+    .template-button {
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+    padding: 6px;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    }
 
-      .template-button:hover {
-        background-color: #e8f0fe;
-      }
+    .template-button:hover {
+    background-color: #e8f0fe;
+    }
     </style>
-  </head>
+    </head>
 
-  <body>
+    <body>
 
     <h3>Medical Template Picker</h3>
     <input type="text" id="searchBox" placeholder="Search templates...">
@@ -62,8 +63,8 @@
     <button class="template-button" onclick="expandKeywords()">Generate Templates</button>
     <button class="template-button" onclick="runReverseGenerator()">Reverse Generator</button>
     <button class="template-button" onclick="insertTemplate('/ieolibrary')">Template Library</button>
-    
-    <!-- DOG TEMPLATES -->
+
+  <!-- CANINE WELLNESS-->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 General Wellness 🐕</div>
       <div class="category-content">
@@ -119,6 +120,7 @@
       </div>
     </div>
 
+  <!-- CANINE OPHTHALMOLOGY-->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Ophthalmology 🐕</div>
       <div class="category-content">
@@ -127,11 +129,14 @@
         <button class="template-button" onclick="insertTemplate('/cBlind2Known')">Blind | 2nd, Known</button>
         <button class="template-button" onclick="insertTemplate('/cCherryEye')">Cherry Eye (Single)</button>
         <button class="template-button" onclick="insertTemplate('/cCherryEyes')">Cherry Eyes (Both)</button>
+        <button class="template-button" onclick="insertTemplate('/cConjunctivitisDiagnosed')">Conjunctivitis | Diagnosed</button>
+        <button class="template-button" onclick="insertTemplate('/cConjunctivitisTestsDeclined')">Conjunctivitis | Tests Declined</button>
       </div>
     </div>
 
+  <!-- CANINE CARDIOLOGY-->
     <div class="category">
-      <div class="category-header" onclick="toggleCategory(this)">🐶 Cardiovascular 🐕</div>
+      <div class="category-header" onclick="toggleCategory(this)">🐶 Cardiology 🐕</div>
       <div class="category-content">
         <button class="template-button" onclick="insertTemplate('/cHeartMurmur0')">Heart Murmur 0, Discovered</button>
         <button class="template-button" onclick="insertTemplate('/cHeartMurmur1RadiographsNormal')">Heart Murmur 1, Radiographs Normal</button>
@@ -140,16 +145,19 @@
       </div>
     </div>
 
+  <!-- CANINE RESPIRATORY-->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Respiratory 🐕</div>
       <div class="category-content"></div>
     </div>
 
+  <!-- CANINE ENDOCRINOLOGY -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Endocrine 🐕</div>
       <div class="category-content"></div>
     </div>
 
+  <!-- CANINE GASTROINTESTINAL -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Gastrointestinal 🐕</div>
       <div class="category-content">
@@ -159,25 +167,28 @@
         <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Female')">Moderate Periodontal Disease ♀</button>
         <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Male')">Severe Periodontal Disease ♂</button>
         <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Female')">Severe Periodontal Disease ♀</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseAge4Male')">Severe Periodontal Disease | Age Restricted ♂</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseAge4Female')">Severe Periodontal Disease | Age Restricted ♀</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseConcurrentDisease4Male')">Severe Periodontal Disease | Concurrent Disease ♂</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseConcurrentDisease4Female')">Severe Periodontal Disease | Concurrent Disease ♀</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseHeartMurmur4Male')">Severe Periodontal Disease | Heart Murmur ♂</button>
-        <button class="template-button" onclick="insertTemplate('/cPeriodontalDiseaseHeartMurmur4Female')">Severe Periodontal Disease | Heart Murmur ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeMale')">Severe Periodontal Disease | Age Restricted ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeFemale')">Severe Periodontal Disease | Age Restricted ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseMale')">Severe Periodontal Disease | Concurrent Disease ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseFemale')">Severe Periodontal Disease | Concurrent Disease ♀</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurMale')">Severe Periodontal Disease | Heart Murmur ♂</button>
+        <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurFemale')">Severe Periodontal Disease | Heart Murmur ♀</button>
       </div>
     </div>
 
+  <!-- CANINE URINARY & RENAL -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Urinary &amp; Renal 🐕</div>
       <div class="category-content"></div>
     </div>
 
+  <!-- CANINE REPRODUCTIVE -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Reproductive 🐕</div>
       <div class="category-content"></div>
     </div>
 
+  <!-- CANINE MUSCULOSKELETAL -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Musculoskeletal 🐕</div>
       <div class="category-content">
@@ -194,11 +205,13 @@
       </div>
     </div>
 
+  <!-- CANINE NEUROLOGY -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Neurology 🐕</div>
       <div class="category-content"></div>
     </div>
 
+  <!-- CANINE IMMUNOLOGY -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Immunology 🐕</div>
       <div class="category-content">
@@ -206,6 +219,7 @@
       </div>
     </div>
 
+  <!-- CANINE DERMATOLOGY -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Dermatology 🐕</div>
       <div class="category-content">
@@ -224,13 +238,14 @@
       </div>
     </div>
 
+  <!-- CANINE ONCOLOGY -->
     <div class="category">
       <div class="category-header" onclick="toggleCategory(this)">🐶 Oncology 🐕</div>
       <div class="category-content"></div>
     </div>
 
-    <!-- SCRIPT -->
-  <script>
+  <!-- SCRIPT -->
+    <script>
     function expandKeywords() {
     const btn = event.currentTarget;
     const originalText = btn.innerText;
@@ -349,5 +364,5 @@
     });
     });
     </script>
-  </body>
-</html>
+    </body>
+  </html>
