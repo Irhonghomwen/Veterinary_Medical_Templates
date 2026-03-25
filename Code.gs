@@ -22,8 +22,8 @@
   // Grammar Dictionary
     const GRAMMAR_DICTIONARY = {
     cherry_eye: {
-    singular: { gland: "gland", eye: "eye", make: "makes", is: "is", its: "its", this: "this", pro: "it" },
-    plural:   { gland: "glands", eye: "eyes", make: "make", is: "are", its: "their", this: "these", pro: "they" }
+    singular: { cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", its: "its", make: "makes", this: "this", pro: "it" },
+    plural:   { cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", its: "their", make: "make", this: "these", pro: "they" }
     },
 
     patella: {
@@ -121,6 +121,13 @@
     sideEffects: "Well tolerated"
     },
 
+    DOXYCYCLINE: {
+    label: "Doxycycline 100mg",
+    instructions: "Give your dog 1 tablet by mouth with food every 12 hours for treatment of bacterial infection. Give until gone.",
+    class: "Antibiotic",
+    sideEffects: "May cause vomiting or diarrhea."
+    },
+
     FUROSEMIDE: {
     label: "Furosemide 12.5 mg",
     instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
@@ -177,6 +184,20 @@
     sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
     },
 
+    NEOPOLYBACOINTMENT: {
+    label: "NeoPolyBac ointment (neomycin, polymyxin, bacitracin)",
+    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week.",
+    class: "Antibiotic, anti-inflammatory",
+    sideEffects: "Well tolerated"
+    },
+
+    NEOPOLYDEXSUSPENSION: {
+    label: "NeoPolyDex Suspension (neomycin, polymyxin B, dexamethasone)",
+    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week.",
+    class: "Antibiotic",
+    sideEffects: "Well tolerated"
+    },
+    
     NEXGARD: {
     label: "Nexgard",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
@@ -304,6 +325,16 @@
     rank: 70
     },
 
+    CONJUNCTIVITIS_DIAGNOSED: {
+    text: "Conjunctivitis",
+    rank: 71
+    },
+
+    CONJUNCTIVITIS_PRESUMED: {
+    text: "Conjunctivitis (presumed)",
+    rank: 75
+    },
+
     HEART_MURMUR: {
     text: "Heart murmur",
     rank: 1
@@ -344,7 +375,7 @@
     rank: 30
     },
 
-    PERIODONTAL_PERIODONTAL_DISEASE: {
+    PERIODONTAL_DISEASE: {
     text: "Periodontal disease",
     rank: 30
     },
@@ -700,7 +731,7 @@
     RESULTS_PENDING:
     `Results pending`,
 
-  // Vaccines
+  // Vaccines Registry
     BORDETELLA_VXN:
     'The 1 year bordetella vaccine',
 
@@ -754,7 +785,7 @@
     VXN_RXN: g =>
     `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads).`,
 
-  // Labwork
+  // Labwork Registry
     HEARTWORMS_HEADER: 
     'Heartworms:',
 
@@ -770,7 +801,7 @@
     HW_PREVENTION_SENTENCE: g =>
     `Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Simparica Trio, Revolution, etc.`,
 
-  // Spay & Neuter
+  // Spay & Neuter Registry
     LARGE_NEUTER: g =>
     `It is recommended you have ${g.him} neutered once ${g.he} ${g.is} 10 - 12 months old if you don’t intend to breed ${g.him}.`,
     
@@ -791,7 +822,7 @@
 
     SPAY_HEADER: 'Spay:',
 
-  // Diet
+  // Diet Registry
     DIET_HEADER:
     'Food:',
 
@@ -888,7 +919,7 @@
     url: 'https://www.royalcanin.com/us/dogs/products/senior-dog-food?lifestage=ageing|mature&digital_sub_category=wet_food'
     },
 
-  // Dental
+  // Dental Registry
     BRUSHING_LESS_EFFECTIVE: 
     'Brushing can still be performed right now but will be most effective after the next cleaning.',
 
@@ -938,7 +969,7 @@
     XYLITOL: 
     '(make sure xylitol isn’t listed as an ingredient),',
 
-  // Weight Management
+  // Weight Management Registry
     DIET_LIFESPAN:
     /Helping .*? to lose weight can increase .*? life span by as much as 1 ½ years\./,
 
@@ -1005,25 +1036,33 @@
     WEIGHT_HEADER:
     'Weight:',
 
-  // Ophthalmology
+  // Ophthalmology Registry
     BLIND_HEADER:
     "Blind:",
 
-    BLIND_OBSTACLE_COURSE: g =>
-    `Make sure to keep your living space free of obstacles to prevent your ${g.dog} from tripping or bumping into things by mistake.`,
+    BLIND_OBSTACLE_COURSE: 
+    /Make sure to keep your living space free of obstacles to prevent your (dog|cat) from tripping or bumping into things by mistake/i,
 
-    CHERRY_EYE_HEADER: g => 
-    `Cherry ${g.eye}:`,
+    CHERRY_EYE_HEADER: 
+    /Cherry eye(s)?:/i,
 
-    CHERRY_EYE_SURGERY_RECOMMENDATION: g => 
-    `For dogs older than 1 year it is best to have the cherry ${g.eye} corrected as soon as possible.`,
+    CHERRY_EYE_SURGERY_RECOMMENDATION: 
+    /For dogs older than 1 year it is best to have the cherry eye(s)? corrected as soon as possible/i,
+
+    CHERRY_EYE_IN_DOGS_AND_CATS_ARTICLE: { 
+      text: "Cherry Eye in Dogs and Cats", 
+      url: "https://vcahealthcare.com/know-your-pet/cherry-eye-in-dogs" 
+    },
+
+    CONJUNCTIVITIS_HEADER:
+    "Conjunctivitis:",
 
     HALO_HARNESS_ARTICLE: {
       text: "Halo harness",
-      url: `https://www.muffinshalo.com/`
+      url: "https://www.muffinshalo.com/"
     },
   
-  // Cardiology
+  // Cardiology Registry
     HEART_MURMUR_ARTICLE: {
     text: "Heart Murmurs in Dogs and Cats article",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952593`
@@ -1047,7 +1086,7 @@
     SCHEDULE_ECHOS: g =>
     `An echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
 
-  // Musculoskeletal
+  // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
     `Arthritis was detected in your ${g.dogs} joints.`,
 
@@ -1078,7 +1117,7 @@
     OSTEOARTHRITIS_HEADER: 
     `Osteoarthritis:`,
 
-  // Dermatology
+  // Dermatology Registry
     ALLERGY_EAR_RELATIONSHIP:
     `In fact, one of the most common causes of chronic ear infections is allergies.`,
     
@@ -1112,7 +1151,7 @@
     ZENRELIA_STARTER:
     `Zenrelia has been sent home to resolve allergies. Give as prescribed.`,
 
-  // Immunology
+  // Immunology Registry
     ADENOVIRUS_LINK: {
     text: `adenovirus & parainfluenza article`,
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951478`,
@@ -1172,16 +1211,19 @@
     url: `https://www.dshs.texas.gov/notifiable-conditions/zoonosis-control/zoonosis-control-diseases-and-conditions/rabies`,
     },
 
-  // General Illness
+  // General Illness Registry
     COMMON_CAUSES:
     /Common causes/i,
 
+    DIAGNOSE:
+    /Diagnose/i,
+    
     DIAGNOSIS:
     /Diagnosis/i,
     
-    DIAGNOSE:
-    /Diagnose/i,
-
+    RECHECK_ADVISE:
+    "Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).",
+    
     SYMPTOMS:
     /Symptoms/i,
 
@@ -1447,7 +1489,7 @@
     const med = MEDICINE_REGISTRY[key];
     const safeLabel = String(med.label || "").replace(/"/g, '\\"');
     const safeInstr = String(med.instructions || "").replace(/"/g, '\\"').replace(/\n/g, "\\n");
-    prescripCode += `  ${key}: { label: "${safeLabel}", instructions: "${safeInstr}", class: "${med.class}", sideEffects: "${med.sideEffects}" },\n`;
+    prescripCode += `  ${key}: {\nlabel: "${safeLabel}",\ninstructions: "${safeInstr}",\nclass: "${med.class}",\nsideEffects: "${med.sideEffects}"\n},\n`;
     });
     prescripCode += "};\n";
 
@@ -1457,10 +1499,10 @@
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
+    diagnoses: [""],
     text: [
     ${paragraphs.join(",\n      ")}
-    ].join('\\n'),
-    diagnoses: [""],\n`;
+    ].join('\\n'),\n`;
 
     // Only add keys if they have content
     if (boldKeys.size > 0) templateCode += `    boldKeys: [\n      ${formatKeys(boldKeys)}\n    ],\n\n`;
@@ -2101,6 +2143,7 @@
     return {
     sex,
     text,
+    rank: 100,
     boldKeys: [
     'WEIGHT_HEADER',
     ],
@@ -2191,7 +2234,7 @@
     }
 
 /* ------------------ CANINE OPTHALMOLOGY------------------ */
-  // Canine Blind | 0, Partial
+  // Blind | 0, Partial
     function generateDogBlind0PartialTemplate(sex) {
     const p = getPronoun(sex);
     return {
@@ -2213,7 +2256,7 @@
     };
     }
 
-  // Canine Blind | 1, Diagnosed
+  // Blind | 1, Diagnosed
     function generateDogBlind1Template(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2237,7 +2280,7 @@
     };
     }
 
-  // Canine Blind | 2, Known
+  // Blind | 2, Known
     function generateDogBlind2KnownTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2262,16 +2305,15 @@
     };
     }
 
-  // Canine Cherry Eye Template
+  // Cherry Eye
     function generateDogCherryEyeTemplate(sex, plurality = 'singular') {
     const g = getGrammar('cherry_eye', plurality, sex);
     return {
     sex,
     diagnoses: ["CHERRY_EYE"],
     text: [
-    `Cherry ${g.eye}: Your dog has a cherry ${g.eye}. This means that the ${g.gland} of the ${g.eye} that ${g.make} most of the tears ${g.is} poking out of ${g.its} normal position. Over time ${g.this} ${g.gland} can dry up & produce less tears, leading to a disorder known as dry eye. For dogs older than 1 year it is best to have the cherry ${g.eye} corrected as soon as possible. Surgery involves tucking the gland back in its normal position & using suture to prevent it from popping out again. You can learn more about cherry eyes from the Cherry Eye in Dogs and Cats article on Veterinary Partner.`
+    `Cherry ${g.eye}: Your dog has ${g.cherry_eye}. This means that the ${g.gland} of the ${g.eye} that ${g.make} most of the tears ${g.is} poking out of ${g.its} normal position. Over time ${g.this} ${g.gland} can dry up & produce less tears, leading to a disorder known as dry eye. For dogs older than 1 year it is best to have the cherry ${g.eye} corrected as soon as possible. Surgery involves tucking the gland back in its normal position & using suture to prevent it from popping out again. You can learn more about cherry eyes from the Cherry Eye in Dogs and Cats article on Veterinary Partner.`
     ].join('\n'),
-    diagnoses: ["CHERRY_EYE"],
 
     boldKeys: [
     "CHERRY_EYE_HEADER",
@@ -2287,8 +2329,48 @@
     };
     }
 
+  // Conjunctivitis | Tests Declined
+    function generateDogConjunctivitisTestsDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    diagnoses: ["CONJUNCTIVITIS_PRESUMED"],
+    text: [
+    `Conjunctivitis: Your dog’s eyes may be inflamed due to keratoconjunctivitis sicca (also known as dry eye, checked by the Schirmer tear test) corneal ulcers (checked by the fluorescein eye stain) or glaucoma (checked by tonometry) among other diseases. At this time you’ve declined to perform these tests in favour of symptomatic treatment. An antibiotic/anti-inflammatory eye medication has been sent home. Use as directed below. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "CONJUNCTIVITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE"
+    ],
+    };
+    }
+
+  // Conjunctivitis
+    function generateDogConjunctivitisDiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    diagnoses: ["CONJUNCTIVITIS_DIAGNOSED"],
+    text: [
+    `Conjunctivitis: Your dog’s eyes were checked for keratoconjunctivitis sicca (dry eye) via the Schirmer tear test, corneal ulcers via the fluorescein eye stain, & glaucoma via tonometry. At this time no signs of any of these diseases are present. As such, your dog has been diagnosed with conjunctivitis (inflammation of the eye due to irritation or infection). An antibiotic/anti-inflammatory eye medication has been sent home. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+    
+    boldKeys: [
+      "CONJUNCTIVITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE"
+    ],
+
+  };
+}
 /* ------------------ CANINE CARDIOLOGY ------------------ */
-  // Canine Heart Murmur | 0th Discovered, No Tests
+  // Heart Murmur | 0th Discovered, No Tests
     function generateDogHeartMurmur0Template(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2324,7 +2406,7 @@
     };
     }
 
-  // Canine Heart Murmur | 1st, Normal Radiographs
+  // Heart Murmur | 1st, Normal Radiographs
     function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2361,7 +2443,7 @@
     };
     }
 
-  // Canine Heart Murmur | 1st, Cardiomegaly, Start Pimobendan
+  // Heart Murmur | 1st, Cardiomegaly, Start Pimobendan
     function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2399,7 +2481,7 @@
     };
     }
 
-  // Canine Heart Murmur | 3rd, Known
+  // Heart Murmur | 3rd, Known
     function generateDogHeartMurmur3KnownTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2432,7 +2514,7 @@
     }
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
-  // Canine Periodontal Disease | Mild
+  // Periodontal Disease | Mild
     function generateDog1PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2464,7 +2546,7 @@
     };
     }
 
-  // Canine Periodontal Disease | Moderate
+  // Periodontal Disease | Moderate
     function generateDog2PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2498,7 +2580,7 @@
     };
     }
 
-  // Canine Periodontal Disease | Severe
+  // Periodontal Disease | Severe
     function generateDog3PeriodontalDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2532,7 +2614,7 @@
     };
     }
 
-  // Canine Periodontal Disease | Age Restricted
+  // Periodontal Disease | Age Restricted
     function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2558,7 +2640,7 @@
     };
     }
 
-  // Canine Periodontal Disease | Concurrent Disease
+  // Periodontal Disease | Concurrent Disease
     function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2583,7 +2665,7 @@
     };
     }
 
-  // Canine Periodontal Disease | Heart Murmur
+  // Periodontal Disease | Heart Murmur
     function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2609,7 +2691,7 @@
     }
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
-  // Canine Atopic Dermatitis | Antihistamines 1
+  // Atopic Dermatitis | Antihistamines 1
     function generateDogAtopicDermatitisMild1Template(sex) {
     const p = getPronoun(sex);
 
@@ -2633,7 +2715,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Antihistamines 2
+  // Atopic Dermatitis | Antihistamines 2
     function generateDogAtopicDermatitisMild2Template(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2654,7 +2736,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Apoquel 1
+  // Atopic Dermatitis | Apoquel 1
     function generateDogAtopicDermatitis1ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2680,7 +2762,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Apoquel 2, Maintenance
+  // Atopic Dermatitis | Apoquel 2, Maintenance
     function generateDogAtopicDermatitis2ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2701,7 +2783,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Apoquel 3, Add Cytopoint
+  // Atopic Dermatitis | Apoquel 3, Add Cytopoint
     function generateDogAtopicDermatitis3ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2724,7 +2806,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
+  // Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
     function generateDogAtopicDermatitis4ApoquelTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2747,7 +2829,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Cytopoint 1
+  // Atopic Dermatitis | Cytopoint 1
     function generateDogAtopicDermatitis1CytopointTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2769,7 +2851,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Cytopoint 2
+  // Atopic Dermatitis | Cytopoint 2
     function generateDogAtopicDermatitis2CytopointTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2790,7 +2872,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Meds Declined
+  // Atopic Dermatitis | Meds Declined
     function generateDogAtopicDermatitisMedsDeclinedTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2812,7 +2894,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Zenrelia 1
+  // Atopic Dermatitis | Zenrelia 1
     function generateDogAtopicDermatitis1ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2837,7 +2919,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Zenrelia 2, Maintenance
+  // Atopic Dermatitis | Zenrelia 2, Maintenance
     function generateDogAtopicDermatitis2ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2858,7 +2940,7 @@
     };
     }
 
-  // Canine Atopic Dermatitis | Zenrelia 3, Add Cytopoint
+  // Atopic Dermatitis | Zenrelia 3, Add Cytopoint
     function generateDogAtopicDermatitis3ZenreliaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2882,7 +2964,7 @@
     }
 
 /* ------------------ CANINE MUSCULOSKELETAL ------------------ */
-  // Canine Osteoarthritis | 1st NSAID, Initial
+  // Osteoarthritis | 1st NSAID, Initial
     function generateDogOsteoarthritis1NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2905,7 +2987,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 2nd NSAID, Maintenance
+  // Osteoarthritis | 2nd NSAID, Maintenance
     function generateDogOsteoarthritis2NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2930,7 +3012,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 3rd NSAID, Switch NSAIDs
+  // Osteoarthritis | 3rd NSAID, Switch NSAIDs
     function generateDogOsteoarthritis3NSAIDTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2956,7 +3038,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 1st Gabapentin
+  // Osteoarthritis | 1st Gabapentin
     function generateDogOsteoarthritis1GabapentinTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -2980,7 +3062,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 2nd Gabapentin, Continue
+  // Osteoarthritis | 2nd Gabapentin, Continue
     function generateDogOsteoarthritis2GabapentinTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3003,7 +3085,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 1st Joint Supplements
+  // Osteoarthritis | 1st Joint Supplements
     function generateDogOsteoarthritis1JointSupplementsTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3027,7 +3109,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 2nd Joint Supplements, Continue
+  // Osteoarthritis | 2nd Joint Supplements, Continue
     function generateDogOsteoarthritis2JointSupplementsTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3050,7 +3132,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 1st Librela
+  // Osteoarthritis | 1st Librela
     function generateDogOsteoarthritis1LibrelaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3075,7 +3157,7 @@
     };
     }
 
-  // Canine Osteoarthritis | 2nd Librela
+  // Osteoarthritis | 2nd Librela
     function generateDogOsteoarthritis2LibrelaTemplate(sex) {
     const p = getPronoun(sex);
     const text = [
@@ -3115,7 +3197,7 @@
     customAction: generateMedicineTableFromBuffer
     }),
 
-  // Puppy Wellness
+  // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
     '/fReset': () => generateFelineResetTemplate(),
     '/c8wksSmallMale': () => generate8WkWellnessTemplate('small', 'male'),
@@ -3139,7 +3221,7 @@
     '/c16wksFemale': () => generate16WkWellnessTemplate('small', 'female'),
     '/c16wksFemales': () => generate16WkWellnessTemplate('small', 'female', 'plural'),
 
-  // Canine Adult Wellness
+  // Canine Adult Wellness Definitions
     '/cInitialAdultMale': () => generateInitialAdultTemplate('male'),
     '/cInitialAdultMales': () => generateInitialAdultTemplate('male', 'plural'),
     '/cInitialAdultFemale': () => generateInitialAdultTemplate('female'),
@@ -3182,20 +3264,22 @@
     '/cUnderweightFemale': () => generateDogUnderweightTemplate('female'),
     '/cUnderweightFemales': () => generateDogUnderweightTemplate('female', 'plural'),
 
-  // Canine Ophthalmology
+  // Canine Ophthalmology Definitions
     '/cBlind0Partial': () => generateDogBlind0PartialTemplate(),
     '/cBlind1': () => generateDogBlind1Template(),
     '/cBlind2Known': () => generateDogBlind2KnownTemplate(),
     '/cCherryEye': () => generateDogCherryEyeTemplate(),
     '/cCherryEyes': () => generateDogCherryEyeTemplate('male','plural'),
+    '/cConjunctivitisTestsDeclined': () => generateDogConjunctivitisTestsDeclinedTemplate(),
+    '/cConjunctivitisDiagnosed': () => generateDogConjunctivitisDiagnosedTemplate(),
 
-  // Canine Cardiology
+  // Canine Cardiology Definitions
     '/cHeartMurmur0': () => generateDogHeartMurmur0Template(),
     '/cHeartMurmur1RadiographsNormal': () => generateDogHeartMurmur1RadiographsNormalTemplate(),
     '/cHeartMurmur1Cardiomegaly': () => generateDogHeartMurmur1CardiomegalyTemplate(),
     '/cHeartMurmur3Known': () => generateDogHeartMurmur3KnownTemplate(),
 
-  // Gastrointestinal
+  // Gastrointestinal Definitions
     '/cPeriodontalDisease1Male': () => generateDog1PeriodontalDiseaseTemplate('male'),
     '/cPeriodontalDisease1Female': () => generateDog1PeriodontalDiseaseTemplate('female'),
     '/cPeriodontalDisease2Male': () => generateDog2PeriodontalDiseaseTemplate('male'),
@@ -3209,7 +3293,7 @@
     '/cPeriodontalDisease4HeartMurmurMale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('male'),
     '/cPeriodontalDisease4HeartMurmurFemale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('female'),
 
-  // Musculoskeletal
+  // Musculoskeletal Definitions
     '/cOsteoarthritis1NSAID': () => generateDogOsteoarthritis1NSAIDTemplate(),
     '/cOsteoarthritis2NSAID': () => generateDogOsteoarthritis2NSAIDTemplate(),
     '/cOsteoarthritis3NSAID': () => generateDogOsteoarthritis3NSAIDTemplate(),
@@ -3220,10 +3304,10 @@
     '/cOsteoarthritis1Librela': () => generateDogOsteoarthritis1LibrelaTemplate(),
     '/cOsteoarthritis2Librela': () => generateDogOsteoarthritis2LibrelaTemplate(),
 
-  // Immunology
+  // Immunology Definitions
     '/cVaccineInformation': () => generateDogVaccineInformationTemplate(),
 
-  // Dermatology/
+  // Dermatology/ Definitions
     '/cAtopicDermatitis1Antihistamines': () => generateDogAtopicDermatitisMild1Template(),
     '/cAtopicDermatitis2Antihistamines': () => generateDogAtopicDermatitisMild2Template(),
     '/cAtopicDermatitis1Apoquel': () => generateDogAtopicDermatitis1ApoquelTemplate(),
