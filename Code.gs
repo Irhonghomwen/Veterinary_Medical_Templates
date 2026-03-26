@@ -19,6 +19,30 @@
     : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His' };
     }
 
+
+    function parseKeywordMetadata(rawKeyword) {
+    let sex = "male"; // Default
+    let plurality = "singular"; // Default
+    let base = rawKeyword.toLowerCase();
+
+    // Check for suffixes (order matters: check longer "females" before "female")
+    if (base.endsWith("females")) {
+      sex = "female"; plurality = "plural";
+      base = base.replace(/females$/, "");
+    } else if (base.endsWith("males")) {
+      sex = "male"; plurality = "plural";
+      base = base.replace(/males$/, "");
+    } else if (base.endsWith("female")) {
+      sex = "female"; plurality = "singular";
+      base = base.replace(/female$/, "");
+    } else if (base.endsWith("male")) {
+      sex = "male"; plurality = "singular";
+      base = base.replace(/male$/, "");
+    }
+
+    return { base, sex, plurality };
+    }
+
   // Grammar Dictionary
     const GRAMMAR_DICTIONARY = {
     cherry_eye: {
@@ -33,10 +57,10 @@
 
     wellness: {
     singular: { 
-        dog: "dog", dogs: "dog's", Dogs: "Dog", puppy: "puppy", is: "is", has: "has", was: "was", 
-        eats: "eats", weighs: "weighs", steals: "steals", begins: "begins", gets: "gets", 
-        mother: "mother's", site: "site", shot: "shot", round: "round", 
-        he: "he", him: "him", his: "his", them: "them" 
+        begins: "begins", Dogs: "Dog", dog: "dog", dogs: "dog's", eats: "eats", gets: "gets",
+        has: "has", he: "he", him: "him", his: "his", is: "is", mother: "mother's", puppy: "puppy",
+        round: "round", site: "site", shot: "shot", steals: "steals", them: "them", was: "was", weighs: "weighs", 
+         
     },
     plural: { 
         dog: "dogs", dogs: "dogs'", Dogs: "Dogs", puppy: "puppies", is: "are", has: "have", was: "were", 
@@ -1413,7 +1437,7 @@
 
 /* ------------------ Reverse Template Generator ------------------ */
   // Main Function
-    function reverseGenerateTemplate() {
+    function reverseGenerateTemplate(sex, plurality) {
     const body = DocumentApp.getActiveDocument().getBody();
     const reverseMap = getReverseRegistryMap(); // Maps existing text/urls to keys
 
@@ -1499,6 +1523,7 @@
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
+    plurality,
     diagnoses: [""],
     text: [
     ${paragraphs.join(",\n      ")}
@@ -1637,7 +1662,7 @@
     `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
     `Heartworms: Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Simparica Trio, Revolution, etc. Depending on the brand, they can protect your ${g.dog} from heartworms, fleas, ticks, & common intestinal parasites with a single treatment. These can be given orally or topically & are generally well tolerated. Because your ${g.dog} ${g.is} still growing, you will need to come back once a month to have ${g.him} weighed & get the appropriate dose of preventative.`,
     `${spayorneuterText}`,
-    `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Any puppy diet from Hill’s Science Diet (Hill's puppy dry food or Hill's puppy wet food), Purina Pro Plan (Purina puppy dry food or Purina puppy wet food), or Royal Canin (RC puppy dry food or RC puppy wet food) are all acceptable. A puppy diet is advised until your ${g.dog} ${g.is} a year old at which point you can transition to an adult diet. Dry food & wet food are both appropriate to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${g.his} weight.`,
+    `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Any puppy diet from Hill’s Science Diet (Hill's puppy dry food or Hill's puppy wet food), Purina Pro Plan (Purina puppy dry food or Purina puppy wet food), or Royal Canin (RC puppy dry food or RC puppy wet food) are all acceptable. A puppy diet is advised until your ${g.dog} ${g.is} a year old at which point you can transition to an adult diet. Dry food & wet food are both appropriate to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
     `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a ${dentalListText}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
     `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
     `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
@@ -1785,20 +1810,6 @@
     function generateInitialAdultTemplate(sex, plurality = 'singular', size) {
     const g = getGrammar('wellness', plurality, sex);
 
-    // Dynamic Dental Products List
-    let dentalProducts;
-    if (sex === 'female') {
-        dentalProducts = ['small dog toothbrush', 'medium/large dog toothbrush', 'animal safe toothpaste'];
-    } else if (size === 'large') {
-        dentalProducts = ['medium/large dog toothbrush', 'animal safe toothpaste'];
-    } else {
-        dentalProducts = ['small dog toothbrush', 'animal safe toothpaste'];
-    }
-
-    const dentalListText = dentalProducts.length > 2 
-        ? `${dentalProducts.slice(0, -1).join(', ')}, & ${dentalProducts[dentalProducts.length - 1]}`
-        : dentalProducts.join(' & ');
-
     const text = [
         `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo ${g.shot} with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your ${g.dog} will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.`,
         
@@ -1808,9 +1819,9 @@
         
         `Early detection labwork: Yearly blood work is recommended for ${g.dogs} the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
         
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${g.his} weight.`,
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
 
-        `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a ${dentalListText}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
+        `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
         
         `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
         
@@ -1821,6 +1832,7 @@
 
     return {
     sex,
+    plurality,
     text,
     boldKeys: [
     'VACCINES_HEADER',
@@ -1868,12 +1880,6 @@
     // 1. Initialize the Grammar Helper
     const g = getGrammar('wellness', plurality, sex);
 
-    const dentalProducts = [
-    'small dog toothbrush',
-    'medium/large dog toothbrush',
-    'animal safe toothpaste'
-    ];
-
     // 3. Main Template Text
       const text = [ 
       `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. Because you have kept to ${g.his} vaccination schedule, ${g.his} immune system will not need another booster until next year.`,
@@ -1881,8 +1887,8 @@
       `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
       `Heartworms: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
       `Early detection labwork: Samples were drawn from your ${g.dog}. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your ${g.dogs} overall health is closely monitored.`,
-      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${g.his} weight.`,
-      `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a ${dentalProducts.slice(0, -1).join(', ')} & ${dentalProducts[dentalProducts.length - 1]}. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
+      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+      `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
       `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
       `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
       `Next appointment: Bring your ${g.dog} back one year from today for ${g.his} next annual vaccines.`
@@ -1890,6 +1896,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["WELLNESS"],
     boldKeys: [
@@ -2002,7 +2009,7 @@
     // The regex is widened to handle "dog" vs "dogs" and "his/her" vs "their"
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 3. Add senior dog links to the existing link keys
@@ -2035,7 +2042,7 @@
     // Fixed the very last instance of "dog" to use ${g.dog}
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag/can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 4. Update Keys
@@ -2072,6 +2079,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OVERWEIGHT"],
     boldKeys: [
@@ -2109,6 +2117,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OVERWEIGHT"],
     boldKeys: [
@@ -2142,6 +2151,7 @@
 
     return {
     sex,
+    plurality,
     text,
     rank: 100,
     boldKeys: [
@@ -2171,6 +2181,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["UNDERWEIGHT"],
 
@@ -2188,7 +2199,7 @@
     }
 
   // Canine Vaccine Information
-    function generateDogVaccineInformationTemplate() {
+    function generateDogVaccineInformationTemplate(sex, plurality) {
     const text = [
     `Rabies: Rabies is a fatal virus that is spread from wild animal bites to our pets & humans. The most common spreaders in Texas are raccoons, skunks, bats, foxes, & coyotes. Signs of rabies start with voice changes & becoming shy. Next the pet acts aggressive or becomes paralyzed. The animal then dies if it isn't euthanized by then.`,
     `THERE IS NO CURE FOR RABIES. The only way to test for rabies involves decapitating an animal & taking samples of the brain. State law requires any animal that is exposed to rabies to either undergo quarantine for up to 6 months or be euthanized.`,
@@ -2200,6 +2211,8 @@
 
     return {
     text,
+    sex,
+    plurality,
     diagnoses: ["PARTIALLY_VACCINATED"],
     boldKeys: [
     'RABIES_HEADER',
@@ -2235,10 +2248,11 @@
 
 /* ------------------ CANINE OPTHALMOLOGY------------------ */
   // Blind | 0, Partial
-    function generateDogBlind0PartialTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogBlind0PartialTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
+    plurality,
     diagnoses: ["PARTIALLY_BLIND"],
     text: [
     `Blind: Your dog shows signs of being partially blind. A small amount of vision (enough to see shadows & shapes) is present, but not enough to read or drive. Keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
@@ -2257,14 +2271,15 @@
     }
 
   // Blind | 1, Diagnosed
-    function generateDogBlind1Template(sex) {
-    const p = getPronoun(sex);
+    function generateDogBlind1Template(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Blind: Your dog shows signs of being completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["BLIND"],
     boldKeys: [
@@ -2281,14 +2296,15 @@
     }
 
   // Blind | 2, Known
-    function generateDogBlind2KnownTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogBlind2KnownTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Blind: Your dog is known to be completely blind. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Avoid making changes to your living space as your dog has most likely memorized the layout and will be confused if things move around. You can also use a Halo harness or similar devices to prevent your pet from running into objects.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["BLIND"],
     boldKeys: [
@@ -2310,6 +2326,7 @@
     const g = getGrammar('cherry_eye', plurality, sex);
     return {
     sex,
+    plurality,
     diagnoses: ["CHERRY_EYE"],
     text: [
     `Cherry ${g.eye}: Your dog has ${g.cherry_eye}. This means that the ${g.gland} of the ${g.eye} that ${g.make} most of the tears ${g.is} poking out of ${g.its} normal position. Over time ${g.this} ${g.gland} can dry up & produce less tears, leading to a disorder known as dry eye. For dogs older than 1 year it is best to have the cherry ${g.eye} corrected as soon as possible. Surgery involves tucking the gland back in its normal position & using suture to prevent it from popping out again. You can learn more about cherry eyes from the Cherry Eye in Dogs and Cats article on Veterinary Partner.`
@@ -2334,6 +2351,7 @@
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
+    plurality,
     diagnoses: ["CONJUNCTIVITIS_PRESUMED"],
     text: [
     `Conjunctivitis: Your dog’s eyes may be inflamed due to keratoconjunctivitis sicca (also known as dry eye, checked by the Schirmer tear test) corneal ulcers (checked by the fluorescein eye stain) or glaucoma (checked by tonometry) among other diseases. At this time you’ve declined to perform these tests in favour of symptomatic treatment. An antibiotic/anti-inflammatory eye medication has been sent home. Use as directed below. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
@@ -2354,6 +2372,7 @@
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
+    plurality,
     diagnoses: ["CONJUNCTIVITIS_DIAGNOSED"],
     text: [
     `Conjunctivitis: Your dog’s eyes were checked for keratoconjunctivitis sicca (dry eye) via the Schirmer tear test, corneal ulcers via the fluorescein eye stain, & glaucoma via tonometry. At this time no signs of any of these diseases are present. As such, your dog has been diagnosed with conjunctivitis (inflammation of the eye due to irritation or infection). An antibiotic/anti-inflammatory eye medication has been sent home. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
@@ -2367,12 +2386,33 @@
       "RECHECK_ADVISE"
     ],
 
-  };
-}
+    };
+    }
+
+  // Blind (Complete)
+    function generateTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [""],
+    text: [
+    `Complete cataract: Your dog has a complete cataract. This typically forms due to age & completely blocks vision. While your dog may still see shadows & light out of that eye, it is unlikely that very much vision is actually present. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Be careful about approaching your dog from the side of the affected eye as this may be startling. `
+    ].join('\n'),
+    boldKeys: [
+    "Complete cataract:"
+    ],
+
+    boldUnderlineKeys: [
+    "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake."
+    ],
+
+    };
+    }
 /* ------------------ CANINE CARDIOLOGY ------------------ */
   // Heart Murmur | 0th Discovered, No Tests
-    function generateDogHeartMurmur0Template(sex) {
-    const p = getPronoun(sex);
+    function generateDogHeartMurmur0Template(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease. Diagnosis involves X-rays to see the shape & size of the heart can be performed in clinic and an echocardiogram to look at the inner workings of the heart and find a cause of disease can be scheduled as well. `,
     `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
@@ -2381,6 +2421,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["HEART_MURMUR"],
     boldKeys: [
@@ -2407,8 +2448,8 @@
     }
 
   // Heart Murmur | 1st, Normal Radiographs
-    function generateDogHeartMurmur1RadiographsNormalTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogHeartMurmur1RadiographsNormalTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `X-rays to see the shape & size of the heart were performed and your dog’s heart doesn’t appear to be concerningly enlarged. At this time treatment with medication is not warranted, but an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
@@ -2417,6 +2458,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["HEART_MURMUR"],
     boldKeys: [
@@ -2444,8 +2486,8 @@
     }
 
   // Heart Murmur | 1st, Cardiomegaly, Start Pimobendan
-    function generateDogHeartMurmur1CardiomegalyTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogHeartMurmur1CardiomegalyTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `Diagnosis includes the x-rays that we performed to see the shape & size of the heart. These x-rays show that the heart is enlarged. It is compressing the lungs and trachea to an extent, so your dog will be started on medication to help improve heart function and slow the progression of disease. An echocardiogram to look at the inner workings of the heart and find a cause of disease will need to be scheduled.`,
@@ -2454,6 +2496,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["HEART_MURMUR"],
     boldKeys: [
@@ -2482,14 +2525,15 @@
     }
 
   // Heart Murmur | 3rd, Known
-    function generateDogHeartMurmur3KnownTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogHeartMurmur3KnownTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["HEART_MURMUR"],
     boldKeys: [
@@ -2515,8 +2559,8 @@
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
   // Periodontal Disease | Mild
-    function generateDog1PeriodontalDiseaseTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
     `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
@@ -2525,6 +2569,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["MILD_PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2547,8 +2592,8 @@
     }
 
   // Periodontal Disease | Moderate
-    function generateDog2PeriodontalDiseaseTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog2PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
     `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
@@ -2557,6 +2602,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["MODERATE_PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2581,8 +2627,8 @@
     }
 
   // Periodontal Disease | Severe
-    function generateDog3PeriodontalDiseaseTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog3PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
     `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
@@ -2591,6 +2637,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["SEVERE_PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2615,8 +2662,8 @@
     }
 
   // Periodontal Disease | Age Restricted
-    function generateDog4PeriodontalDiseaseAgeTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog4PeriodontalDiseaseAgeTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
     `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
@@ -2624,6 +2671,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2641,14 +2689,15 @@
     }
 
   // Periodontal Disease | Concurrent Disease
-    function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2666,14 +2715,15 @@
     }
 
   // Periodontal Disease | Heart Murmur
-    function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
     boldKeys: [
@@ -2692,8 +2742,8 @@
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
-    function generateDogAtopicDermatitisMild1Template(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitisMild1Template(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
 
     const text = [
     `Atopic dermatitis: Unlike humans where allergies present in the respiratory tract (runny nose, sneezing/coughing, etc.), allergies in pets usually appear in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
@@ -2702,6 +2752,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2716,14 +2767,15 @@
     }
 
   // Atopic Dermatitis | Antihistamines 2
-    function generateDogAtopicDermatitisMild2Template(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitisMild2Template(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies which you currently give over the counter antihistamines for. Continue to give Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours) as needed. If you feel like allergies are not well controlled, prescription medicine such as Cytopoint (an injection given every 4 - 8 weeks) or Apoquel OR Zenrelia (oral pills given every 24 hours) can be given for better control.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2737,8 +2789,8 @@
     }
 
   // Atopic Dermatitis | Apoquel 1
-    function generateDogAtopicDermatitis1ApoquelTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis1ApoquelTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
     `Apoquel has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
@@ -2746,6 +2798,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2763,14 +2816,15 @@
     }
 
   // Atopic Dermatitis | Apoquel 2, Maintenance
-    function generateDogAtopicDermatitis2ApoquelTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis2ApoquelTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2784,8 +2838,8 @@
     }
 
   // Atopic Dermatitis | Apoquel 3, Add Cytopoint
-    function generateDogAtopicDermatitis3ApoquelTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis3ApoquelTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
     `Continue to give Apoquel as you’ve been doing. If you see full allergy control, you can try discontinuing Apoquel in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
@@ -2793,6 +2847,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2807,8 +2862,8 @@
     }
 
   // Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
-    function generateDogAtopicDermatitis4ApoquelTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis4ApoquelTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel doesn’t appear to be effective enough. We will be switching your dog to Zenrelia instead to see if this better controls allergies. Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
     `If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
@@ -2816,6 +2871,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2830,8 +2886,8 @@
     }
 
   // Atopic Dermatitis | Cytopoint 1
-    function generateDogAtopicDermatitis1CytopointTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis1CytopointTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
     `Cytopoint has been given in clinic to resolve allergies. It typically lasts 4 - 8 weeks. If itching & scratching occurs before 4 weeks, Apoquel OR Zenrelia (oral pills given once a day) can be sent home in addition to monthly Cytopoint injections to better control allergies.`
@@ -2839,6 +2895,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2852,14 +2909,15 @@
     }
 
   // Atopic Dermatitis | Cytopoint 2
-    function generateDogAtopicDermatitis2CytopointTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis2CytopointTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Cytopoint injections to control them. The injection was given today & typically lasts 4 - 8 weeks. If the allergies return before 4 weeks, your dog may need Apoquel or Zenrelia in addition to Cytopoint. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2873,8 +2931,8 @@
     }
 
   // Atopic Dermatitis | Meds Declined
-    function generateDogAtopicDermatitisMedsDeclinedTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitisMedsDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
     `Cytopoint (an injection given every 4 - 8 weeks) or either Apoquel OR Zenrelia (oral pills given every 24 hours) are more effective than over the counter medicine and are advised, but you have elected to try antihistamines first. You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
@@ -2882,6 +2940,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2895,8 +2954,8 @@
     }
 
   // Atopic Dermatitis | Zenrelia 1
-    function generateDogAtopicDermatitis1ZenreliaTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis1ZenreliaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
     `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies.`,
@@ -2904,6 +2963,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2920,14 +2980,15 @@
     }
 
   // Atopic Dermatitis | Zenrelia 2, Maintenance
-    function generateDogAtopicDermatitis2ZenreliaTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis2ZenreliaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2941,8 +3002,8 @@
     }
 
   // Atopic Dermatitis | Zenrelia 3, Add Cytopoint
-    function generateDogAtopicDermatitis3ZenreliaTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogAtopicDermatitis3ZenreliaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. However, Zenrelia on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
     `Continue to give Zenrelia as you’ve been doing. If you see full allergy control, you can try discontinuing Zenrelia in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
@@ -2950,6 +3011,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -2965,8 +3027,8 @@
 
 /* ------------------ CANINE MUSCULOSKELETAL ------------------ */
   // Osteoarthritis | 1st NSAID, Initial
-    function generateDogOsteoarthritis1NSAIDTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis1NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
     `Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
@@ -2974,6 +3036,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
@@ -2988,14 +3051,15 @@
     }
 
   // Osteoarthritis | 2nd NSAID, Maintenance
-    function generateDogOsteoarthritis2NSAIDTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis2NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs. Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
@@ -3013,8 +3077,8 @@
     }
 
   // Osteoarthritis | 3rd NSAID, Switch NSAIDs
-    function generateDogOsteoarthritis3NSAIDTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis3NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. We will be switching to a different NSAID to see if better control is provided while still being safe for your pet. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
     `If we still don’t see the improvement we’d like, we can discuss adding on alternatives such as Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
@@ -3022,6 +3086,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
@@ -3039,8 +3104,8 @@
     }
 
   // Osteoarthritis | 1st Gabapentin
-    function generateDogOsteoarthritis1GabapentinTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis1GabapentinTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
     `Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen. Instead, immediate relief can be provided via NSAIDs such as carprofen & grapiprant. Bloodwork is recommended every 6 - 12 months while on NSAIDs. `,
@@ -3049,6 +3114,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [
@@ -3063,8 +3129,8 @@
     }
 
   // Osteoarthritis | 2nd Gabapentin, Continue
-    function generateDogOsteoarthritis2GabapentinTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis2GabapentinTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Your dog is known to have arthritis & is currently on gabapentin. Alternatives to gabapentin include Librela, an injection that can be given once a month with minimal side effects. However, it may take 2 - 3 months before improvement is seen. Non-steroidal anti-inflammatory drugs such as carprofen & grapiprant can also control arthritis so long as steroids aren’t currently being given. Bloodwork is recommended every 6 - 12 months while on NSAIDs.`,
     `Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can also be added to any treatment plan to increase mobility but will not control pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
@@ -3072,6 +3138,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
@@ -3086,8 +3153,8 @@
     }
 
   // Osteoarthritis | 1st Joint Supplements
-    function generateDogOsteoarthritis1JointSupplementsTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis1JointSupplementsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. Immediate relief can be provided via gabapentin or non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant. NSAIDs are more effective at controlling arthritis than gabapentin & require bloodwork every 6 months. Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen.`,
     `At this time you’ve elected to try joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
@@ -3095,6 +3162,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
@@ -3110,8 +3178,8 @@
     }
 
   // Osteoarthritis | 2nd Joint Supplements, Continue
-    function generateDogOsteoarthritis2JointSupplementsTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis2JointSupplementsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Your dog is known to have arthritis & currently gets joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant provide immediate relief from arthritis so long as steroids aren’t currently being given. Bloodwork is required every 6 months while on NSAIDs. `,
     `Gabapentin can be used in addition to or instead of NSAIDs with minimal side effects, though it isn’t as effective as NSAIDs. Finally, the Librela injection can be given once a month though it can take 2 - 3 months to see improvement. If you have concerns about your dog’s arthritis, contact the clinic & we can discuss which medicine is best for your dog. Keeping your dog an appropriate weight can also help reduce joint pain.`
@@ -3119,6 +3187,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
@@ -3133,8 +3202,8 @@
     }
 
   // Osteoarthritis | 1st Librela
-    function generateDogOsteoarthritis1LibrelaTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis1LibrelaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
     `Librela, an injection given once a month that controls arthritis, was given today. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. If signs are seen, bring your dog back immediately as these are signs of a reaction. Librela may take 2 - 3 months before full effects are seen, so oral medicine (gabapentin, carprofen, grapiprant, etc.) can be used in the meantime if necessary.`,
@@ -3143,6 +3212,7 @@
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
@@ -3158,14 +3228,15 @@
     }
 
   // Osteoarthritis | 2nd Librela
-    function generateDogOsteoarthritis2LibrelaTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogOsteoarthritis2LibrelaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Osteoarthritis: Your dog is known to have arthritis & currently gets Librela injections. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. Bring your dog back immediately if any are seen. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can be added in addition to further improve mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
     ].join('\n');
 
     return {
     sex,
+    plurality,
     text,
     diagnoses: ["OSTEOARTHRITIS"],
     boldKeys: [ 
@@ -3200,126 +3271,78 @@
   // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
     '/fReset': () => generateFelineResetTemplate(),
-    '/c8wksSmallMale': () => generate8WkWellnessTemplate('small', 'male'),
-    '/c8wksSmallMales': () => generate8WkWellnessTemplate('small', 'male', 'plural'),
-    '/c8wksLargeMale': () => generate8WkWellnessTemplate('large', 'male'),
-    '/c8wksLargeMales': () => generate8WkWellnessTemplate('large', 'male', 'plural'),
-    '/c8wksFemale': () => generate8WkWellnessTemplate('small', 'female'),
-    '/c8wksFemales': () => generate8WkWellnessTemplate('small', 'female', 'plural'),
+    '/c8wksSmall': (sex, plurality) => generate8WkWellnessTemplate('small', sex, plurality),
+    '/c8wksLarge': (sex, plurality) => generate8WkWellnessTemplate('large', sex, plurality),
 
-    '/c12wksSmallMale': () => generate12WkWellnessTemplate('small', 'male'),
-    '/c12wksSmallMales': () => generate12WkWellnessTemplate('small', 'male', 'plural'),
-    '/c12wksLargeMale': () => generate12WkWellnessTemplate('large', 'male'),
-    '/c12wksLargeMales': () => generate12WkWellnessTemplate('large', 'male', 'plural'),
-    '/c12wksFemale': () => generate12WkWellnessTemplate('small', 'female'),
-    '/c12wksFemales': () => generate12WkWellnessTemplate('small', 'female', 'plural'),
+    '/c12wksSmall': (sex, plurality) => generate12WkWellnessTemplate('small', sex, plurality),
+    '/c12wksLarge': (sex, plurality) => generate12WkWellnessTemplate('large', sex, plurality),
 
-    '/c16wksSmallMale': () => generate16WkWellnessTemplate('small', 'male'),
-    '/c16wksSmallMales': () => generate16WkWellnessTemplate('small', 'male', 'plural'),
-    '/c16wksLargeMale': () => generate16WkWellnessTemplate('large', 'male'),
-    '/c16wksLargeMales': () => generate16WkWellnessTemplate('large', 'male', 'plural'),
-    '/c16wksFemale': () => generate16WkWellnessTemplate('small', 'female'),
-    '/c16wksFemales': () => generate16WkWellnessTemplate('small', 'female', 'plural'),
+    '/c16wksSmall': (sex, plurality) => generate16WkWellnessTemplate('small', sex, plurality),
+    '/c16wksLarge': (sex, plurality) => generate16WkWellnessTemplate('large', sex, plurality),
 
   // Canine Adult Wellness Definitions
-    '/cInitialAdultMale': () => generateInitialAdultTemplate('male'),
-    '/cInitialAdultMales': () => generateInitialAdultTemplate('male', 'plural'),
-    '/cInitialAdultFemale': () => generateInitialAdultTemplate('female'),
-    '/cInitialAdultFemales': () => generateInitialAdultTemplate('female', 'plural'),
-    '/c1yearMale': () => generate1YearAdultTemplate('male'),
-    '/c1yearMales': () => generate1YearAdultTemplate('male', 'plural'),
-    '/c1yearFemale': () => generate1YearAdultTemplate('female'),
-    '/c1yearFemales': () => generate1YearAdultTemplate('female', 'plural'),
-    '/c2yearMale': () => generate2YearAdultTemplate('male'),
-    '/c2yearMales': () => generate2YearAdultTemplate('male', 'plural'),
-    '/c2yearFemale': () => generate2YearAdultTemplate('female'),
-    '/c2yearFemales': () => generate2YearAdultTemplate('female', 'plural'),
-    '/c2yearLeptoMale': () => generate2YearLeptoTemplate('male'),
-    '/c2yearLeptoMales': () => generate2YearLeptoTemplate('male', 'plural'),
-    '/c2yearLeptoFemale': () => generate2YearLeptoTemplate('female'),
-    '/c2yearLeptoFemales': () => generate2YearLeptoTemplate('female', 'plural'),
-    '/c7yearMale': () => generate7YearAdultTemplate('male'),
-    '/c7yearMales': () => generate7YearAdultTemplate('male', 'plural'),
-    '/c7yearFemale': () => generate7YearAdultTemplate('female'),
-    '/c7yearFemales': () => generate7YearAdultTemplate('female', 'plural'),
-    '/c7yearLeptoMale': () => generate7YearLeptoTemplate('male'),
-    '/c7yearLeptoMales': () => generate7YearLeptoTemplate('male', 'plural'),
-    '/c7yearLeptoFemale': () => generate7YearLeptoTemplate('female'),
-    '/c7yearLeptoFemales': () => generate7YearLeptoTemplate('female', 'plural'),
+    '/cInitialAdult': (sex, plurality) => generateInitialAdultTemplate(sex, plurality),
+    '/c1year': (sex, plurality) => generate1YearAdultTemplate(sex, plurality),
+    '/c2year': (sex, plurality) => generate2YearAdultTemplate(sex, plurality),
+    '/c2yearLepto': (sex, plurality) => generate2YearLeptoTemplate(sex, plurality),
+    '/c7year': (sex, plurality) => generate7YearAdultTemplate(sex, plurality),
+    '/c7yearLeptoMale': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
 
-    '/cOverweightMale': () => generateCanineOverweightTemplate('male'),
-    '/cOverweightMales': () => generateCanineOverweightTemplate('male', 'plural'),
-    '/cOverweightFemale': () => generateCanineOverweightTemplate('female'),
-    '/cOverweightFemales': () => generateCanineOverweightTemplate('female', 'plural'),
-    '/cOverweight2Male': () => generateCanineOverweight2Template('male'),
-    '/cOverweight2Males': () => generateCanineOverweight2Template('male', 'plural'),
-    '/cOverweight2Female': () => generateCanineOverweight2Template('female'),
-    '/cOverweight2Females': () => generateCanineOverweight2Template('female', 'plural'),
-    '/cHealthyWeightMale': () => generateDogHealthyWeightTemplate('male'),
-    '/cHealthyWeightMales': () => generateDogHealthyWeightTemplate('male', 'plural'),
-    '/cHealthyWeightFemale': () => generateDogHealthyWeightTemplate('female'),
-    '/cHealthyWeightFemales': () => generateDogHealthyWeightTemplate('female', 'plural'),
-    '/cUnderweightMale': () => generateDogUnderweightTemplate('male'),
-    '/cUnderweightMales': () => generateDogUnderweightTemplate('male', 'plural'),
-    '/cUnderweightFemale': () => generateDogUnderweightTemplate('female'),
-    '/cUnderweightFemales': () => generateDogUnderweightTemplate('female', 'plural'),
+    '/cOverweightMale': (sex, plurality) => generateCanineOverweightTemplate(sex, plurality),
+    '/cOverweight2Male': (sex, plurality) => generateCanineOverweight2Template(sex, plurality),
+    '/cHealthyWeightMale': (sex, plurality) => generateDogHealthyWeightTemplate(sex, plurality),
+    '/cUnderweightMale': (sex, plurality) => generateDogUnderweightTemplate(sex, plurality),
 
   // Canine Ophthalmology Definitions
-    '/cBlind0Partial': () => generateDogBlind0PartialTemplate(),
-    '/cBlind1': () => generateDogBlind1Template(),
-    '/cBlind2Known': () => generateDogBlind2KnownTemplate(),
-    '/cCherryEye': () => generateDogCherryEyeTemplate(),
-    '/cCherryEyes': () => generateDogCherryEyeTemplate('male','plural'),
-    '/cConjunctivitisTestsDeclined': () => generateDogConjunctivitisTestsDeclinedTemplate(),
-    '/cConjunctivitisDiagnosed': () => generateDogConjunctivitisDiagnosedTemplate(),
+    '/cBlind0Partial': (sex, plurality) => generateDogBlind0PartialTemplate(sex, plurality),
+    '/cBlind1': (sex, plurality) => generateDogBlind1Template(sex, plurality),
+    '/cBlind2Known': (sex, plurality) => generateDogBlind2KnownTemplate(sex, plurality),
+    '/cCherryEye': (sex, plurality) => generateDogCherryEyeTemplate(sex, plurality),
+    '/cCherryEyes': (sex, plurality) => generateDogCherryEyeTemplate(sex, plurality),
+    '/cConjunctivitisTestsDeclined': (sex, plurality) => generateDogConjunctivitisTestsDeclinedTemplate(sex, plurality),
+    '/cConjunctivitisDiagnosed': (sex, plurality) => generateDogConjunctivitisDiagnosedTemplate(sex, plurality),
 
   // Canine Cardiology Definitions
-    '/cHeartMurmur0': () => generateDogHeartMurmur0Template(),
-    '/cHeartMurmur1RadiographsNormal': () => generateDogHeartMurmur1RadiographsNormalTemplate(),
-    '/cHeartMurmur1Cardiomegaly': () => generateDogHeartMurmur1CardiomegalyTemplate(),
-    '/cHeartMurmur3Known': () => generateDogHeartMurmur3KnownTemplate(),
+    '/cHeartMurmur0': (sex, plurality) => generateDogHeartMurmur0Template(sex, plurality),
+    '/cHeartMurmur1RadiographsNormal': (sex, plurality) => generateDogHeartMurmur1RadiographsNormalTemplate(sex, plurality),
+    '/cHeartMurmur1Cardiomegaly': (sex, plurality) => generateDogHeartMurmur1CardiomegalyTemplate(sex, plurality),
+    '/cHeartMurmur3Known': (sex, plurality) => generateDogHeartMurmur3KnownTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
-    '/cPeriodontalDisease1Male': () => generateDog1PeriodontalDiseaseTemplate('male'),
-    '/cPeriodontalDisease1Female': () => generateDog1PeriodontalDiseaseTemplate('female'),
-    '/cPeriodontalDisease2Male': () => generateDog2PeriodontalDiseaseTemplate('male'),
-    '/cPeriodontalDisease2Female': () => generateDog2PeriodontalDiseaseTemplate('female'),
-    '/cPeriodontalDisease3Male': () => generateDog3PeriodontalDiseaseTemplate('male'),
-    '/cPeriodontalDisease3Female': () => generateDog3PeriodontalDiseaseTemplate('female'),
-    '/cPeriodontalDisease4AgeMale': () => generateDog4PeriodontalDiseaseAgeTemplate('male'),
-    '/cPeriodontalDisease4AgeFemale': () => generateDog4PeriodontalDiseaseAgeTemplate('female'),
-    '/cPeriodontalDisease4ConcurrentDiseaseMale': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('male'),
-    '/cPeriodontalDisease4ConcurrentDiseaseFemale': () => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate('female'),
-    '/cPeriodontalDisease4HeartMurmurMale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('male'),
-    '/cPeriodontalDisease4HeartMurmurFemale': () => generateDog4PeriodontalDiseaseHeartMurmurTemplate('female'),
+    '/cPeriodontalDisease1Male': (sex, plurality) => generateDog1PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease2Male': (sex, plurality) => generateDog2PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease3Male': (sex, plurality) => generateDog3PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4AgeMale': (sex, plurality) => generateDog4PeriodontalDiseaseAgeTemplate(sex, plurality),
+    '/cPeriodontalDisease4ConcurrentDiseaseMale': (sex, plurality) => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4HeartMurmurMale': (sex, plurality) => generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
-    '/cOsteoarthritis1NSAID': () => generateDogOsteoarthritis1NSAIDTemplate(),
-    '/cOsteoarthritis2NSAID': () => generateDogOsteoarthritis2NSAIDTemplate(),
-    '/cOsteoarthritis3NSAID': () => generateDogOsteoarthritis3NSAIDTemplate(),
-    '/cOsteoarthritis1Gabapentin': () => generateDogOsteoarthritis1GabapentinTemplate(),
-    '/cOsteoarthritis2Gabapentin': () => generateDogOsteoarthritis2GabapentinTemplate(),
-    '/cOsteoarthritis1JointSupplements': () => generateDogOsteoarthritis1JointSupplementsTemplate(),
-    '/cOsteoarthritis2JointSupplements': () => generateDogOsteoarthritis2JointSupplementsTemplate(),
-    '/cOsteoarthritis1Librela': () => generateDogOsteoarthritis1LibrelaTemplate(),
-    '/cOsteoarthritis2Librela': () => generateDogOsteoarthritis2LibrelaTemplate(),
+    '/cOsteoarthritis1NSAID': (sex, plurality) => generateDogOsteoarthritis1NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis2NSAID': (sex, plurality) => generateDogOsteoarthritis2NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis3NSAID': (sex, plurality) => generateDogOsteoarthritis3NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis1Gabapentin': (sex, plurality) => generateDogOsteoarthritis1GabapentinTemplate(sex, plurality),
+    '/cOsteoarthritis2Gabapentin': (sex, plurality) => generateDogOsteoarthritis2GabapentinTemplate(sex, plurality),
+    '/cOsteoarthritis1JointSupplements': (sex, plurality) => generateDogOsteoarthritis1JointSupplementsTemplate(sex, plurality),
+    '/cOsteoarthritis2JointSupplements': (sex, plurality) => generateDogOsteoarthritis2JointSupplementsTemplate(sex, plurality),
+    '/cOsteoarthritis1Librela': (sex, plurality) => generateDogOsteoarthritis1LibrelaTemplate(sex, plurality),
+    '/cOsteoarthritis2Librela': (sex, plurality) => generateDogOsteoarthritis2LibrelaTemplate(sex, plurality),
 
   // Immunology Definitions
-    '/cVaccineInformation': () => generateDogVaccineInformationTemplate(),
+    '/cVaccineInformation': (sex, plurality) => generateDogVaccineInformationTemplate(sex, plurality),
 
   // Dermatology/ Definitions
-    '/cAtopicDermatitis1Antihistamines': () => generateDogAtopicDermatitisMild1Template(),
-    '/cAtopicDermatitis2Antihistamines': () => generateDogAtopicDermatitisMild2Template(),
-    '/cAtopicDermatitis1Apoquel': () => generateDogAtopicDermatitis1ApoquelTemplate(),
-    '/cAtopicDermatitis2Apoquel': () => generateDogAtopicDermatitis2ApoquelTemplate(),
-    '/cAtopicDermatitis3Apoquel': () => generateDogAtopicDermatitis3ApoquelTemplate(),
-    '/cAtopicDermatitis4Apoquel': () => generateDogAtopicDermatitis4ApoquelTemplate(),
-    '/cAtopicDermatitis1Cytopoint': () => generateDogAtopicDermatitis1CytopointTemplate(),
-    '/cAtopicDermatitis2Cytopoint': () => generateDogAtopicDermatitis2CytopointTemplate(),
-    '/cAtopicDermatitisMedsDeclined': () => generateDogAtopicDermatitisMedsDeclinedTemplate(),
-    '/cAtopicDermatitis1Zenrelia': () => generateDogAtopicDermatitis1ZenreliaTemplate(),
-    '/cAtopicDermatitis2Zenrelia': () => generateDogAtopicDermatitis2ZenreliaTemplate(),
-    '/cAtopicDermatitis3Zenrelia': () => generateDogAtopicDermatitis3ZenreliaTemplate(),
+    '/cAtopicDermatitis1Antihistamines': (sex, plurality) => generateDogAtopicDermatitisMild1Template(sex, plurality),
+    '/cAtopicDermatitis2Antihistamines': (sex, plurality) => generateDogAtopicDermatitisMild2Template(sex, plurality),
+    '/cAtopicDermatitis1Apoquel': (sex, plurality) => generateDogAtopicDermatitis1ApoquelTemplate(sex, plurality),
+    '/cAtopicDermatitis2Apoquel': (sex, plurality) => generateDogAtopicDermatitis2ApoquelTemplate(sex, plurality),
+    '/cAtopicDermatitis3Apoquel': (sex, plurality) => generateDogAtopicDermatitis3ApoquelTemplate(sex, plurality),
+    '/cAtopicDermatitis4Apoquel': (sex, plurality) => generateDogAtopicDermatitis4ApoquelTemplate(sex, plurality),
+    '/cAtopicDermatitis1Cytopoint': (sex, plurality) => generateDogAtopicDermatitis1CytopointTemplate(sex, plurality),
+    '/cAtopicDermatitis2Cytopoint': (sex, plurality) => generateDogAtopicDermatitis2CytopointTemplate(sex, plurality),
+    '/cAtopicDermatitisMedsDeclined': (sex, plurality) => generateDogAtopicDermatitisMedsDeclinedTemplate(sex, plurality),
+    '/cAtopicDermatitis1Zenrelia': (sex, plurality) => generateDogAtopicDermatitis1ZenreliaTemplate(sex, plurality),
+    '/cAtopicDermatitis2Zenrelia': (sex, plurality) => generateDogAtopicDermatitis2ZenreliaTemplate(sex, plurality),
+    '/cAtopicDermatitis3Zenrelia': (sex, plurality) => generateDogAtopicDermatitis3ZenreliaTemplate(sex, plurality),
     };
 
   // Template Definitions
@@ -3356,17 +3379,66 @@
     }
 
 /* ------------------ EXPAND KEYWORDS ------------------ */
-  // Main Function 
-    function expandKeywords() {
-    const doc = DocumentApp.getActiveDocument();
-    const body = doc.getBody();
-    // Improved pattern to capture brackets for medications
-    const combinedPattern = '\\/[a-zA-Z0-9]+(\\[.*?\\])*'; 
+  // Main Function
+    function runExpansionEngine(matches) {
+    const body = DocumentApp.getActiveDocument().getBody();
 
+    // 1. PRIORITY PASS: Handle Resets First
+    const resetMatch = matches.find(m => m.normalized.endsWith('reset'));
+    if (resetMatch) {
+    const { base, sex, plurality } = parseKeywordMetadata(resetMatch.normalized);
+    const templateFn = TEMPLATE_DEFINITIONS[base];
+    if (templateFn) {
+    const template = templateFn(sex, plurality);
+    body.clear(); 
+    insertTemplateAtIndex(body, template, 0);
+    if (template.customAction) template.customAction();
+    }
+    // If it's a reset, we usually stop here, but we'll let it continue in case 
+    // other keywords were found in the same scan.
+    }
+
+    // 2. SECOND PASS: Process medications and buffer standard templates
+    matches.forEach(m => {
+    if (m.normalized.endsWith('reset')) return; 
+
+    const { base, sex, plurality } = parseKeywordMetadata(m.normalized);
+    const templateFn = TEMPLATE_DEFINITIONS[base];
+
+    if (templateFn) {
+    const template = templateFn(sex, plurality);
+    let rank = template.rank || 999;
+
+    if (template.diagnoses && template.diagnoses.length > 0) {
+    bufferDiagnoses(template.diagnoses);
+    const firstKey = template.diagnoses[0];
+    const diagRank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 999;
+    rank = Math.min(rank, diagRank);
+    }
+    bufferTemplate(template, rank);
+    if (template.customAction) template.customAction();
+    }
+
+    // Medication Logic (Matches keywords starting with /c that aren't in Template Registry)
+    if (m.normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[base]) {
+    const medRow = processMedicationCommand(m.text);
+    if (medRow) TABLE_ROW_BUFFER.push(medRow);
+    }
+    });
+
+    // 3. FINAL FLUSH: Put everything into the document
+    insertDiagnosesIntoDocument();
+    insertTemplatesIntoDocument();
+    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
+    }
+
+    function expandKeywords() {
+    const body = DocumentApp.getActiveDocument().getBody();
+    const combinedPattern = '\\/[a-zA-Z0-9]+(\\[.*?\\])*'; 
     let searchResult = null;
     const matches = [];
 
-    // 1. COLLECT ALL KEYWORDS
+    // 1. Find all keywords in the doc
     while ((searchResult = body.findText(combinedPattern, searchResult))) {
     const textElement = searchResult.getElement().asText();
     const matchedText = textElement.getText().substring(
@@ -3383,74 +3455,41 @@
     });
     }
 
-    // 2. DELETE KEYWORDS FROM DOC (Backwards to maintain indices)
+    // 2. Delete them from the document (backwards)
     for (let i = matches.length - 1; i >= 0; i--) {
     const m = matches[i];
     const parent = m.element.getParent();
-
-    // Delete the actual keyword text (e.g., /cReset)
     m.element.deleteText(m.start, m.end);
 
-    // Check if the paragraph is now totally empty
-    if (parent.asParagraph().getText().trim() === "") {
+    if (parent.getType() === DocumentApp.ElementType.PARAGRAPH && parent.asParagraph().getText().trim() === "") {
     try {
-    // Only attempt removal if there is more than one element in the doc
-    if (body.getNumChildren() > 1) {
-    body.removeChild(parent);
-    }
-    } catch (e) {
-    // If Google still refuses to delete it (e.g., it's the last line),
-    // we just "catch" the error here and let the script keep running.
-    console.warn("Skipped paragraph removal to prevent crash: " + e.message);
-    }
+    if (body.getNumChildren() > 1) parent.removeFromParent();
+    } catch (e) { console.warn("Floor paragraph skipped."); }
     }
     }
 
-    // 3. PRIORITY PASS: Handle Resets First
-    const resetMatch = matches.find(m => m.normalized.endsWith('reset'));
-    if (resetMatch) {
-    const templateFn = TEMPLATE_DEFINITIONS[resetMatch.normalized];
-    if (templateFn) {
-    const template = templateFn();
-
-    // CLEAR the body for a true reset
-    body.clear(); 
-    // Insert the structural template at the top (index 0)
-    insertTemplateAtIndex(body, template, 0);
-
-    // Run any custom logic if it exists
-    if (template.customAction) template.customAction();
-    }
+    // 3. Run the engine
+    if (matches.length > 0) runExpansionEngine(matches);
     }
 
-    // 4. SECOND PASS: Process medications and buffer standard templates
-    matches.forEach(m => {
-    if (m.normalized.endsWith('reset')) return; // Already handled
+    function expandKeywordsFromSidebar(keyword) {
+    const normalized = keyword.toLowerCase().trim();
 
-    const templateFn = TEMPLATE_DEFINITIONS[m.normalized];
-    if (templateFn) {
-    const template = templateFn();
-    let rank = 99;
-    if (template.diagnoses && template.diagnoses.length > 0) {
-    bufferDiagnoses(template.diagnoses);
-    const firstKey = template.diagnoses[0];
-    rank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 99;
-    }
-    bufferTemplate(template, rank);
-    if (template.customAction) template.customAction();
-    }
-
-    // Medication Command Logic
-    if (m.normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[m.normalized]) {
-    const medRow = processMedicationCommand(m.text);
-    if (medRow) TABLE_ROW_BUFFER.push(medRow);
-    }
-    });
-
-    // 5. FINAL FLUSH: Insert into the now-existing structure
+    // Special case: Just flush the buffer (if user clicked a "Generate Table" button)
+    if (normalized === "/generatemedicinetable") {
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument();
     if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
+    return;
+    }
+
+    // Otherwise, treat it as a single match and let the engine handle the rest
+    const fakeMatch = {
+    text: keyword,
+    normalized: normalized
+    };
+
+    runExpansionEngine([fakeMatch]);
     }
 
   // Regex Helpers
@@ -3845,67 +3884,4 @@
     const html = HtmlService.createHtmlOutputFromFile('Sidebar')
     .setTitle("Dr. I.E. Osadiaye's Medical Templates");
     DocumentApp.getUi().showSidebar(html);
-    }
-
-/* ------------------ EXPAND KEYWORDS FROM SIDEBAR ------------------ */
-  // Main Function
-    function expandKeywordsFromSidebar(keyword) {
-    const body = DocumentApp.getActiveDocument().getBody();
-    const normalized = keyword.toLowerCase().trim();
-
-    // --- SPECIAL: Medication Table Trigger ---
-    if (normalized === "/generatemedicinetable") {
-    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
-    insertDiagnosesIntoDocument();
-    insertTemplatesIntoDocument();
-    return;
-    }
-
-    // --- RESET HANDLING (match main engine behavior) ---
-    if (normalized.endsWith("reset")) {
-    const templateFn = TEMPLATE_DEFINITIONS[normalized];
-    if (templateFn) {
-    const template = templateFn();
-
-    body.clear();
-    insertTemplateAtIndex(body, template, 0);
-
-    if (template.customAction) template.customAction();
-    }
-    return;
-    }
-
-    // --- NORMAL TEMPLATE HANDLING (BUFFER, DON'T INSERT) ---
-    const templateFn = TEMPLATE_DEFINITIONS[normalized];
-    if (templateFn) {
-    const template = templateFn();
-
-
-    // Default to 999 to ensure it goes to the very bottom unless specified otherwise
-    let rank = template.rank || 999; 
-
-    if (template.diagnoses && template.diagnoses.length > 0) {
-    bufferDiagnoses(template.diagnoses);
-    // Only override the rank if the diagnosis rank is HIGHER priority (smaller number)
-    const firstKey = template.diagnoses[0];
-    const diagRank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 999;
-    rank = Math.min(rank, diagRank);
-    }
-
-    bufferTemplate(template, rank);
-
-    if (template.customAction) template.customAction();
-    }
-
-    // --- MEDICATION COMMANDS ---
-    if (normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[normalized]) {
-    const medRow = processMedicationCommand(keyword);
-    if (medRow) TABLE_ROW_BUFFER.push(medRow);
-    }
-
-    insertDiagnosesIntoDocument();
-    insertTemplatesIntoDocument();
-
-    // --- FINAL FLUSH (same as expandKeywords) ---
-    if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     }
