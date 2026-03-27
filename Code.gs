@@ -45,9 +45,9 @@
 
   // Grammar Dictionary
     const GRAMMAR_DICTIONARY = {
-    cherry_eye: {
-    singular: { cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", its: "its", make: "makes", this: "this", pro: "it" },
-    plural:   { cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", its: "their", make: "make", this: "these", pro: "they" }
+    eyes: {
+    singular: { a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it" },
+    plural:   { a_cataract: "complete cataracts", a_corneal_ulcer: "Corneal ulcers", cataract: "cataracts", cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", it: "them", its: "their", make: "make", this: "these", This: "These", ulcer: "ulcers", was: "were", pro: "they" }
     },
 
     patella: {
@@ -344,19 +344,29 @@
     rank: 80
     },
 
+    CATARACTS: {
+    text: "Cataracts",
+    rank: 70
+    },
+
     CHERRY_EYE: {
     text: "Cherry eye",
-    rank: 70
+    rank: 71
     },
 
     CONJUNCTIVITIS_DIAGNOSED: {
     text: "Conjunctivitis",
-    rank: 71
+    rank: 79
     },
 
     CONJUNCTIVITIS_PRESUMED: {
     text: "Conjunctivitis (presumed)",
-    rank: 75
+    rank: 79
+    },
+
+    CORNEAL_ULCER: {
+    text: "Corneal ulcer",
+    rank: 72
     },
 
     HEART_MURMUR: {
@@ -376,7 +386,7 @@
 
     OVERWEIGHT: {
     text: "Overweight",
-    rank: 70
+    rank: 80
     },
 
     PARTIALLY_BLIND: {
@@ -411,7 +421,7 @@
 
     UNDERWEIGHT: {
     text: "Underweight",
-    rank: 71
+    rank: 81
     },
     };
 
@@ -1078,13 +1088,22 @@
       url: "https://vcahealthcare.com/know-your-pet/cherry-eye-in-dogs" 
     },
 
+    COMPLETE_CATARACT_HEADER:
+    /Complete cataract(s)?:/i,
+
     CONJUNCTIVITIS_HEADER:
     "Conjunctivitis:",
+
+     CORNEAL_ULCER_HEADER: 
+    /Corneal ulcer(s)?:/i,
 
     HALO_HARNESS_ARTICLE: {
       text: "Halo harness",
       url: "https://www.muffinshalo.com/"
     },
+
+    TRIPPING_HAZARD:
+    "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake.",
   
   // Cardiology Registry
     HEART_MURMUR_ARTICLE: {
@@ -1245,6 +1264,15 @@
     DIAGNOSIS:
     /Diagnosis/i,
     
+    E_COLLAR_ADVISE:
+    "Keep a hard e collar on for the next 14 days.",
+
+    E_COLLAR_HEADER:
+    "E collar:",
+
+    E_COLLAR_MONITOR:
+    "but you must monitor your dog all throughout & replace the e collar immediately.",
+
     RECHECK_ADVISE:
     "Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).",
     
@@ -2323,7 +2351,7 @@
 
   // Cherry Eye
     function generateDogCherryEyeTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('cherry_eye', plurality, sex);
+    const g = getGrammar('eyes', plurality, sex);
     return {
     sex,
     plurality,
@@ -2342,6 +2370,26 @@
 
     linkKeys: [
     "CHERRY_EYE_IN_DOGS_AND_CATS_ARTICLE"
+    ],
+    };
+    }
+
+  // Complete Cataracts
+    function generateCompleteCataractsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('eyes', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CATARACTS"],
+    text: [
+    `Complete ${g.cataract}: Your dog has ${g.a_cataract}. This typically forms due to age & completely blocks vision. While your dog may still see shadows & light, it is unlikely that very much vision is actually present in the ${g.eye}. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Be mindful about moving silently as this may startle your dog.`
+    ].join('\n'),
+    boldKeys: [
+    "COMPLETE_CATARACT_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+    "TRIPPING_HAZARD"
     ],
     };
     }
@@ -2367,7 +2415,7 @@
     };
     }
 
-  // Conjunctivitis
+  // Conjunctivitis | Diagnosed
     function generateDogConjunctivitisDiagnosedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -2385,30 +2433,33 @@
     boldUnderlineKeys: [
       "RECHECK_ADVISE"
     ],
-
     };
     }
 
-  // Blind (Complete)
-    function generateTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
+  // Corneal Ulcer
+    function generateDogCornealUlcerTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('eyes', plurality, sex);
     return {
     sex,
     plurality,
-    diagnoses: [""],
+    diagnoses: ["CORNEAL_ULCER"],
     text: [
-    `Complete cataract: Your dog has a complete cataract. This typically forms due to age & completely blocks vision. While your dog may still see shadows & light out of that eye, it is unlikely that very much vision is actually present. Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake. Be careful about approaching your dog from the side of the affected eye as this may be startling. `
+    `Corneal ${g.ulcer}: ${g.a_corneal_ulcer} ${g.was} seen in your dog’s ${g.eye}. ${g.This} can occur due to excessive scratching, playing, or running into objects. An antibiotic has been sent home to resolve the inflammation & potential infection seen. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`,
+    `E collar: It’s important to keep a hard e collar on your dog to prevent rubbing the ${g.eye} on furniture or scratching ${g.it}. Keep a hard e collar on for the next 14 days. It needs to go at least an inch past your dog’s nose. Tighten the collar so that it can’t be pushed off, but make sure you can still get two fingers between the collar & the skin. It can be removed to allow for eating & when using the restroom but you must monitor your dog all throughout & replace the e collar immediately. Failure to keep the e collar may cause worsening infection or damage to occur.`
     ].join('\n'),
     boldKeys: [
-    "Complete cataract:"
+    "CORNEAL_ULCER_HEADER",
+    "E_COLLAR_HEADER"
     ],
 
     boldUnderlineKeys: [
-    "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake."
+    "E_COLLAR_ADVISE",
+    "RECHECK_ADVISE",
+    "E_COLLAR_MONITOR"
     ],
-
     };
     }
+
 /* ------------------ CANINE CARDIOLOGY ------------------ */
   // Heart Murmur | 0th Discovered, No Tests
     function generateDogHeartMurmur0Template(sex, plurality = 'singular') {
@@ -3298,9 +3349,13 @@
     '/cBlind1': (sex, plurality) => generateDogBlind1Template(sex, plurality),
     '/cBlind2Known': (sex, plurality) => generateDogBlind2KnownTemplate(sex, plurality),
     '/cCherryEye': (sex, plurality) => generateDogCherryEyeTemplate(sex, plurality),
-    '/cCherryEyes': (sex, plurality) => generateDogCherryEyeTemplate(sex, plurality),
+    '/cCherryEyes': (sex) => generateDogCherryEyeTemplate(sex, "plural"),
+    '/cCompleteCataract': (sex, plurality) => generateCompleteCataractsTemplate(sex, plurality),
+    '/cCompleteCataracts': (sex) => generateCompleteCataractsTemplate(sex, "plural"),
     '/cConjunctivitisTestsDeclined': (sex, plurality) => generateDogConjunctivitisTestsDeclinedTemplate(sex, plurality),
     '/cConjunctivitisDiagnosed': (sex, plurality) => generateDogConjunctivitisDiagnosedTemplate(sex, plurality),
+    '/cCornealUlcer': (sex, plurality) => generateDogCornealUlcerTemplate(sex, plurality),
+    '/cCornealUlcers': (sex,) => generateDogCornealUlcerTemplate(sex, "plural"),
 
   // Canine Cardiology Definitions
     '/cHeartMurmur0': (sex, plurality) => generateDogHeartMurmur0Template(sex, plurality),
