@@ -113,7 +113,7 @@
     };
   
 /* ------------------ MEDICINE REGISTRY ------------------ */
-  // Prescriptions
+  // Medications
     let TABLE_ROW_BUFFER = [];
     const MEDICINE_REGISTRY = {
 
@@ -131,6 +131,13 @@
     sideEffects: "Over-suppresses the immune system when given with Zenrelia."
     },
 
+    ATROPINE: {
+    label: "Atropine 1% Ophthalmic Drops",
+    instructions: "Starting today \nApply 1 drop in your dog’s affected eye to ease pain. Apply BEFORE eye ointments.",
+    class: "Anticholinergic",
+    sideEffects: "May cause light sensitivity"
+    },
+
     CARPROFEN: {
     label: "Carprofen 25mg",
     instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
@@ -143,6 +150,13 @@
     instructions: "Medication injected beneath your dog’s skin to control allergies over the next 4 - 8 weeks.",
     class: "Anti-allergy (monoclonal antibody)",
     sideEffects: "Well tolerated"
+    },
+
+    DORZOLAMIDE: {
+    label: "Dorzolamide",
+    instructions: "Apply 1 drop in each eye every 8 hours for management of glaucoma.",
+    class: "Carbonic anhydrase inhibitor",
+    sideEffects: "May cause ocular discomfort. Medication tastes bitter and some pets may make faces due to this."
     },
 
     DOXYCYCLINE: {
@@ -210,15 +224,22 @@
 
     NEOPOLYBACOINTMENT: {
     label: "NeoPolyBac ointment (neomycin, polymyxin, bacitracin)",
-    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week.",
+    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week if no improvement (immediately if worsening).",
+    class: "Antibiotic, anti-inflammatory",
+    sideEffects: "Well tolerated"
+    },
+
+    NEOPOLYBACHYDROOINTMENT: {
+    label: "NeoPolyBac with Hydrocortisone ointment\n(neomycin, polymyxin, bacitracin, hydrocortisone)",
+    instructions: "Apply ¼ inch strip in the affected eye every 8 - 12 hours for treatment of corneal ulcer.",
     class: "Antibiotic, anti-inflammatory",
     sideEffects: "Well tolerated"
     },
 
     NEOPOLYDEXSUSPENSION: {
     label: "NeoPolyDex Suspension (neomycin, polymyxin B, dexamethasone)",
-    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week.",
-    class: "Antibiotic",
+    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week if no improvement (immediately if worsening).",
+    class: "Antibiotic, anti-inflammatory",
     sideEffects: "Well tolerated"
     },
     
@@ -227,6 +248,20 @@
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    OPTIMMUNEOINTMENT: {
+    label: "Optimmune ointment (cyclosporine 0.2%)",
+    instructions: "Apply ¼ inch in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
+    class: "Immunosuppressant",
+    sideEffects: "Well tolerated"
+    },
+
+    OPTIXCARE: {
+    label: "Optixcare Eye Lube",
+    instructions: "nApply ¼ inch or 1 - 2 drops in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
+    class: "Lubricant",
+    sideEffects: "Well tolerated"
     },
 
     PIMOBENDAN: {
@@ -269,6 +304,13 @@
     instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
     class: "Corticosteroid",
     sideEffects: "May cause short term ear discomfort or increased thirst/urination." },
+
+    TACROLIMUS: {
+    label: "Tacrolimus 0.02% ophthalmic solution",
+    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 12 hours for management of dry eye. Apply 5 minutes BEFORE other eye drop medicine.",
+    class: "Immunosuppressant",
+    sideEffects: "Well tolerated"
+    },
 
     ZENRELIA: {
     label: "Zenrelia 15mg (ilunocitinib)",
@@ -346,37 +388,82 @@
 
     CATARACTS: {
     text: "Cataracts",
-    rank: 70
+    rank: 71
     },
 
     CHERRY_EYE: {
     text: "Cherry eye",
-    rank: 71
+    rank: 41
     },
 
     CONJUNCTIVITIS_DIAGNOSED: {
     text: "Conjunctivitis",
-    rank: 79
+    rank: 78
     },
 
     CONJUNCTIVITIS_PRESUMED: {
     text: "Conjunctivitis (presumed)",
-    rank: 79
+    rank: 78
     },
 
     CORNEAL_ULCER: {
     text: "Corneal ulcer",
-    rank: 72
+    rank: 22
+    },
+
+    ENTROPION: {
+    text: "Entropion",
+    rank: 60
+    },
+
+    GLAUCOMA: {
+    text: "Glaucoma",
+    rank: 20
     },
 
     HEART_MURMUR: {
     text: "Heart murmur",
+    rank: 2
+    },
+
+    KERATOCONJUNCTIVITIS_SICCA: {
+    text: "Keratoconjunctivitis sicca (dry eye)",
+    rank: 23
+    },
+
+    LEFT_SIDED_CONGESTIVE_HEART_FAILURE: {
+    text: "Left sided congestive heart failure",
     rank: 1
+    },
+
+    MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
+    text: "Meibomian gland adenoma (presumed)",
+    rank: 31
+    },
+
+    MILD_PERIODONTAL_DISEASE: {
+    text: "Mild periodontal disease",
+    rank: 30
+    },
+
+    MODERATE_PERIODONTAL_DISEASE: {
+    text: "Moderate periodontal disease",
+    rank: 30
+    },
+
+    NUCLEAR_SCLEROSIS: {
+    text: "Nuclear sclerosis",
+    rank: 97
     },
 
     OSTEOARTHRITIS: {
     text: "Osteoarthritis (arthritis)",
-    rank: 20
+    rank: 21
+    },
+
+    OSTEOARTHRITIS: {
+    text: "Osteoarthritis (arthritis)",
+    rank: 21
     },
 
     OTITIS: {
@@ -399,19 +486,14 @@
     rank: 98
     },
 
-    MILD_PERIODONTAL_DISEASE: {
-    text: "Mild periodontal disease",
-    rank: 30
-    },
-
-    MODERATE_PERIODONTAL_DISEASE: {
-    text: "Moderate periodontal disease",
-    rank: 30
-    },
-
     PERIODONTAL_DISEASE: {
     text: "Periodontal disease",
     rank: 30
+    },
+
+    Second_Degree_AV: {
+    text: "2nd Degree Atrioventricular Block",
+    rank: 61
     },
 
     SEVERE_PERIODONTAL_DISEASE: {
@@ -1097,15 +1179,74 @@
      CORNEAL_ULCER_HEADER: 
     /Corneal ulcer(s)?:/i,
 
+    ENTROPION_HEADER:
+    "Entropion:",
+
+    EYE_DROP_MEDS:
+    "Apply eye drops before eye ointments & wait 5 minutes between all eye medications to allow time for absorption.",
+
+    GLAUCOMA_HEADER:
+    "Glaucoma:",
+
+    GLAUCOMA_RECHECK:
+    "These must be given every 8 hours consistently, and many dogs need this lifelong. Bring your dog back in 1 week for a recheck of the eye pressure. If you notice worsening redness of the eyes, pain, discomfort when touching the head, or your dog squinting more, contact the clinic immediately.",
+
     HALO_HARNESS_ARTICLE: {
       text: "Halo harness",
       url: "https://www.muffinshalo.com/"
+    },
+
+    KCS_ARTICLE : {
+      text: "Dry Eye (Keratoconjunctivitis Sicca) in Dogs and Cats article",
+      url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951823`
+    },
+
+    KCS_HEADER:
+    "Keratoconjunctivitis sicca:",
+
+    KCS_MEDS_INCREASE:
+    "If you notice green mucus around the eye, redness, or excessive scratching, it is possible your dog requires stronger medicine to continue controlling the eye.",
+
+    KCS_SCHEDULE:
+    "Schedule a recheck in 6 weeks so we can double check if the medicine needs to be increased.",
+
+    KCS_TIMELINE:
+    "This is a lifelong disease that, similar to allergies, is managed but not cured.",
+
+    LENTICULAR_SCLEROSIS_IN_DOGS_ARTICLE : {
+    text: "Lenticular Sclerosis in Dogs",
+    url: `https://vcahospitals.com/know-your-pet/lenticular-sclerosis-in-dogs`
+    },
+
+    LUBRICATE_MEIBOMIAN_GLAND_ADENOMA:
+    "Use a lubricating eye drop twice daily until the mass is removed to prevent damage to the eye.",
+
+    MEIBOMIAN_GLAND_ADENOMA_HEADER:
+    "Meibomian gland adenoma:",
+
+    NUCLEAR_SCLEROSIS_HEADER:
+    "Nuclear sclerosis:",
+
+    REMOVE_MEIBOMIAN_GLAND_ADENOMA:
+    "It is recommended to get this removed as soon as possible in healthy dogs to prevent secondary ulcer formation.",
+
+    MEIBOMIAN_GLAND_ADENOMA_ARTICLE: {
+      text: "Meibomian Gland (Eyelid) Tumors in Dogs article",
+      url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=254095&id=10194756`
     },
 
     TRIPPING_HAZARD:
     "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake.",
   
   // Cardiology Registry
+    CONGESTIVE_HEART_FAILURE_IN_DOGS_CATS_ARTICLE_ARTICLE : {
+    text: "Congestive Heart Failure in Dogs & Cats article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=8501760`
+    },
+
+    EKG_RECOMMENDATION:
+    "An EKG should be performed every 6 months to ensure there are no changes to your dog’s heart rhythm.",
+    
     HEART_MURMUR_ARTICLE: {
     text: "Heart Murmurs in Dogs and Cats article",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952593`
@@ -1121,13 +1262,19 @@
     "A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.",
 
     HEART_MURMUR_WARNING_SIGNS: g =>
-    `If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease.`,
+    `If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately.`,
+
+    LEFT_SIDED_CONGESTIVE_HEART_FAILURE_HEADER:
+    "Left sided congestive heart failure:",
 
     SCHEDULE_ECHO: g =>
     `an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
 
     SCHEDULE_ECHOS: g =>
     `An echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
+
+    SECOND_DEGREE_ATRIOVENTRICULAR_BLOCK_HEADER:
+    "2nd Degree Atrioventricular Block",
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -1594,27 +1741,35 @@
 
     function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
     const text = textElement.getText() || "";
+
+    // --- NEW: Trackers for the session ---
+    if (typeof globalNewFormatEntries === 'undefined') { 
+    globalThis.globalNewFormatEntries = {}; 
+    }
+
     let start = 0;
     while (start < text.length) {
-    const isBold = textElement.isBold(start), isUnderline = textElement.isUnderline(start),
-    isItalic = textElement.isItalic(start), color = textElement.getForegroundColor(start),
+    const isBold = textElement.isBold(start), 
+    isUnderline = textElement.isUnderline(start),
+    isItalic = textElement.isItalic(start), 
+    color = textElement.getForegroundColor(start),
     linkUrl = textElement.getLinkUrl(start);
+
     let end = start;
     while (end < text.length && textElement.isBold(end) === isBold && textElement.isUnderline(end) === isUnderline &&
     textElement.isItalic(end) === isItalic && textElement.getForegroundColor(end) === color && textElement.getLinkUrl(end) === linkUrl) {
     end++;
     }
+
     let rawSpan = text.substring(start, end);
     let spanClean = cleanSpaces(rawSpan);
 
     if (spanClean.length > 1) {
-    // Check if this text or URL is ALREADY in the registry
     let existingKey = reverseMap.textToKey[spanClean.toLowerCase()] || (linkUrl ? reverseMap.urlToKey[linkUrl] : null);
 
     if (linkUrl) {
     let linkKey = existingKey;
     if (!linkKey) {
-    // Truly new link: create key and add to new registry
     linkKey = spanClean.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
     newLinksRegistry[linkKey] = { text: spanClean, url: linkUrl };
     }
@@ -1623,7 +1778,25 @@
     const isGreen = (color === "#008000" || color === "#b6d7a8"), 
       isRed = (color === "#ff0000" || color === "#ea9999");
 
-    let identifier = existingKey || spanClean;
+    let identifier = existingKey;
+
+    // --- NEW LOGIC: Auto-generate key for Bold + Colon ---
+    if (!identifier && isBold && spanClean.endsWith(':')) {
+    // 1. Remove the colon
+    // 2. Replace spaces/special chars with underscores
+    // 3. Make it Uppercase
+    // 4. Add _HEADER to the end
+    let baseName = spanClean.replace(/[:]/g, "").replace(/[^A-Za-z0-9]/g, "_").toUpperCase();
+    
+    // Clean up double underscores if they exist (e.g. "Heart  Worms:" -> HEART__WORMS)
+    identifier = baseName.replace(/_+/g, "_") + "_HEADER";
+    
+    // Save it to a global list so we can print it at the end
+    globalNewFormatEntries[identifier] = spanClean;
+    }
+
+    // Fallback to raw text if no key exists and it's not a header
+    if (!identifier) identifier = spanClean;
 
     if (isGreen) keys.greenKeys.add(identifier);
     else if (isRed) keys.redKeys.add(identifier);
@@ -2460,13 +2633,171 @@
     };
     }
 
+  // Entropion
+    function generateDogEntropionTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ENTROPION"],
+    text: [
+    `Entropion: Your dog’s eyelids turn too far towards the eyeballs. This causes the eyelashes to scratch against the eyes which causes inflammation, pain, and discomfort. Having entropion eyelids increases the risk of developing corneal ulcers. Surgery can be performed to correct this abnormality.`
+    ].join('\n'),
+    
+    boldKeys: [
+      "ENTROPION_HEADER"
+    ],
+    };
+    }
+
+  // Glaucoma | Diagnosed
+    function generateDogGlaucoma1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["GLAUCOMA"],
+    text: [
+    `Glaucoma: Normal eye pressure in a dog ranges from 10 - 25 mmHg, but your dog’s pressure measured significantly higher. The most common cause of glaucoma in dogs is genetics. To alleviate the pressure and the pain, we will start your dog on eye drops. These must be given every 8 hours consistently, and many dogs need this lifelong. Bring your dog back in 1 week for a recheck of the eye pressure. If you notice worsening redness of the eyes, pain, discomfort when touching the head, or your dog squinting more, contact the clinic immediately.`
+    ].join('\n'),
+    
+    boldKeys: [
+      "GLAUCOMA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "GLAUCOMA_RECHECK"
+    ],
+    };
+    }
+
+  // Keratoconjunctivitis Sicca | 1st, Diagnosed
+    function generateDogKeratoconjunctivitisSicca1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["KERATOCONJUNCTIVITIS_SICCA"],
+    text: [
+    `Keratoconjunctivitis sicca: Your dog has been diagnosed with keratoconjunctivitis sicca (KCS), more commonly known as dry eye. This is an autoimmune disease where the immune system is attacking the part of the eye that produces tears. This is a lifelong disease that, similar to allergies, is managed but not cured.`,
+    `Eye medication is used to suppress the immune system in the eye. Over time you may notice your dog needs stronger eye medication as the body becomes resistant to the initial medication. For now, apply the medication provided. You can also pick up non-medicated eye drops from any store & apply them twice a day for the next two weeks as the medicine takes time to activate. `,
+    `Apply eye drops before eye ointments & wait 5 minutes between all eye medications to allow time for absorption. Schedule a recheck in 6 weeks so we can double check if the medicine needs to be increased. You can learn more from the Dry Eye (Keratoconjunctivitis Sicca) in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+    boldKeys: [
+      "KCS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "EYE_DROP_MEDS",
+      "KCS_SCHEDULE",
+      "KCS_TIMELINE",
+    ],
+
+    linkKeys: [
+      "KCS_ARTICLE"
+    ],
+    };
+    }
+
+  // Keratoconjunctivitis Sicca | 2nd, Controlled
+    function generateDogKeratoconjunctivitisSicca2ControlledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["KERATOCONJUNCTIVITIS_SICCA"],
+    text: [
+    `Keratoconjunctivitis sicca: Your dog is known to have keratoconjunctivitis sicca (KCS), more commonly known as dry eye. This autoimmune disease is life long & requires continuous medication. Continue to give your dog’s eye medicine as previously prescribed. If you notice green mucus around the eye, redness, or excessive scratching, it is possible your dog requires stronger medicine to continue controlling the eye. You can learn more from the Dry Eye (Keratoconjunctivitis Sicca) in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+    boldKeys: [
+      "KCS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "KCS_MEDS_INCREASE"
+    ],
+
+    linkKeys: [
+      "KCS_ARTICLE"
+    ],
+    };
+    }
+
+  // Meibomian Gland Adenoma | 1st, Presumed
+    function generateDogMeibomianGlandAdenoma1PresumedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["MEIBOMIAN_GLAND_ADENOMA_PRESUMED"],
+    text: [
+    `Meibomian gland adenoma: The mass on your dog’s eyelid appears to be a meibomian gland adenoma. While these are typically benign, they can grow and cause obstruction of the vision  or scratch against the cornea & cause ulcers. It is recommended to get this removed as soon as possible in healthy dogs to prevent secondary ulcer formation. If the growth contacts the eye, you may see rubbing the face, redness in the eye, and mucoid discharge. Use a lubricating eye drop twice daily until the mass is removed to prevent damage to the eye. You can learn more by reading the Meibomian Gland (Eyelid) Tumors in Dogs article on Veterinary Partner.`
+    ].join('\n'),
+    boldKeys: [
+      "MEIBOMIAN_GLAND_ADENOMA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "REMOVE_MEIBOMIAN_GLAND_ADENOMA",
+      "LUBRICATE_MEIBOMIAN_GLAND_ADENOMA"
+    ],
+
+    linkKeys: [
+      "MEIBOMIAN_GLAND_ADENOMA_ARTICLE"
+    ],
+    };
+    }
+
+  // Nuclear Sclerosis
+    function generateDogNuclearSclerosisTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["NUCLEAR_SCLEROSIS"],
+    text: [
+    `Nuclear sclerosis: The haziness you’re seeing in your dog’s eyes is due to nuclear sclerosis (also called lenticular sclerosis). This is a normal aging process where the lens, the part of the eye that lets us change our focus from nearby objects to far objects, becomes thicker. This does not impede vision in any way. Your dog can still drive and read just as well as before. You can learn more from the Lenticular Sclerosis in Dogs article on VCA Animal Hospitals.`
+    ].join('\n'),
+
+    boldKeys: [
+      "NUCLEAR_SCLEROSIS_HEADER"
+    ],
+
+    linkKeys: [
+      "LENTICULAR_SCLEROSIS_IN_DOGS_ARTICLE"
+    ],
+    };
+    }
+
 /* ------------------ CANINE CARDIOLOGY ------------------ */
+  // 2nd Degree AV Block Mobitz Type II | Asymptomatic
+    function generateDog2ndDegreeAVBlockTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["Second_Degree_AV"],
+    text: [
+    `2nd Degree Atrioventricular Block: An EKG was performed which shows that your dog has an atrioventricular block. This means that occasionally your dog’s heart will skip a beat. Mobitz type II indicates that this occurs consistently in your dog. Symptoms of this disorder include generalized lethargy, decreased energy when exercising, coughing, or collapse. At this time your dog doesn’t show signs of heart disease. An EKG should be performed every 6 months to ensure there are no changes to your dog’s heart rhythm. In the meantime, continue to monitor for the aforementioned symptoms. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately.`
+    ].join('\n'),
+
+    boldKeys: [
+      "SECOND_DEGREE_ATRIOVENTRICULAR_BLOCK_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "EKG_RECOMMENDATION",
+      "HEART_MURMUR_WARNING_SIGNS",
+    ],
+    };
+    }
+
   // Heart Murmur | 0th Discovered, No Tests
     function generateDogHeartMurmur0Template(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease. Diagnosis involves X-rays to see the shape & size of the heart can be performed in clinic and an echocardiogram to look at the inner workings of the heart and find a cause of disease can be scheduled as well. `,
-    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
     ].join('\n');
 
 
@@ -2496,7 +2827,7 @@
     "HEART_MURMUR_ARTICLE",
     ],
     };
-    }
+    };
 
   // Heart Murmur | 1st, Normal Radiographs
     function generateDogHeartMurmur1RadiographsNormalTemplate(sex, plurality = 'singular') {
@@ -2504,7 +2835,7 @@
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `X-rays to see the shape & size of the heart were performed and your dog’s heart doesn’t appear to be concerningly enlarged. At this time treatment with medication is not warranted, but an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
-    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+    `In the meantime, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
     ].join('\n');
 
     return {
@@ -2542,7 +2873,7 @@
     const text = [
     `Heart murmur: A heart murmur was heard in your dog today. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Common causes include heartworms, heart disease, or fetal abnormalities. Grading is based on how loud the sound is. A higher grade (5 & 6) does not always indicate worse disease & a lower grade (1 & 2) does not always indicate a better disease.`,
     `Diagnosis includes the x-rays that we performed to see the shape & size of the heart. These x-rays show that the heart is enlarged. It is compressing the lungs and trachea to an extent, so your dog will be started on medication to help improve heart function and slow the progression of disease. An echocardiogram to look at the inner workings of the heart and find a cause of disease will need to be scheduled.`,
-    `In the meantime, give the medicine prescribed below as treatment to manage the disease. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+    `In the meantime, give the medicine prescribed below as treatment to manage the disease. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
     ].join('\n');
 
     return {
@@ -2579,7 +2910,7 @@
     function generateDogHeartMurmur3KnownTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
+    `Heart murmur: Your dog is known to have a heart murmur. Heart murmurs are sounds produced whenever blood moves in a direction or location it isn’t meant to. Monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately. You can learn more about heart murmurs from the Heart Murmurs in Dogs and Cats article on Veterinary Partner.`
     ].join('\n');
 
     return {
@@ -2605,6 +2936,41 @@
     linkKeys: [
     "HEART_MURMUR_ARTICLE",
     ]
+    };
+    }
+
+  // Left Sided Congestive Heart Failure
+    function generateDogLeftSidedCongestiveHeartFailureTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["LEFT_SIDED_CONGESTIVE_HEART_FAILURE"],
+    text: [
+    `Left sided congestive heart failure: Your dog has been diagnosed with congestive heart failure. Common causes include mitral valve disease, dilated cardiomyopathies, and most congenital heart defects to name a few. Regardless of the cause, fluid builds up in the lungs and the space surrounding them since the heart isn't sending the blood to the rest of the body as it should.`,
+      `Diagnosis was achieved through a combination of x-rays, echocardiogram, and physical exam findings. Treatment involves using medicine to make it easier for the heart to pump, using medicine to remove fluid around the heart and lungs, & possibly surgery to fix blood going the wrong direction depending on the cause.`,
+      `For now, monitor your dog for symptoms such as coughing, increased exhaustion when exercising, & low energy. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately. You can learn more about congestive heart failure from the Congestive Heart Failure in Dogs & Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "LEFT_SIDED_CONGESTIVE_HEART_FAILURE_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HEART_MURMUR_WARNING_SIGNS",
+    ],
+
+    greenKeys:
+    [
+      "COMMON_CAUSES",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+
+    linkKeys: [
+      "CONGESTIVE_HEART_FAILURE_IN_DOGS_CATS_ARTICLE_ARTICLE"
+    ],
     };
     }
 
@@ -3354,14 +3720,22 @@
     '/cCompleteCataracts': (sex) => generateCompleteCataractsTemplate(sex, "plural"),
     '/cConjunctivitisTestsDeclined': (sex, plurality) => generateDogConjunctivitisTestsDeclinedTemplate(sex, plurality),
     '/cConjunctivitisDiagnosed': (sex, plurality) => generateDogConjunctivitisDiagnosedTemplate(sex, plurality),
-    '/cCornealUlcer': (sex, plurality) => generateDogCornealUlcerTemplate(sex, plurality),
-    '/cCornealUlcers': (sex,) => generateDogCornealUlcerTemplate(sex, "plural"),
+    '/cCornealUlcer': (sex) => generateDogCornealUlcerTemplate(sex, "singular"),
+    '/cCornealUlcers': (sex) => generateDogCornealUlcerTemplate(sex, "plural"),
+    '/cEntropion': (sex, plurality) => generateDogEntropionTemplate(sex, plurality),
+    '/cGlaucoma1': (sex, plurality) => generateDogGlaucoma1DiagnosedTemplate(sex, plurality),
+    '/cKeratoconjunctivitisSicca1Diagnosed': (sex, plurality) => generateDogKeratoconjunctivitisSicca1DiagnosedTemplate(sex, plurality),
+    '/cKeratoconjunctivitisSicca2Controlled': (sex, plurality) => generateDogKeratoconjunctivitisSicca2ControlledTemplate(sex, plurality),
+    '/cMeibomianGlandAdenoma1': (sex, plurality) => generateDogMeibomianGlandAdenoma1PresumedTemplate(sex, plurality),
+    '/cNuclearSclerosis': (sex, plurality) => generateDogNuclearSclerosisTemplate(sex, plurality),
 
   // Canine Cardiology Definitions
+    '/c2ndDegreeAVBlock': (sex, plurality) => generateDog2ndDegreeAVBlockTemplate(sex, plurality),
     '/cHeartMurmur0': (sex, plurality) => generateDogHeartMurmur0Template(sex, plurality),
     '/cHeartMurmur1RadiographsNormal': (sex, plurality) => generateDogHeartMurmur1RadiographsNormalTemplate(sex, plurality),
     '/cHeartMurmur1Cardiomegaly': (sex, plurality) => generateDogHeartMurmur1CardiomegalyTemplate(sex, plurality),
     '/cHeartMurmur3Known': (sex, plurality) => generateDogHeartMurmur3KnownTemplate(sex, plurality),
+    '/cLeftSidedCongestiveHeartFailure': (sex, plurality) => generateDogLeftSidedCongestiveHeartFailureTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
     '/cPeriodontalDisease1Male': (sex, plurality) => generateDog1PeriodontalDiseaseTemplate(sex, plurality),
