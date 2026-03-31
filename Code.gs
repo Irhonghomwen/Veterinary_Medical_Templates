@@ -138,6 +138,14 @@
     sideEffects: "May cause light sensitivity"
     },
 
+    BENAZEPRIL: {
+    label: "Benazepril 5mg",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for management of heart failure.",
+    class: "Angiotensin converting enzyme (ACE) inhibitor",
+    sideEffects: "May cause bloodwork abnormalities and hypotension"
+    },
+
+
     CARPROFEN: {
     label: "Carprofen 25mg",
     instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
@@ -271,6 +279,13 @@
     sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
     },
 
+    PREDNISOLONE: {
+    label: "Prednisolone 5mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
     PROHEART6INJECTION: {
     label: "Proheart 6 (moxidectin)",
     instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 6 months.",
@@ -299,6 +314,13 @@
     sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
     },
 
+    SPIRONOLACTONE: {
+    label: "Spironolactone 25mg",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours to decrease heart workload.",
+    class: "Diuretic",
+    sideEffects: "May cause bloodwork abnormalities (elevated BUN)"
+    },
+
     SYNOTICLIQUID: {
     label: "Synotic Otic Solution",
     instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
@@ -312,6 +334,13 @@
     sideEffects: "Well tolerated"
     },
 
+    TRAZADONE: {
+    label: "Trazadone 100mg",
+    instructions: "Give your dog 1 tablet by mouth 1 - 2 hours prior to stressful events.",
+    class: "Anxiolytic",
+    sideEffects: "May cause sedation or hyperactivity"
+    },
+
     ZENRELIA: {
     label: "Zenrelia 15mg (ilunocitinib)",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
@@ -320,7 +349,7 @@
     }
     };
 
-  // Medication Prefixes
+  // Medication Prefixes & Registry Logic
     const MED_PREFIX = {
     START: "Starting today",
     CONTINUE: "Continue",
@@ -333,15 +362,31 @@
     };
 
     const PREFIX_ROW_COLOR = {
-    CONTINUE: "#B6D7A8",     // green
+    CONTINUE: "#B6D7A8",    // green
     DISCONTINUE: "#EA9999",  // red
-    ASNEEDED: "#FFE599",     // yellow
+    ASNEEDED: "#FFE599",    // yellow
     NEWDOSE: "#B4A7D6",      // purple
     CLINIC: "#A4C2F4"        // blue
-    // START, WAIT3, TOMORROW → default (null)
     };
 
-    // Precompute every valid medication command
+    // Helper for the Reverse Generator to clean up scraped text
+    function stripMedPrefix(text) {
+    if (!text) return "";
+    let cleanText = text.trim();
+
+    for (let key in MED_PREFIX) {
+    let prefixText = MED_PREFIX[key];
+    // Check if the instruction starts with the prefix text
+    if (cleanText.startsWith(prefixText)) {
+    // Remove prefix and any immediate newlines/spaces that follow it
+    cleanText = cleanText.substring(prefixText.length).replace(/^[\n\r\s]+/, "");
+    break; 
+    }
+    }
+    return cleanText;
+    }
+
+    // Precompute every valid medication command (Forward Generation)
     const MED_COMMAND_LOOKUP = {};
     Object.keys(MEDICINE_REGISTRY).forEach(medKey => {
     Object.keys(MED_PREFIX).forEach(prefixKey => {
@@ -351,24 +396,23 @@
     const color = PREFIX_ROW_COLOR[prefixKey] || null;
 
     MED_COMMAND_LOOKUP[cmdKey] = {
-      rowData: [
-        med.label,
-        `${prefixText}\n${med.instructions}`,
-        med.class,
-        med.sideEffects
-      ],
-      color: color
+    rowData: [
+    med.label,
+    `${prefixText}\n${med.instructions}`,
+    med.class,
+    med.sideEffects
+    ],
+    color: color
     };
     });
 
-    // Default START command if no prefix typed
+    // Default START command
     const defaultKey = (medKey + "START").toUpperCase();
     MED_COMMAND_LOOKUP[medKey.toUpperCase()] = MED_COMMAND_LOOKUP[defaultKey];
     });
 
     // Medication Command Processor
     function processMedicationCommand(keyword) {
-    // Remove "/c" or "/C", uppercase, trim spaces
     const cmd = keyword.replace(/^\/c/i, "").toUpperCase().trim();
     return MED_COMMAND_LOOKUP[cmd] || null;
     }
@@ -423,6 +467,11 @@
 
     HEART_MURMUR: {
     text: "Heart murmur",
+    rank: 3
+    },
+
+    HEARTWORMS: {
+    text: "Heartworms",
     rank: 2
     },
 
@@ -1239,13 +1288,30 @@
     "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake.",
   
   // Cardiology Registry
+    CANINE_HEARTWORM_GUIDELINES_BY_THE_AMERICAN_HEARTWORM_SOCIETY_ARTICLE : {
+    text: "Canine Heartworm Guidelines by the American Heartworm Society.",
+    url: `https://www.heartwormsociety.org/veterinary-resources/american-heartworm-society-guidelines`
+    },
+    
     CONGESTIVE_HEART_FAILURE_IN_DOGS_CATS_ARTICLE_ARTICLE : {
     text: "Congestive Heart Failure in Dogs & Cats article",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=8501760`
     },
 
+    CONTINUE_HEARTWORM_PREVENTION:
+    "heartworm prevention is given for another month",
+
+    DOXYCYCLINE_FOUR_WEEKS:
+    "Doxycycline is given for 4 weeks.",
+
     EKG_RECOMMENDATION:
     "An EKG should be performed every 6 months to ensure there are no changes to your dog’s heart rhythm.",
+    
+    FIRST_MONTH_HEADER:
+    "1st Month:",
+
+    FOURTH_MONTH_HEADER:
+    "4th Month:",
     
     HEART_MURMUR_ARTICLE: {
     text: "Heart Murmurs in Dogs and Cats article",
@@ -1264,8 +1330,26 @@
     HEART_MURMUR_WARNING_SIGNS: g =>
     `If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately.`,
 
+    HEARTWORM_CAGE_REST:
+    "It is vital you cage rest your dog throughout the ENTIRE treatment course & for 2 weeks after the last injection. Failure to do so can cause clots to form in the heart & blood vessels which can be fatal.",
+
+    HEARTWORMS_EMERGENCY:
+    "Excessive sluggishness, respiratory distress, and coughing up blood are signs of an emergency.",
+
+    HEARTWORM_PREVENTION_GIVEN:
+    "Heartworm prevention is also given",
+
     LEFT_SIDED_CONGESTIVE_HEART_FAILURE_HEADER:
     "Left sided congestive heart failure:",
+
+    MELARSOMINE_INJECTION_SCHEDULE:
+    "Medication to kill adult heartworms is injected into the back.",
+
+    PREDNISONE_SCHEDULE:
+    "Prednisone (a steroid) is given for a month to control inflammation",
+
+    PREDNISONE_TAPERING:
+    "The medicine should be tapered as described below.",
 
     SCHEDULE_ECHO: g =>
     `an echocardiogram to look at the inner workings of the heart and diagnose the cause of the disease will need to be scheduled.`,
@@ -1275,6 +1359,12 @@
 
     SECOND_DEGREE_ATRIOVENTRICULAR_BLOCK_HEADER:
     "2nd Degree Atrioventricular Block",
+
+    SECOND_MONTH_HEADER:
+    "2nd Month:",
+
+    THIRD_MONTH_HEADER:
+    "3rd Month:",
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -1616,6 +1706,8 @@
     const body = DocumentApp.getActiveDocument().getBody();
     const reverseMap = getReverseRegistryMap(); // Maps existing text/urls to keys
 
+    globalThis.globalNewFormatEntries = {};
+
     if (typeof MEDICINE_REGISTRY === 'undefined') { var MEDICINE_REGISTRY = {}; }
 
     const NEW_LINKS_REGISTRY = {};
@@ -1649,6 +1741,7 @@
     for (let c = 0; c < row.getNumCells(); c++) {
     rowData.push((row.getCell(c).getText() || "").trim());
     }
+
     const label = rowData[0] || "";
     let drugBase = label.split(' ')[0].replace(/[^A-Za-z]/g, "").toUpperCase();
     if (!drugBase) continue;
@@ -1658,9 +1751,12 @@
     else if (label.toLowerCase().includes("liquid") || label.toLowerCase().includes("oral susp")) drugName += "LIQUID";
 
     if (!MEDICINE_REGISTRY[drugName]) {
+    // --- NEW: Strip the prefix from the instructions before storing ---
+    let cleanInstructions = stripMedPrefix(rowData[1] || "");
+
     MEDICINE_REGISTRY[drugName] = {
     label: label, 
-    instructions: rowData[1] || "",
+    instructions: cleanInstructions, // Stored without "Starting today", etc.
     class: rowData[2] || "Unknown", 
     sideEffects: rowData[3] || "Unknown"
     };
@@ -1717,6 +1813,15 @@
     body.appendPageBreak();
     body.appendParagraph("/* --- REVERSE GENERATED CODE --- */").setHeading(DocumentApp.ParagraphHeading.HEADING2);
     body.appendParagraph(templateCode);
+    let missingKeyText = "\n/* --- NEW FORMAT REGISTRY ENTRIES --- */\n";
+    let keysFound = Object.keys(globalNewFormatEntries);
+    
+    if (keysFound.length > 0) {
+        keysFound.sort().forEach(key => {
+            missingKeyText += `${key}: "${globalNewFormatEntries[key]}",\n`;
+        });
+        body.appendParagraph(missingKeyText).setItalic(false);
+    }
     }
 
   // Helpers 
@@ -1742,7 +1847,7 @@
     function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
     const text = textElement.getText() || "";
 
-    // --- NEW: Trackers for the session ---
+    // Ensure the tracker exists (linked to Main Function initialization)
     if (typeof globalNewFormatEntries === 'undefined') { 
     globalThis.globalNewFormatEntries = {}; 
     }
@@ -1776,26 +1881,23 @@
     keys.linkKeys.add(linkKey);
     } else {
     const isGreen = (color === "#008000" || color === "#b6d7a8"), 
-      isRed = (color === "#ff0000" || color === "#ea9999");
+    isRed = (color === "#ff0000" || color === "#ea9999");
 
     let identifier = existingKey;
 
-    // --- NEW LOGIC: Auto-generate key for Bold + Colon ---
+    // --- AUTOMATIC HEADER REGISTRY LOGIC ---
     if (!identifier && isBold && spanClean.endsWith(':')) {
-    // 1. Remove the colon
-    // 2. Replace spaces/special chars with underscores
-    // 3. Make it Uppercase
-    // 4. Add _HEADER to the end
+    // 1. Remove colon, replace spaces with underscores, make Uppercase
     let baseName = spanClean.replace(/[:]/g, "").replace(/[^A-Za-z0-9]/g, "_").toUpperCase();
-    
-    // Clean up double underscores if they exist (e.g. "Heart  Worms:" -> HEART__WORMS)
+
+    // 2. Format as TEXT_HEADER and remove double underscores
     identifier = baseName.replace(/_+/g, "_") + "_HEADER";
-    
-    // Save it to a global list so we can print it at the end
+
+    // 3. Save the actual text for the final Registry Entry print-out
     globalNewFormatEntries[identifier] = spanClean;
     }
 
-    // Fallback to raw text if no key exists and it's not a header
+    // Fallback to raw text only if it's not a registered key or a new header
     if (!identifier) identifier = spanClean;
 
     if (isGreen) keys.greenKeys.add(identifier);
@@ -1809,6 +1911,21 @@
     }
     start = end;
     }
+    }
+
+    function stripMedPrefix(text) {
+    if (!text) return "";
+    let cleanText = text.trim();
+    if (typeof MED_PREFIX === 'undefined') return cleanText;
+
+    for (let key in MED_PREFIX) {
+    let prefixText = MED_PREFIX[key];
+    if (cleanText.startsWith(prefixText)) {
+    cleanText = cleanText.substring(prefixText.length).replace(/^[\n\r\s]+/, "");
+    break; 
+    }
+    }
+    return cleanText;
     }
 
     function convertToGPronouns(text) {
@@ -2939,6 +3056,50 @@
     };
     }
 
+  // Heartworms | Adulticidal Treatment
+    function generateHeartwormsAdulticidalTreatmentTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HEARTWORMS"],
+    text: [
+    `Heartworms: Unfortunately your dog has tested positive for heartworms. Treatment is necessary for the next several months & is done in stages.`,
+    `1st Month: Doxycycline is given for 4 weeks. This will help remove bacteria that are beneficial to heartworm growth & lowers the risk of side effects caused by dying heartworms. Heartworm prevention is also given to kill immature heartworms & prevent re-infection.`,
+    `2nd Month: Doxycycline is completed & heartworm prevention is given for another month to prevent re-infection. Waiting a month allows time for the heartworms to become weaker now that their beneficial bacteria are gone, thus making treatment more effective.`,
+    `3rd Month: Medication to kill adult heartworms is injected into the back. This injection is often painful & 30% of dogs are sore or form abscesses afterwards. Abscesses resolve with warm compresses within 1 - 4 weeks, & pain medicine can be sent home as needed. Prednisone (a steroid) is given for a month to control inflammation as the older & weaker heartworms die. The medicine should be tapered as described below. Heartworm prevention is continued.`,
+    `4th Month: Only younger, stronger heartworms are left. Your dog will be given another injection of heartworm treatment. In 24 hours, one last injection of heartworm adulticidal is given. Another month of steroids are sent home to further reduce the risk of inflammation. The medicine should be tapered as described below. Heartworm prevention is continued.`,
+    `It is vital you cage rest your dog throughout the ENTIRE treatment course & for 2 weeks after the last injection. Failure to do so can cause clots to form in the heart & blood vessels which can be fatal. Watch for coughing, gagging, vomiting, diarrhea, or loss of appetite and contact the clinic if noticed. Excessive sluggishness, respiratory distress, and coughing up blood are signs of an emergency. A repeat heartworm test is advised 9 months after the last injection. You can learn more about heartworm treatment & prevention from Canine Heartworm Guidelines by the American Heartworm Society.`
+    ].join('\n'),
+
+    boldKeys: [
+      "FIRST_MONTH_HEADER",
+      "SECOND_MONTH_HEADER",
+      "THIRD_MONTH_HEADER",
+      "FOURTH_MONTH_HEADER",
+      "HEARTWORMS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "DOXYCYCLINE_FOUR_WEEKS",
+      "HEARTWORMS_EMERGENCY",
+      "HEARTWORM_PREVENTION_GIVEN",
+      "MELARSOMINE_INJECTION_SCHEDULE",
+      "PREDNISONE_SCHEDULE",
+      "PREDNISONE_TAPERING",
+      "CONTINUE_HEARTWORM_PREVENTION"
+    ],
+
+    redKeys: [
+      "HEARTWORM_CAGE_REST"
+    ],
+
+    linkKeys: [
+      "CANINE_HEARTWORM_GUIDELINES_BY_THE_AMERICAN_HEARTWORM_SOCIETY_ARTICLE"
+    ],
+    };
+    }
+
   // Left Sided Congestive Heart Failure
     function generateDogLeftSidedCongestiveHeartFailureTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
@@ -2979,9 +3140,9 @@
     function generateDog1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog has early dental disease. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
-    `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your dog has early dental disease. While brushing ${g.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
+    `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3012,9 +3173,9 @@
     function generateDog2PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${p.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
-    `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${g.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
+    `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3047,9 +3208,9 @@
     function generateDog3PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${p.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${p.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
-    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${p.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${p.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${p.him} lick it off every day for a week. Finally, gently brush ${p.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${p.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${p.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${g.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${g.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
+    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3735,15 +3896,16 @@
     '/cHeartMurmur1RadiographsNormal': (sex, plurality) => generateDogHeartMurmur1RadiographsNormalTemplate(sex, plurality),
     '/cHeartMurmur1Cardiomegaly': (sex, plurality) => generateDogHeartMurmur1CardiomegalyTemplate(sex, plurality),
     '/cHeartMurmur3Known': (sex, plurality) => generateDogHeartMurmur3KnownTemplate(sex, plurality),
+    '/cHeartwormsAdulticidalTreatment': (sex, plurality) => generateHeartwormsAdulticidalTreatmentTemplate(sex, plurality),
     '/cLeftSidedCongestiveHeartFailure': (sex, plurality) => generateDogLeftSidedCongestiveHeartFailureTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
-    '/cPeriodontalDisease1Male': (sex, plurality) => generateDog1PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease2Male': (sex, plurality) => generateDog2PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease3Male': (sex, plurality) => generateDog3PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease4AgeMale': (sex, plurality) => generateDog4PeriodontalDiseaseAgeTemplate(sex, plurality),
-    '/cPeriodontalDisease4ConcurrentDiseaseMale': (sex, plurality) => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease4HeartMurmurMale': (sex, plurality) => generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality),
+    '/cPeriodontalDisease1': (sex, plurality) => generateDog1PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease2': (sex, plurality) => generateDog2PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease3': (sex, plurality) => generateDog3PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4Age': (sex, plurality) => generateDog4PeriodontalDiseaseAgeTemplate(sex, plurality),
+    '/cPeriodontalDisease4ConcurrentDisease': (sex, plurality) => generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4HeartMurmur': (sex, plurality) => generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
     '/cOsteoarthritis1NSAID': (sex, plurality) => generateDogOsteoarthritis1NSAIDTemplate(sex, plurality),
