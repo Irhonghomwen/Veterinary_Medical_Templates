@@ -58,15 +58,15 @@
     wellness: {
     singular: { 
         begins: "begins", Dogs: "Dog", dog: "dog", dogs: "dog's", eats: "eats", gets: "gets",
-        has: "has", he: "he", him: "him", his: "his", is: "is", mother: "mother's", puppy: "puppy",
-        round: "round", site: "site", shot: "shot", steals: "steals", them: "them", was: "was", weighs: "weighs", 
+        has: "has", he: "he", him: "him", his: "his", is: "is", mother: "mother's", needs: "needs", puppy: "puppy",
+        resists: "resists", round: "round", site: "site", shot: "shot", shows: "shows", steals: "steals", them: "them", was: "was", weighs: "weighs", 
          
     },
     plural: { 
-        dog: "dogs", dogs: "dogs'", Dogs: "Dogs", puppy: "puppies", is: "are", has: "have", was: "were", 
-        eats: "eat", weighs: "weigh", steals: "steal", begins: "begin", gets: "get", 
-        mother: "mothers'", site: "sites", shot: "shots", round: "rounds", 
-        he: "they", him: "them", his: "their", them: "them" 
+        begins: "begin", Dogs: "Dogs", dog: "dogs", dogs: "dogs'", eats: "eat", gets: "get",
+        has: "have", he: "they", him: "them", his: "their", is: "are", mother: "mothers'", needs: "need", puppy: "puppies",
+        resists: "resist", round: "rounds", site: "sites", shot: "shots", shows: "show", steals: "steal", them: "them", was: "were", weighs: "weigh", 
+          
     }
     }
     };
@@ -712,102 +712,131 @@
     }
 
     /* ------------------ Deep Fuzzy Diagnosis-Linked Insert ------------------ */
-      function insertTemplatesIntoDocument() {
-      if (templateBuffer.length === 0) return;
+    function insertTemplatesIntoDocument() {
+    if (templateBuffer.length === 0) return;
 
-      const body = DocumentApp.getActiveDocument().getBody();
-      const allDiags = DIAGNOSIS_REGISTRY;
+    const body = DocumentApp.getActiveDocument().getBody();
+    const allDiags = DIAGNOSIS_REGISTRY;
 
-      // 1. Sort incoming buffer by rank
-      templateBuffer.sort((a, b) => (a.rank || 999) - (b.rank || 999));
+    // Robust header detection
+    function isHeaderParagraph(p) {
+    const textObj = p.editAsText();
+    const text = p.getText();
+    if (!text.length) return false;
 
-      // 2. Find the "Comprehensive Summary" anchor
-      let summaryIndex = -1;
-      for (let i = 0; i < body.getNumChildren(); i++) {
-      const child = body.getChild(i);
-      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+    for (let i = 0; i < text.length; i++) {
+    if (textObj.isBold(i) && textObj.isUnderline(i)) {
+    return true;
+    }
+    }
+    return false;
+    }
 
-      const text = child.asParagraph().getText().trim().toLowerCase();
-      if (text === "comprehensive summary") {
-      summaryIndex = i;
-      break;
-      }
-      }
+    // 1. Sort incoming buffer by rank
+    templateBuffer.sort((a, b) => (a.rank || 999) - (b.rank || 999));
 
-      // --- CLEANUP WHITESPACE ---
-      if (summaryIndex !== -1) {
-      let nextIdx = summaryIndex + 1;
-      while (nextIdx < body.getNumChildren()) {
-      const nextChild = body.getChild(nextIdx);
-      if (nextChild.getType() === DocumentApp.ElementType.PARAGRAPH && 
-      nextChild.asParagraph().getText().trim() === "") {
-      if (body.getNumChildren() > 1) {
-      try {
-      nextChild.removeFromParent();
-      } catch (e) { break; }
-      } else { break; }
-      } else { break; }
-      }
-      }
+    // 2. Find the "Comprehensive Summary" anchor
+    let summaryIndex = -1;
+    for (let i = 0; i < body.getNumChildren(); i++) {
+    const child = body.getChild(i);
+    if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
-      // Define where the summary section starts
-      const targetBase = (summaryIndex === -1) ? body.getNumChildren() : summaryIndex + 1;
+    const text = child.asParagraph().getText().trim().toLowerCase();
+    if (text === "comprehensive summary") {
+    summaryIndex = i;
+    break;
+    }
+    }
 
-      templateBuffer.forEach(newTmpl => {
-      let inserted = false;
-      const newRank = newTmpl.rank || 999;
+    // --- CLEANUP WHITESPACE ---
+    if (summaryIndex !== -1) {
+    let nextIdx = summaryIndex + 1;
+    while (nextIdx < body.getNumChildren()) {
+    const nextChild = body.getChild(nextIdx);
+    if (
+    nextChild.getType() === DocumentApp.ElementType.PARAGRAPH &&
+    nextChild.asParagraph().getText().trim() === ""
+    ) {
+    if (body.getNumChildren() > 1) {
+    try {
+    nextChild.removeFromParent();
+    } catch (e) {
+    break;
+    }
+    } else {
+    break;
+    }
+    } else {
+    break;
+    }
+    }
+    }
 
-      // Search existing paragraphs to see where to insert based on rank
-      for (let i = targetBase; i < body.getNumChildren(); i++) {
-      const child = body.getChild(i);
-      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+    const targetBase =
+    summaryIndex === -1 ? body.getNumChildren() : summaryIndex + 1;
 
-      const p = child.asParagraph();
-      const pText = p.getText().trim().toLowerCase();
+    templateBuffer.forEach((newTmpl) => {
+    let inserted = false;
+    const newRank = newTmpl.rank || 999;
 
-      // If we hit an empty line, the summary section has ended
-      if (!pText) break; 
+    for (let i = targetBase; i < body.getNumChildren(); i++) {
+    const child = body.getChild(i);
+    if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
-      if (!p.editAsText().isBold(0) || !pText.includes(':')) continue;
+    const p = child.asParagraph();
+    const rawText = p.getText();
+    const pText = rawText.replace(/\u00A0/g, " ").trim().toLowerCase();
 
-      const headerText = pText.split(':')[0]; 
-      let existingRank = null;
+    if (!pText) break;
 
-      for (const key in allDiags) {
-      const diagText = allDiags[key].text.toLowerCase();
-      const diagWords = diagText.split(/\s+/).filter(word => word.length > 2);
-      const matchCount = diagWords.filter(word => headerText.includes(word)).length;
-      if (matchCount >= Math.ceil(diagWords.length * 0.7)) {
-      existingRank = allDiags[key].rank;
-      break;
-      }
-      }
+    // FIXED HEADER DETECTION
+    if (!isHeaderParagraph(p) || !pText.includes(":")) continue;
 
-      if (existingRank !== null && existingRank > newRank) {
-      insertTemplateAtIndex(body, newTmpl, i);
-      inserted = true;
-      break;
-      }
-      }
+    const headerText = pText.split(":")[0];
+    let existingRank = null;
 
-      // --- FIXED FALLBACK LOGIC ---
-      if (!inserted) {
-      // Instead of going to the absolute end of the doc, find the end of the text block
-      let fallbackIdx = targetBase;
-      while (fallbackIdx < body.getNumChildren()) {
-      const next = body.getChild(fallbackIdx);
-      // Stop if we hit a non-paragraph or an empty paragraph (the "floor")
-      if (next.getType() !== DocumentApp.ElementType.PARAGRAPH || next.asParagraph().getText().trim() === "") {
-      break;
-      }
-      fallbackIdx++;
-      }
-      insertTemplateAtIndex(body, newTmpl, fallbackIdx);
-      }
-      });
+    for (const key in allDiags) {
+    const diagText = allDiags[key].text.toLowerCase();
+    const diagWords = diagText
+    .split(/\s+/)
+    .filter((word) => word.length > 2);
 
-      templateBuffer = [];
-      }
+    const matchCount = diagWords.filter((word) =>
+    headerText.includes(word)
+    ).length;
+
+    if (matchCount >= Math.ceil(diagWords.length * 0.7)) {
+    existingRank = allDiags[key].rank;
+    break;
+    }
+    }
+
+    if (existingRank !== null && existingRank > newRank) {
+    insertTemplateAtIndex(body, newTmpl, i);
+    inserted = true;
+    break;
+    }
+    }
+
+    // --- FALLBACK ---
+    if (!inserted) {
+    let fallbackIdx = targetBase;
+    while (fallbackIdx < body.getNumChildren()) {
+    const next = body.getChild(fallbackIdx);
+    if (
+    next.getType() !== DocumentApp.ElementType.PARAGRAPH ||
+    next.asParagraph().getText().trim() === ""
+    ) {
+    break;
+    }
+    fallbackIdx++;
+    }
+    insertTemplateAtIndex(body, newTmpl, fallbackIdx);
+    }
+    });
+
+    templateBuffer = [];
+    }
 
 /* ------------------ FORMAT REGISTRY ------------------ */
   // Reset Registry
@@ -1288,6 +1317,11 @@
     "Make sure to keep your living space free of obstacles to prevent your dog from tripping or bumping into things by mistake.",
   
   // Cardiology Registry
+    THE_AMERICAN_HEARTWORM_SOCIETY_STATEMENT_ARTICLE : {
+    text: "the American Heartworm Society statement",
+    url: `https://www.heartwormsociety.org/resources/65-clinical-faqs/507-the-ahs-protocol-vs-slow-kill`
+    },
+
     CANINE_HEARTWORM_GUIDELINES_BY_THE_AMERICAN_HEARTWORM_SOCIETY_ARTICLE : {
     text: "Canine Heartworm Guidelines by the American Heartworm Society.",
     url: `https://www.heartwormsociety.org/veterinary-resources/american-heartworm-society-guidelines`
@@ -1330,14 +1364,17 @@
     HEART_MURMUR_WARNING_SIGNS: g =>
     `If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately.`,
 
-    HEARTWORM_CAGE_REST:
+    HEARTWORMS_CAGE_REST:
     "It is vital you cage rest your dog throughout the ENTIRE treatment course & for 2 weeks after the last injection. Failure to do so can cause clots to form in the heart & blood vessels which can be fatal.",
 
     HEARTWORMS_EMERGENCY:
     "Excessive sluggishness, respiratory distress, and coughing up blood are signs of an emergency.",
 
-    HEARTWORM_PREVENTION_GIVEN:
+    HEARTWORMS_PREVENTION_GIVEN:
     "Heartworm prevention is also given",
+
+    HEARTWORMS_SLOW_KILL_WARNING:
+    "Note that it can take years for heartworms to be completely eradicated via the slow kill method. There is still a chance of death during this time.",
 
     LEFT_SIDED_CONGESTIVE_HEART_FAILURE_HEADER:
     "Left sided congestive heart failure:",
@@ -1521,7 +1558,7 @@
 
     };
 
-/* ------------------ RESET & GENERIC ------------------ */
+/* ------------------ Reset & Replacement ------------------ */
   // Canine Reset
     function generateCanineResetTemplate(sex) {
     const p = getPronoun(sex);
@@ -1700,6 +1737,59 @@
     };
     }
 
+  // Search & Destroy (Replacement Templates)
+    function clearSectionByHeaderKey(headerKey) {
+    const body = DocumentApp.getActiveDocument().getBody();
+    const paragraphs = body.getParagraphs();
+
+    const targetHeader = FORMAT_REGISTRY[headerKey];
+
+    function isHeader(para) {
+    const textObj = para.editAsText();
+    const text = para.getText();
+    if (!text.length) return false;
+
+    for (let i = 0; i < text.length; i++) {
+    if (textObj.isBold(i) && textObj.isUnderline(i)) {
+    return true;
+    }
+    }
+    return false;
+    }
+
+    let startIdx = -1;
+    let endIdx = -1;
+
+    for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i];
+    const rawText = p.getText();
+    const text = rawText.replace(/\u00A0/g, ' ').trim(); // normalize spaces
+
+    // FIXED: use startsWith instead of exact match
+    if (text.startsWith(targetHeader) && isHeader(p)) {
+    startIdx = body.getChildIndex(p);
+    continue;
+    }
+
+    if (startIdx !== -1 && isHeader(p)) {
+    endIdx = body.getChildIndex(p);
+    break;
+    }
+    }
+
+    if (startIdx !== -1 && endIdx === -1) {
+    endIdx = body.getNumChildren();
+    }
+
+    if (startIdx === -1 || endIdx === -1) return;
+    if (endIdx <= startIdx) return;
+    if (endIdx - startIdx > 50) return;
+
+    for (let j = endIdx - 1; j >= startIdx; j--) {
+    body.removeChild(body.getChild(j));
+    }
+    }
+
 /* ------------------ Reverse Template Generator ------------------ */
   // Main Function
     function reverseGenerateTemplate(sex, plurality) {
@@ -1847,7 +1937,6 @@
     function extractFormattingSpans(textElement, keys, reverseMap, newLinksRegistry) {
     const text = textElement.getText() || "";
 
-    // Ensure the tracker exists (linked to Main Function initialization)
     if (typeof globalNewFormatEntries === 'undefined') { 
     globalThis.globalNewFormatEntries = {}; 
     }
@@ -1880,32 +1969,37 @@
     }
     keys.linkKeys.add(linkKey);
     } else {
-    const isGreen = (color === "#008000" || color === "#b6d7a8"), 
+    // Updated to include your specific Green hex code
+    const isGreen = (color === "#6aa84f" || color === "#008000" || color === "#b6d7a8"), 
     isRed = (color === "#ff0000" || color === "#ea9999");
 
     let identifier = existingKey;
 
-    // --- AUTOMATIC HEADER REGISTRY LOGIC ---
+    // Auto-header logic
     if (!identifier && isBold && spanClean.endsWith(':')) {
-    // 1. Remove colon, replace spaces with underscores, make Uppercase
     let baseName = spanClean.replace(/[:]/g, "").replace(/[^A-Za-z0-9]/g, "_").toUpperCase();
-
-    // 2. Format as TEXT_HEADER and remove double underscores
     identifier = baseName.replace(/_+/g, "_") + "_HEADER";
-
-    // 3. Save the actual text for the final Registry Entry print-out
     globalNewFormatEntries[identifier] = spanClean;
     }
 
-    // Fallback to raw text only if it's not a registered key or a new header
     if (!identifier) identifier = spanClean;
 
-    if (isGreen) keys.greenKeys.add(identifier);
-    else if (isRed) keys.redKeys.add(identifier);
-    else {
-    if (isBold && isUnderline) keys.boldUnderlineKeys.add(identifier);
-    else if (isBold) keys.boldKeys.add(identifier);
-    if (isItalic) keys.italicKeys.add(identifier);
+    // Logic check: Priority given to Green color first
+    if (isGreen) {
+    keys.greenKeys.add(identifier);
+    } else if (isRed) {
+    keys.redKeys.add(identifier);
+    } else {
+    // If NOT Green or Red, check if it's default Bold + Underline
+    if (isBold && isUnderline) {
+    keys.boldUnderlineKeys.add(identifier);
+    } else if (isBold) {
+    keys.boldKeys.add(identifier);
+    }
+
+    if (isItalic) {
+    keys.italicKeys.add(identifier);
+    }
     }
     }
     }
@@ -2137,7 +2231,7 @@
         
         `Early detection labwork: Yearly blood work is recommended for ${g.dogs} the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
         
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
 
         `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
         
@@ -2205,7 +2299,7 @@
       `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
       `Heartworms: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
       `Early detection labwork: Samples were drawn from your ${g.dog}. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your ${g.dogs} overall health is closely monitored.`,
-      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
       `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
       `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
       `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
@@ -2327,7 +2421,7 @@
     // The regex is widened to handle "dog" vs "dogs" and "his/her" vs "their"
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 3. Add senior dog links to the existing link keys
@@ -2360,7 +2454,7 @@
     // Fixed the very last instance of "dog" to use ${g.dog}
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either are wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 4. Update Keys
@@ -2400,6 +2494,7 @@
     plurality,
     text,
     diagnoses: ["OVERWEIGHT"],
+    cleanupKeys: ["DIET_HEADER"],
     boldKeys: [
     'WEIGHT_HEADER',
     ],
@@ -3069,7 +3164,7 @@
     `2nd Month: Doxycycline is completed & heartworm prevention is given for another month to prevent re-infection. Waiting a month allows time for the heartworms to become weaker now that their beneficial bacteria are gone, thus making treatment more effective.`,
     `3rd Month: Medication to kill adult heartworms is injected into the back. This injection is often painful & 30% of dogs are sore or form abscesses afterwards. Abscesses resolve with warm compresses within 1 - 4 weeks, & pain medicine can be sent home as needed. Prednisone (a steroid) is given for a month to control inflammation as the older & weaker heartworms die. The medicine should be tapered as described below. Heartworm prevention is continued.`,
     `4th Month: Only younger, stronger heartworms are left. Your dog will be given another injection of heartworm treatment. In 24 hours, one last injection of heartworm adulticidal is given. Another month of steroids are sent home to further reduce the risk of inflammation. The medicine should be tapered as described below. Heartworm prevention is continued.`,
-    `It is vital you cage rest your dog throughout the ENTIRE treatment course & for 2 weeks after the last injection. Failure to do so can cause clots to form in the heart & blood vessels which can be fatal. Watch for coughing, gagging, vomiting, diarrhea, or loss of appetite and contact the clinic if noticed. Excessive sluggishness, respiratory distress, and coughing up blood are signs of an emergency. A repeat heartworm test is advised 9 months after the last injection. You can learn more about heartworm treatment & prevention from Canine Heartworm Guidelines by the American Heartworm Society.`
+    `It is vital you cage rest your dog throughout the ENTIRE treatment course & for 2 weeks after the last injection. Failure to do so can cause clots to form in the heart & blood vessels which can be fatal. Watch for coughing, gagging, vomiting, diarrhea, or loss of appetite and contact the clinic if noticed. Excessive sluggishness, respiratory distress, and coughing up blood are signs of an emergency. A repeat heartworm test is advised 9 months after the last injection. You can learn more about heartworm treatment & prevention from the Canine Heartworm Guidelines by the American Heartworm Society.`
     ].join('\n'),
 
     boldKeys: [
@@ -3083,7 +3178,7 @@
     boldUnderlineKeys: [
       "DOXYCYCLINE_FOUR_WEEKS",
       "HEARTWORMS_EMERGENCY",
-      "HEARTWORM_PREVENTION_GIVEN",
+      "HEARTWORMS_PREVENTION_GIVEN",
       "MELARSOMINE_INJECTION_SCHEDULE",
       "PREDNISONE_SCHEDULE",
       "PREDNISONE_TAPERING",
@@ -3091,11 +3186,38 @@
     ],
 
     redKeys: [
-      "HEARTWORM_CAGE_REST"
+      "HEARTWORMS_CAGE_REST"
     ],
 
     linkKeys: [
       "CANINE_HEARTWORM_GUIDELINES_BY_THE_AMERICAN_HEARTWORM_SOCIETY_ARTICLE"
+    ],
+    };
+    }
+
+  // Heartworms | Slow Kill Treatment (Healthy Dog)
+    function generateHeartwormsSlowKillHealthyDogTreatmentTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HEARTWORMS"],
+    text: [
+    `Heartworms: Unfortunately your dog has tested positive for heartworms. Treatment is typically done via the use of injections as this is the most effective and quickest way to treat the disease. However, you’ve chosen to use the “slow kill” method instead. This method is typically reserved for older, delicate patients who may not otherwise survive treatment. It involves using an antibiotic called doxycycline for a month followed by monthly heartworm prevention.`,
+    `Note that it can take years for heartworms to be completely eradicated via the slow kill method. There is still a chance of death during this time. Additionally, your dog’s internal organs are still at risk of getting damaged from the heartworms, and exercise restriction is strongly advised until a negative test is obtained. You can learn more about the slow kill method from the American Heartworm Society statement. More information about heartworm treatment & prevention is available from the Canine Heartworm Guidelines by the American Heartworm Society.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HEARTWORMS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HEARTWORMS_SLOW_KILL_WARNING"
+    ],
+
+    linkKeys: [
+      "CANINE_HEARTWORM_GUIDELINES_BY_THE_AMERICAN_HEARTWORM_SOCIETY_ARTICLE",
+      "THE_AMERICAN_HEARTWORM_SOCIETY_STATEMENT_ARTICLE"
     ],
     };
     }
@@ -3140,9 +3262,9 @@
     function generateDog1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog has early dental disease. While brushing ${g.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. You can schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
+    `Periodontal disease: Your ${g.dog} ${g.has} early dental disease. While brushing ${g.his} teeth is the best way to keep them clean, it  will not remove the tartar & calculus that is already there. Schedule a dental cleaning to completely remove calculus and then try brushing the teeth.`,
     `Until then, use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `If your ${g.dog} ${g.resists} having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3150,6 +3272,7 @@
     plurality,
     text,
     diagnoses: ["MILD_PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3173,9 +3296,9 @@
     function generateDog2PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${g.his} teeth is the best way to keep them clean, they will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
+    `Periodontal disease: Your ${g.dog} ${g.needs} a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${g.his} teeth is the best way to keep them clean, it will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
     `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `If your ${g.dog} ${g.resists} having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3183,6 +3306,7 @@
     plurality,
     text,
     diagnoses: ["MODERATE_PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3208,9 +3332,9 @@
     function generateDog3PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog needs a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${g.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${g.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
+    `Periodontal disease: Your ${g.dog} ${g.needs} a Complete Oral Health Assessment and Treatment (COHAT) procedure. Brushing ${g.his} teeth is the best way to keep them clean, but it will not remove the tartar & calculus that is already there. In fact, brushing right now is not advised as it will likely cause ${g.him} pain and possibly bleeding given how severe the disease is. Schedule a dental cleaning within the next three months.`,
     `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-    `If your dog resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `If your ${g.dog} ${g.resists} having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3218,6 +3342,7 @@
     plurality,
     text,
     diagnoses: ["SEVERE_PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3243,8 +3368,8 @@
     function generateDog4PeriodontalDiseaseAgeTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog shows signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your dog for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
-    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your dog to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your ${g.dog} ${g.shows} signs of dental disease. However, older patients are more at risk of anesthesia complications. A routine dental cleaning is not advised in your ${g.dog} for that reason unless it is performed with a dental specialist. The recommended clinic is Veterinary Dental Specialists. A referral to those clinics can be facilitated at your request.`,
+    `In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. This will make it easier for your ${g.dog} to chew the food. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3252,6 +3377,7 @@
     plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3270,7 +3396,7 @@
     function generateDog4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your ${g.dog} ${g.shows} signs of dental disease. However, a dental cleaning is not recommended at this time until the current problem is dealt with. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3278,6 +3404,7 @@
     plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3296,7 +3423,7 @@
     function generateDog4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Periodontal disease: Your dog shows signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
+    `Periodontal disease: Your ${g.dog} ${g.shows} signs of dental disease. However, a dental cleaning is not recommended at this time until the heart is further investigated. Once the other problem has been addressed, a dental cleaning can be performed. In the meantime, feed soft food such as wet food or dry food soaked in a few tablespoons of warm water 30 seconds prior to feeding. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
     return {
@@ -3304,6 +3431,7 @@
     plurality,
     text,
     diagnoses: ["PERIODONTAL_DISEASE"],
+    cleanupKeys: ["DENTAL_HEADER"],
     boldKeys: [
     `PERIODONTAL_DISEASE_HEADER`,
     ],
@@ -3864,12 +3992,12 @@
     '/c2year': (sex, plurality) => generate2YearAdultTemplate(sex, plurality),
     '/c2yearLepto': (sex, plurality) => generate2YearLeptoTemplate(sex, plurality),
     '/c7year': (sex, plurality) => generate7YearAdultTemplate(sex, plurality),
-    '/c7yearLeptoMale': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
+    '/c7yearLepto': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
 
-    '/cOverweightMale': (sex, plurality) => generateCanineOverweightTemplate(sex, plurality),
-    '/cOverweight2Male': (sex, plurality) => generateCanineOverweight2Template(sex, plurality),
-    '/cHealthyWeightMale': (sex, plurality) => generateDogHealthyWeightTemplate(sex, plurality),
-    '/cUnderweightMale': (sex, plurality) => generateDogUnderweightTemplate(sex, plurality),
+    '/cOverweight1': (sex, plurality) => generateCanineOverweightTemplate(sex, plurality),
+    '/cOverweight2': (sex, plurality) => generateCanineOverweight2Template(sex, plurality),
+    '/cHealthyWeight': (sex, plurality) => generateDogHealthyWeightTemplate(sex, plurality),
+    '/cUnderweight': (sex, plurality) => generateDogUnderweightTemplate(sex, plurality),
 
   // Canine Ophthalmology Definitions
     '/cBlind0Partial': (sex, plurality) => generateDogBlind0PartialTemplate(sex, plurality),
@@ -3897,6 +4025,7 @@
     '/cHeartMurmur1Cardiomegaly': (sex, plurality) => generateDogHeartMurmur1CardiomegalyTemplate(sex, plurality),
     '/cHeartMurmur3Known': (sex, plurality) => generateDogHeartMurmur3KnownTemplate(sex, plurality),
     '/cHeartwormsAdulticidalTreatment': (sex, plurality) => generateHeartwormsAdulticidalTreatmentTemplate(sex, plurality),
+    '/cHeartwormsSlowKillHealthyTreatment': (sex, plurality) => generateHeartwormsSlowKillHealthyDogTreatmentTemplate(sex, plurality),
     '/cLeftSidedCongestiveHeartFailure': (sex, plurality) => generateDogLeftSidedCongestiveHeartFailureTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
@@ -4094,7 +4223,7 @@
     const insertedParagraphs = [];
     const g = getGrammar('wellness', template.plurality || 'singular', template.sex || 'male');
 
-    //  Helper to resolve Registry Keys ---
+    // --- Helper to resolve Registry Keys ---
     const resolve = (keys) => (keys || []).map(key => {
     const entry = FORMAT_REGISTRY[key];
     if (!entry) return null;
@@ -4110,53 +4239,46 @@
     const resolvedTitle = resolve(template.titleKeys);
     const resolvedDoubleSpaced = resolve(template.doubleSpacedKeys);
 
-    //  1. Insert Paragraphs & Set Paragraph-Level Styles ---
+    // --- 1. Insert Paragraphs & Set Paragraph-Level Styles ---
     paragraphs.forEach((paraText, i) => {
     const p = body.insertParagraph(insertIndex + i, paraText);
 
-    // Default alignment and indentation
     p.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
     p.setIndentFirstLine(36);
 
-    // Determine Line Spacing
-    let spacing = template.blockLineSpacing || 2.0; // Default to double
+    let spacing = template.blockLineSpacing || 2.0;
 
-    // Check if this specific line matches a Title Key
     if (resolvedTitle.some(t => paraText.includes(t))) {
     p.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-    spacing = STYLE_REGISTRY.title.lineSpacing; // 2.0
+    spacing = STYLE_REGISTRY.title.lineSpacing;
     }
 
-    // Check if this specific line matches a Double Spaced Key (Review Request)
     if (resolvedDoubleSpaced.some(ds => paraText.includes(ds))) {
-    spacing = STYLE_REGISTRY.doubleSpaced.lineSpacing; // 2.0
+    spacing = STYLE_REGISTRY.doubleSpaced.lineSpacing;
     }
 
     p.setLineSpacing(spacing);
     insertedParagraphs.push(p);
     });
 
-    //  2. Apply Text-Level Formatting (Character Styles) ---
+    // --- 2. Apply Text-Level Formatting ---
     insertedParagraphs.forEach(p => {
     const t = p.editAsText();
     const text = p.getText();
     if (!text.trim()) return;
 
-    // Apply Title Size
     resolvedTitle.forEach(titleText => {
     if (text.includes(titleText)) {
     t.setFontSize(0, text.length - 1, 20);
     }
     });
 
-    // Bold, Italic, Colors from Registry
     resolvedBoldOnly.forEach(str => applyFormattingOnce(t, str, STYLE_REGISTRY.bold));
     resolvedBoldUnderline.forEach(str => applyFormattingOnce(t, str, STYLE_REGISTRY.boldUnderline));
     resolvedItalic.forEach(str => applyFormattingOnce(t, str, STYLE_REGISTRY.italic));
     resolvedGreen.forEach(str => applyFormattingOnce(t, str, STYLE_REGISTRY.green));
     resolvedRed.forEach(str => applyFormattingOnce(t, str, STYLE_REGISTRY.red));
 
-    // Hyperlinks
     resolvedLinks.forEach(link => {
     let startIndex = text.indexOf(link.text);
     while (startIndex !== -1) {
@@ -4166,14 +4288,20 @@
     });
     });
 
-    //  3. Buffer Table Data ---
+    // --- 3. Buffer Table Data ---
     if (template.table) {
-    // If table data is an array (multiple rows), spread it into the buffer
     template.table.data.forEach((row, idx) => {
     TABLE_ROW_BUFFER.push({
     rowData: row,
     color: template.table.colorRows ? template.table.colorRows[idx] : null
     });
+    });
+    }
+
+    // --- 4. CLEANUP (RUN AFTER INSERTION) ---
+    if (template.cleanupKeys && template.cleanupKeys.length) {
+    template.cleanupKeys.forEach(key => {
+    clearSectionByHeaderKey(key);
     });
     }
 
