@@ -712,131 +712,113 @@
     }
 
     /* ------------------ Deep Fuzzy Diagnosis-Linked Insert ------------------ */
-    function insertTemplatesIntoDocument() {
-    if (templateBuffer.length === 0) return;
+      function insertTemplatesIntoDocument() {
+      if (templateBuffer.length === 0) return;
 
-    const body = DocumentApp.getActiveDocument().getBody();
-    const allDiags = DIAGNOSIS_REGISTRY;
+      const body = DocumentApp.getActiveDocument().getBody();
+      const allDiags = DIAGNOSIS_REGISTRY;
 
-    // Robust header detection
-    function isHeaderParagraph(p) {
-    const textObj = p.editAsText();
-    const text = p.getText();
-    if (!text.length) return false;
+      // FIX 1: Lenient Header Detection
+      // We check for Bold OR Underline at the start of the paragraph.
+      // This ensures "Weight:" (Bold only) is recognized as a header.
+      function isHeaderParagraph(p) {
+      const text = p.getText();
+      if (!text.trim().length) return false;
+      const textObj = p.editAsText();
+      return textObj.isBold(0) || textObj.isUnderline(0);
+      }
 
-    for (let i = 0; i < text.length; i++) {
-    if (textObj.isBold(i) && textObj.isUnderline(i)) {
-    return true;
-    }
-    }
-    return false;
-    }
+      // 1. Sort incoming buffer by rank
+      templateBuffer.sort((a, b) => (a.rank || 999) - (b.rank || 999));
 
-    // 1. Sort incoming buffer by rank
-    templateBuffer.sort((a, b) => (a.rank || 999) - (b.rank || 999));
+      // 2. Find the "Comprehensive Summary" anchor
+      let summaryIndex = -1;
+      for (let i = 0; i < body.getNumChildren(); i++) {
+      const child = body.getChild(i);
+      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+      const text = child.asParagraph().getText().trim().toLowerCase();
+      if (text === "comprehensive summary") {
+      summaryIndex = i;
+      break;
+      }
+      }
 
-    // 2. Find the "Comprehensive Summary" anchor
-    let summaryIndex = -1;
-    for (let i = 0; i < body.getNumChildren(); i++) {
-    const child = body.getChild(i);
-    if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+      // --- CLEANUP WHITESPACE ---
+      if (summaryIndex !== -1) {
+      let nextIdx = summaryIndex + 1;
+      while (nextIdx < body.getNumChildren()) {
+      const nextChild = body.getChild(nextIdx);
+      if (nextChild.getType() === DocumentApp.ElementType.PARAGRAPH && nextChild.asParagraph().getText().trim() === "") {
+      try { nextChild.removeFromParent(); } catch (e) { break; }
+      } else { break; }
+      }
+      }
 
-    const text = child.asParagraph().getText().trim().toLowerCase();
-    if (text === "comprehensive summary") {
-    summaryIndex = i;
-    break;
-    }
-    }
+      const targetBase = summaryIndex === -1 ? body.getNumChildren() : summaryIndex + 1;
 
-    // --- CLEANUP WHITESPACE ---
-    if (summaryIndex !== -1) {
-    let nextIdx = summaryIndex + 1;
-    while (nextIdx < body.getNumChildren()) {
-    const nextChild = body.getChild(nextIdx);
-    if (
-    nextChild.getType() === DocumentApp.ElementType.PARAGRAPH &&
-    nextChild.asParagraph().getText().trim() === ""
-    ) {
-    if (body.getNumChildren() > 1) {
-    try {
-    nextChild.removeFromParent();
-    } catch (e) {
-    break;
-    }
-    } else {
-    break;
-    }
-    } else {
-    break;
-    }
-    }
-    }
+      templateBuffer.forEach((newTmpl) => {
+      let inserted = false;
+      const newRank = newTmpl.rank || 999;
 
-    const targetBase =
-    summaryIndex === -1 ? body.getNumChildren() : summaryIndex + 1;
+      for (let i = targetBase; i < body.getNumChildren(); i++) {
+      const child = body.getChild(i);
+      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
 
-    templateBuffer.forEach((newTmpl) => {
-    let inserted = false;
-    const newRank = newTmpl.rank || 999;
+      const p = child.asParagraph();
+      const pText = p.getText().replace(/\u00A0/g, " ").trim().toLowerCase();
 
-    for (let i = targetBase; i < body.getNumChildren(); i++) {
-    const child = body.getChild(i);
-    if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
+      // FIX 2: Continue, don't Break
+      // If the line is empty, skip it. If it's not a header, skip it.
+      // Do NOT 'break', otherwise we stop looking before we hit the Wellness header.
+      if (!pText) continue; 
+      if (!isHeaderParagraph(p) || !pText.includes(":")) continue;
 
-    const p = child.asParagraph();
-    const rawText = p.getText();
-    const pText = rawText.replace(/\u00A0/g, " ").trim().toLowerCase();
+      const headerText = pText.split(":")[0];
+      let existingRank = null;
 
-    if (!pText) break;
+      // FIX 3: Robust Fuzzy Matching
+      // We look for any overlap between the header (e.g. "Weight") 
+      // and the registry (e.g. "Overweight")
+      for (const key in allDiags) {
+      const diagText = allDiags[key].text.toLowerCase();
 
-    // FIXED HEADER DETECTION
-    if (!isHeaderParagraph(p) || !pText.includes(":")) continue;
+      // Match if the header is inside the diagnosis (Weight is in Overweight)
+      // OR the diagnosis is inside the header (Overweight contains Weight)
+      if (diagText.includes(headerText) || headerText.includes(diagText)) {
+      existingRank = allDiags[key].rank;
+      break;
+      }
+      }
 
-    const headerText = pText.split(":")[0];
-    let existingRank = null;
+      // Default rank for recognized headers not in registry is 999 (like Wellness)
+      let effectiveRank = (existingRank !== null) ? existingRank : 999;
 
-    for (const key in allDiags) {
-    const diagText = allDiags[key].text.toLowerCase();
-    const diagWords = diagText
-    .split(/\s+/)
-    .filter((word) => word.length > 2);
+      // If the header in the doc is lower priority (higher rank) than our new one, 
+      // insert the new one right here.
+      if (effectiveRank > newRank) {
+      insertTemplateAtIndex(body, newTmpl, i);
+      inserted = true;
+      break;
+      }
+      }
 
-    const matchCount = diagWords.filter((word) =>
-    headerText.includes(word)
-    ).length;
+      // --- FALLBACK ---
+      if (!inserted) {
+      let fallbackIdx = targetBase;
+      while (fallbackIdx < body.getNumChildren()) {
+      const next = body.getChild(fallbackIdx);
+      // Put it at the first empty line or the end of the block
+      if (next.getType() !== DocumentApp.ElementType.PARAGRAPH || next.asParagraph().getText().trim() === "") {
+      break;
+      }
+      fallbackIdx++;
+      }
+      insertTemplateAtIndex(body, newTmpl, fallbackIdx);
+      }
+      });
 
-    if (matchCount >= Math.ceil(diagWords.length * 0.7)) {
-    existingRank = allDiags[key].rank;
-    break;
-    }
-    }
-
-    if (existingRank !== null && existingRank > newRank) {
-    insertTemplateAtIndex(body, newTmpl, i);
-    inserted = true;
-    break;
-    }
-    }
-
-    // --- FALLBACK ---
-    if (!inserted) {
-    let fallbackIdx = targetBase;
-    while (fallbackIdx < body.getNumChildren()) {
-    const next = body.getChild(fallbackIdx);
-    if (
-    next.getType() !== DocumentApp.ElementType.PARAGRAPH ||
-    next.asParagraph().getText().trim() === ""
-    ) {
-    break;
-    }
-    fallbackIdx++;
-    }
-    insertTemplateAtIndex(body, newTmpl, fallbackIdx);
-    }
-    });
-
-    templateBuffer = [];
-    }
+      templateBuffer = [];
+      }
 
 /* ------------------ FORMAT REGISTRY ------------------ */
   // Reset Registry
@@ -1737,59 +1719,6 @@
     };
     }
 
-  // Search & Destroy (Replacement Templates)
-    function clearSectionByHeaderKey(headerKey) {
-    const body = DocumentApp.getActiveDocument().getBody();
-    const paragraphs = body.getParagraphs();
-
-    const targetHeader = FORMAT_REGISTRY[headerKey];
-
-    function isHeader(para) {
-    const textObj = para.editAsText();
-    const text = para.getText();
-    if (!text.length) return false;
-
-    for (let i = 0; i < text.length; i++) {
-    if (textObj.isBold(i) && textObj.isUnderline(i)) {
-    return true;
-    }
-    }
-    return false;
-    }
-
-    let startIdx = -1;
-    let endIdx = -1;
-
-    for (let i = 0; i < paragraphs.length; i++) {
-    const p = paragraphs[i];
-    const rawText = p.getText();
-    const text = rawText.replace(/\u00A0/g, ' ').trim(); // normalize spaces
-
-    // FIXED: use startsWith instead of exact match
-    if (text.startsWith(targetHeader) && isHeader(p)) {
-    startIdx = body.getChildIndex(p);
-    continue;
-    }
-
-    if (startIdx !== -1 && isHeader(p)) {
-    endIdx = body.getChildIndex(p);
-    break;
-    }
-    }
-
-    if (startIdx !== -1 && endIdx === -1) {
-    endIdx = body.getNumChildren();
-    }
-
-    if (startIdx === -1 || endIdx === -1) return;
-    if (endIdx <= startIdx) return;
-    if (endIdx - startIdx > 50) return;
-
-    for (let j = endIdx - 1; j >= startIdx; j--) {
-    body.removeChild(body.getChild(j));
-    }
-    }
-
 /* ------------------ Reverse Template Generator ------------------ */
   // Main Function
     function reverseGenerateTemplate(sex, plurality) {
@@ -2310,7 +2239,8 @@
     sex,
     plurality,
     text,
-    diagnoses: ["WELLNESS"],
+    diagnoses: [""],
+    rank: 999,
     boldKeys: [
     'VACCINES_HEADER',
     'HEARTWORMS_HEADER',
@@ -4306,6 +4236,59 @@
     }
 
     return insertedParagraphs;
+    }
+
+  // Search & Destroy (Replacement Templates)
+    function clearSectionByHeaderKey(headerKey) {
+    const body = DocumentApp.getActiveDocument().getBody();
+    const paragraphs = body.getParagraphs();
+
+    const targetHeader = FORMAT_REGISTRY[headerKey];
+
+    function isHeader(para) {
+    const textObj = para.editAsText();
+    const text = para.getText();
+    if (!text.length) return false;
+
+    for (let i = 0; i < text.length; i++) {
+    if (textObj.isBold(i) && textObj.isUnderline(i)) {
+    return true;
+    }
+    }
+    return false;
+    }
+
+    let startIdx = -1;
+    let endIdx = -1;
+
+    for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i];
+    const rawText = p.getText();
+    const text = rawText.replace(/\u00A0/g, ' ').trim(); // normalize spaces
+
+    // FIXED: use startsWith instead of exact match
+    if (text.startsWith(targetHeader) && isHeader(p)) {
+    startIdx = body.getChildIndex(p);
+    continue;
+    }
+
+    if (startIdx !== -1 && isHeader(p)) {
+    endIdx = body.getChildIndex(p);
+    break;
+    }
+    }
+
+    if (startIdx !== -1 && endIdx === -1) {
+    endIdx = body.getNumChildren();
+    }
+
+    if (startIdx === -1 || endIdx === -1) return;
+    if (endIdx <= startIdx) return;
+    if (endIdx - startIdx > 50) return;
+
+    for (let j = endIdx - 1; j >= startIdx; j--) {
+    body.removeChild(body.getChild(j));
+    }
     }
 
 /* ------------------ TABLE INSERTION ------------------ */
