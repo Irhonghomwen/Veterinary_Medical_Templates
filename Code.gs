@@ -232,7 +232,7 @@
 
     NEOPOLYBACOINTMENT: {
     label: "NeoPolyBac ointment (neomycin, polymyxin, bacitracin)",
-    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week if no improvement (immediately if worsening).",
+    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
     class: "Antibiotic, anti-inflammatory",
     sideEffects: "Well tolerated"
     },
@@ -246,7 +246,7 @@
 
     NEOPOLYDEXSUSPENSION: {
     label: "NeoPolyDex Suspension (neomycin, polymyxin B, dexamethasone)",
-    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation. Recheck eyes in 1 week if no improvement (immediately if worsening).",
+    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
     class: "Antibiotic, anti-inflammatory",
     sideEffects: "Well tolerated"
     },
@@ -334,8 +334,8 @@
     sideEffects: "Well tolerated"
     },
 
-    TRAZADONE: {
-    label: "Trazadone 100mg",
+    TRAZODONE: {
+    label: "Trazodone 100mg",
     instructions: "Give your dog 1 tablet by mouth 1 - 2 hours prior to stressful events.",
     class: "Anxiolytic",
     sideEffects: "May cause sedation or hyperactivity"
@@ -2485,11 +2485,11 @@
     }
 
   // Canine Healthy Weight
-    function generateDogHealthyWeightTemplate(sex) {
-    const p = getPronoun(sex);
+    function generateDogHealthyWeightTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Weight: Your dog is a healthy weight for a dog of ${p.his} size. ${p.His} ribs can be felt without difficulty and ${p.he} has a slight waist. Keeping ${p.him} around ${p.his} current weight will help ${p.him} live approximately 1 ½ years longer than ${p.he} would if ${p.he} were over or underweight.`,
-    `Continue to monitor ${p.his} weight and feed ${p.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${p.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${p.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
+    `Weight: Your dog is a healthy weight for a dog of ${g.his} size. ${g.His} ribs can be felt without difficulty and ${g.he} has a slight waist. Keeping ${g.him} around ${g.his} current weight will help ${g.him} live approximately 1 ½ years longer than ${g.he} would if ${g.he} were over or underweight.`,
+    `Continue to monitor ${g.his} weight and feed ${g.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${g.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${g.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
     ].join('\n');
 
     return {
@@ -4028,10 +4028,11 @@
     return output.join('\n');
     }
 
-/* ------------------ EXPAND KEYWORDS ------------------ */
+/* ------------------ EXPAND KEYWORDS ENGINE ------------------ */
   // Main Function
     function runExpansionEngine(matches) {
     const body = DocumentApp.getActiveDocument().getBody();
+    const cleanupQueue = []; // Collects all "Search & Destroy" keys for the final pass
 
     // 1. PRIORITY PASS: Handle Resets First
     const resetMatch = matches.find(m => m.normalized.endsWith('reset'));
@@ -4044,8 +4045,6 @@
     insertTemplateAtIndex(body, template, 0);
     if (template.customAction) template.customAction();
     }
-    // If it's a reset, we usually stop here, but we'll let it continue in case 
-    // other keywords were found in the same scan.
     }
 
     // 2. SECOND PASS: Process medications and buffer standard templates
@@ -4057,28 +4056,44 @@
 
     if (templateFn) {
     const template = templateFn(sex, plurality);
-    let rank = template.rank || 999;
 
+    // NEW: Add cleanup keys to the global queue instead of running them immediately
+    if (template.cleanupKeys && template.cleanupKeys.length > 0) {
+    cleanupQueue.push(...template.cleanupKeys);
+    }
+
+    let rank = template.rank || 999;
     if (template.diagnoses && template.diagnoses.length > 0) {
     bufferDiagnoses(template.diagnoses);
     const firstKey = template.diagnoses[0];
     const diagRank = (DIAGNOSIS_REGISTRY[firstKey] && DIAGNOSIS_REGISTRY[firstKey].rank) || 999;
     rank = Math.min(rank, diagRank);
     }
+
     bufferTemplate(template, rank);
     if (template.customAction) template.customAction();
     }
 
-    // Medication Logic (Matches keywords starting with /c that aren't in Template Registry)
+    // Medication Logic
     if (m.normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[base]) {
     const medRow = processMedicationCommand(m.text);
     if (medRow) TABLE_ROW_BUFFER.push(medRow);
     }
     });
 
-    // 3. FINAL FLUSH: Put everything into the document
+    // 3. FINAL FLUSH: Place content into document
     insertDiagnosesIntoDocument();
-    insertTemplatesIntoDocument();
+    insertTemplatesIntoDocument(); // Ranking happens here
+
+    // 4. GLOBAL CLEANUP PASS: Run "Search & Destroy" after all templates land
+    if (cleanupQueue.length > 0) {
+    // Remove duplicates to avoid redundant searches
+    const uniqueKeys = [...new Set(cleanupQueue)];
+    uniqueKeys.forEach(key => {
+    clearSectionByHeaderKey(key);
+    });
+    }
+
     if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     }
 
@@ -4088,7 +4103,7 @@
     let searchResult = null;
     const matches = [];
 
-    // 1. Find all keywords in the doc
+    // 1. Find all keywords
     while ((searchResult = body.findText(combinedPattern, searchResult))) {
     const textElement = searchResult.getElement().asText();
     const matchedText = textElement.getText().substring(
@@ -4105,7 +4120,7 @@
     });
     }
 
-    // 2. Delete them from the document (backwards)
+    // 2. Delete backwards
     for (let i = matches.length - 1; i >= 0; i--) {
     const m = matches[i];
     const parent = m.element.getParent();
@@ -4125,7 +4140,7 @@
     function expandKeywordsFromSidebar(keyword) {
     const normalized = keyword.toLowerCase().trim();
 
-    // Special case: Just flush the buffer (if user clicked a "Generate Table" button)
+    // Special case: Just flush the buffer
     if (normalized === "/generatemedicinetable") {
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument();
@@ -4133,7 +4148,6 @@
     return;
     }
 
-    // Otherwise, treat it as a single match and let the engine handle the rest
     const fakeMatch = {
     text: keyword,
     normalized: normalized
@@ -4225,13 +4239,6 @@
     rowData: row,
     color: template.table.colorRows ? template.table.colorRows[idx] : null
     });
-    });
-    }
-
-    // --- 4. CLEANUP (RUN AFTER INSERTION) ---
-    if (template.cleanupKeys && template.cleanupKeys.length) {
-    template.cleanupKeys.forEach(key => {
-    clearSectionByHeaderKey(key);
     });
     }
 
