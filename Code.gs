@@ -363,7 +363,7 @@
 
     TRAZODONE: {
     label: "Trazodone 100mg",
-    instructions: "Give your dog 1 tablet by mouth 1 - 2 hours prior to stressful events.",
+    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
     class: "Anxiolytic",
     sideEffects: "May cause sedation or hyperactivity"
     },
@@ -447,64 +447,81 @@
 /* ------------------ DIAGNOSIS & TEMPLATE BUFFER/RANKING ------------------ */
   // Diagnosis Registry & Rank
     const DIAGNOSIS_REGISTRY = {
+      // Examples
+      // 0 - 99: Top priority, emergency, disregard all else (heart murmur, heart failure, etc.)
+      // 100 - 199: Quality of life (arthritis)
+      // 200 - 299: High priority, recheck & preventative care (corneal ulcer, glaucoma, hypertension)
+      // 300 - 399: Medium-high priority, treatment advised (periodontal disease, otitis externa, etc.)
+      // 400 - 499: Medium priority, lifelong management (atopic dermatitis, BOAS, bronchitis)
+      // 500 - 599: Medium-low priority, treatment advised (conjunctivitis, bordetellosis, etc.)
+      // 600 - 699: Low-high priority, medical attention (2nd degree AV block)
+      // 700 - 799: Low-medium priority, client attention (overweight, blind, collapsing trachea)
+      // 800 - 899: Low priority, advise (underweight)
+      // 900 - 999: Non-vital, incidental findings, no treatment necessary (nuclear sclerosis)
+
     ATOPIC_DERMATITIS: {
     text: "Atopic dermatitis (allergies)",
-    rank: 50
+    rank: 400
     },
 
     BLIND: {
     text: "Blind",
-    rank: 81
+    rank: 710
     },
     
     BORDETELLOSIS_PRESUMED: {
     text: "Bordetellosis (presumed)",
-    rank: 51
+    rank: 510
     },
 
     BRACHYCEPHALIC_OBSTRUCTIVE_AIRWAY_SYNDROME: {
     text: "Brachycephalic obstructive airway syndrome (BOAS)",
-    rank: 40
+    rank: 400
     },
 
     CATARACTS: {
     text: "Cataracts",
-    rank: 71
+    rank: 710
     },
 
     CHERRY_EYE: {
     text: "Cherry eye",
-    rank: 42
+    rank: 321
     },
 
-    CHORNIC_BRONCHITIS_PRESUMED: {
+    CHRONIC_BRONCHITIS_PRESUMED: {
     text: "Chronic bronchitis (presumed)",
-    rank: 43
+    rank: 430
+    },
+
+    COLLAPSING_TRACHEA: {
+    text: "Collapsing trachea",
+    rank: 701
     },
 
     CONJUNCTIVITIS_DIAGNOSED: {
     text: "Conjunctivitis",
-    rank: 78
+    rank: 580
     },
 
     CONJUNCTIVITIS_PRESUMED: {
     text: "Conjunctivitis (presumed)",
-    rank: 78
+    rank: 780
     },
 
     CORNEAL_ULCER: {
     text: "Corneal ulcer",
-    rank: 22
+    rank: 220
     },
 
     ENTROPION: {
     text: "Entropion",
-    rank: 60
+    rank: 500
     },
 
     GLAUCOMA: {
     text: "Glaucoma",
-    rank: 20
+    rank: 200
     },
 
     HEART_MURMUR: {
@@ -519,12 +536,12 @@
     
     HYPERTENSION: {
     text: "Hypertension (high blood pressure)",
-    rank: 23
+    rank: 230
     },
 
     KERATOCONJUNCTIVITIS_SICCA: {
     text: "Keratoconjunctivitis sicca (dry eye)",
-    rank: 24
+    rank: 240
     },
 
     LEFT_SIDED_CONGESTIVE_HEART_FAILURE: {
@@ -534,77 +551,77 @@
 
     MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
     text: "Meibomian gland adenoma (presumed)",
-    rank: 31
+    rank: 310
     },
 
     MILD_PERIODONTAL_DISEASE: {
     text: "Mild periodontal disease",
-    rank: 30
+    rank: 300
     },
 
     MODERATE_PERIODONTAL_DISEASE: {
     text: "Moderate periodontal disease",
-    rank: 30
+    rank: 300
     },
 
     MYXOMATOUS_MITRAL_VALVE_DISEASE: {
     text: "Myxomatous mitral valve disease",
-    rank: 4
+    rank: 40
     },
 
     NUCLEAR_SCLEROSIS: {
     text: "Nuclear sclerosis",
-    rank: 97
+    rank: 970
     },
 
     OSTEOARTHRITIS: {
     text: "Osteoarthritis (arthritis)",
-    rank: 21
+    rank: 100
     },
 
     OSTEOARTHRITIS: {
     text: "Osteoarthritis (arthritis)",
-    rank: 21
+    rank: 100
     },
 
     OTITIS: {
     text: "Otitis externa (ear infection)",
-    rank: 41
+    rank: 310
     },
 
     OVERWEIGHT: {
     text: "Overweight",
-    rank: 80
+    rank: 700
     },
 
     PARTIALLY_BLIND: {
     text: "Partially blind",
-    rank: 90
+    rank: 900
     },
 
     PARTIALLY_VACCINATED: {
     text: "Partially vaccinated",
-    rank: 98
+    rank: 980
     },
 
     PERIODONTAL_DISEASE: {
     text: "Periodontal disease",
-    rank: 30
+    rank: 300
     },
 
     Second_Degree_AV: {
     text: "2nd Degree Atrioventricular Block",
-    rank: 61
+    rank: 610
     },
 
     SEVERE_PERIODONTAL_DISEASE: {
     text: "Severe periodontal disease",
-    rank: 30
+    rank: 300
     },
 
     UNDERWEIGHT: {
     text: "Underweight",
-    rank: 82
+    rank: 820
     },
     };
 
@@ -1507,6 +1524,15 @@
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102899&id=5138343`
     },
 
+    COLLAPSING_TRACHEA_HEADER: "Collapsing trachea:",
+    TRACHEAL_COLLAPSE_IN_DOGS_ARTICLE_ARTICLE: {
+    text: "Tracheal Collapse in Dogs article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951968`
+    },
+
+    COLLAPSING_TRACHEA_NO_TREATMENT:
+    "At this time no medication is being used as your dog appears to be well controlled at home without it.",
+
     ELONGATED_SOFT_PALATE_TX:
     `Treatment is using surgery to remove the elongated soft palate.`,
 
@@ -1626,7 +1652,7 @@
     },
 
     RABIES_CURE: g =>
-    `THERE IS NO CURE FOR RABIES. The only way to test for rabies involves decapitating an animal & taking samples of the brain. State law requires any ${g.dog} that is exposed to rabies to either undergo quarantine for up to 6 months or be euthanized.`,
+    `THERE IS NO CURE FOR RABIES. The only way to test for rabies involves decapitating an animal & taking samples of the brain. State law requires any animal that is exposed to rabies to either undergo quarantine for up to 6 months or be euthanized.`,
 
     RABIES_HEADER:
     `Rabies:`,
@@ -1851,7 +1877,7 @@
     }
 
 /* ------------------ Reverse Template Generator ------------------ */
-// Main Function
+  // Main Function
     function reverseGenerateTemplate(sex, plurality) {
     const body = DocumentApp.getActiveDocument().getBody();
     const reverseMap = getReverseRegistryMap(); 
@@ -1977,7 +2003,7 @@
     body.appendParagraph(outputCode);
     }
 
-// Helpers
+  // Helpers
     function cleanSpaces(str) { 
     return str ? String(str).replace(/[\u00a0\s]+/g, " ").trim() : ""; 
     }
@@ -2355,7 +2381,7 @@
       `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
       `Heartworms prevention: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
       `Early detection labwork: Samples were drawn from your ${g.dog}. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your ${g.dogs} overall health is closely monitored.`,
-      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
       `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
       `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
       `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
@@ -3472,7 +3498,7 @@
     return {
     sex,
     plurality,
-    diagnoses: ["CHORNIC_BRONCHITIS_PRESUMED"],
+    diagnoses: ["CHRONIC_BRONCHITIS_PRESUMED"],
     text: [
     `Chronic bronchitis: Your dog appears to have chronic bronchitis, meaning some of the main airways (the bronchi) have inflammation in them. Common causes include airway irritants (air pollution, smoke in the house from cooking or otherwise, burning incense, etc.) though the normal aging process can also contribute. The resulting inflammation causes overproduction of mucus which blocks the airway, causing symptoms such as coughing as the lungs try to clear it away. Once mucus production starts, it is difficult to completely eradicate.`,
     `Diagnosis requires x-rays to make sure the cough isn’t being caused by heart problems or other lung diseases such as tracheal collapse or pneumonia. Treatment involves managing the disease through weight loss and using medicine to either open up the airways, reduce inflammation, or treat present infection. Give the medicine prescribed below as directed. You can learn more from the Chronic Bronchitis in Dogs article on Veterinary Partner.`,
@@ -3496,6 +3522,37 @@
 
     linkKeys: [
       "CHRONIC_BRONCHITIS_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Collapsing Trachea | 3rd, Known, No Meds
+    function generateCollapsingTrachea3NoMedsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["COLLAPSING_TRACHEA"],
+    text: [
+    `Collapsing trachea: Your dog is known to have a collapsing trachea. This occurs when the cartilage rings in the trachea weaken and cause the trachea (the windpipe) to flatten whenever your dog breathes in. The result is that your dog has difficulty breathing and may even start coughing, both of which can cause your dog distress and discomfort. Common causes of tracheal collapse include obesity, respiratory irritants such as smoke, incense, dust, etc.), and heart enlargement.`,
+    `Treatment involves medication to make it easier for your dog to open up the airways and make it easier for your dog to breathe. This will decrease how deeply your dog needs to breathe with each breath which makes the trachea collapse less. At this time no medication is being used as your dog appears to be well controlled at home without it. Surgery can be pursued to keep the airways open longer and referral to a surgeon for that can be discussed if necessary. You can learn more from the Tracheal Collapse in Dogs article on Veterinary Partner. `
+    ].join('\n'),
+
+    boldKeys: [
+      "COLLAPSING_TRACHEA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "COLLAPSING_TRACHEA_NO_TREATMENT"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "TREATMENT"
+    ],
+
+    linkKeys: [
+      "TRACHEAL_COLLAPSE_IN_DOGS_ARTICLE_ARTICLE"
     ],
     };
     }
@@ -4278,6 +4335,7 @@
     '/cBordetellosis0Presumed': (sex, plurality) => generateCanineBordetellosis0PresumedTemplate(sex, plurality),
     '/cBrachycephalicObstructiveAirwaySyndrome': (sex, plurality) => generateCanineBrachycephalicObstructiveAirwaySyndromeTemplate(sex, plurality),
     '/cChronicBronchitis0Presumed': (sex, plurality) => generateChronicBronchitis0PresumedTemplate(sex, plurality),
+    '/cCollapsingTrachea3NoMeds': (sex, plurality) => generateCollapsingTrachea3NoMedsTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
