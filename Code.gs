@@ -124,15 +124,29 @@
     sideEffects: "Well tolerated"
     },
 
-    AMLODIPINE: {
+    AMLODIPINE25: {
     label: "Amlodipine 2.5mg tablet",
     instructions: "Give your dog 1 tablet by mouth every 24 hours to manage high blood pressure. Recheck blood pressure in 1 week.",
     class: "Calcium channel blocker",
     sideEffects: "May cause lethargy, decreased appetite, or weight loss"
     },
 
-    APOQUEL: {
+    APOQUEL36: {
     label: "Apoquel 3.6mg (oclacitinib)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
+    class: "Anti-allergy (JAK inhibitor)",
+    sideEffects: "Over-suppresses the immune system when given with Zenrelia."
+    },
+
+    APOQUEL54: {
+    label: "Apoquel 5.4mg (oclacitinib)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
+    class: "Anti-allergy (JAK inhibitor)",
+    sideEffects: "Over-suppresses the immune system when given with Zenrelia."
+    },
+
+    APOQUEL16: {
+    label: "Apoquel 16mg (oclacitinib)",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
     class: "Anti-allergy (JAK inhibitor)",
     sideEffects: "Over-suppresses the immune system when given with Zenrelia."
@@ -145,15 +159,29 @@
     sideEffects: "May cause light sensitivity"
     },
 
-    BENAZEPRIL: {
+    BENAZEPRIL5: {
     label: "Benazepril 5mg",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for management of heart failure.",
     class: "Angiotensin converting enzyme (ACE) inhibitor",
     sideEffects: "May cause bloodwork abnormalities and hypotension"
     },
 
-    CARPROFEN: {
+    CARPROFEN25: {
     label: "Carprofen 25mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
+    },
+
+    CARPROFEN75: {
+    label: "Carprofen 75mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
+    },
+
+    CARPROFEN100: {
+    label: "Carprofen 100mg",
     instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
     sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
@@ -180,14 +208,21 @@
     sideEffects: "May cause ocular discomfort. Medication tastes bitter and some pets may make faces due to this."
     },
 
-    DOXYCYCLINE: {
+    DOXYCYCLINE100: {
     label: "Doxycycline 100mg",
     instructions: "Give your dog 1 tablet by mouth with food every 12 hours for treatment of bacterial infection. Give until gone.",
     class: "Antibiotic",
     sideEffects: "May cause vomiting or diarrhea."
     },
 
-    FUROSEMIDE: {
+    DOXYCYCLINE200: {
+    label: "Doxycycline 100mg",
+    instructions: "Give your dog 1 tablet by mouth with food every 12 hours for treatment of bacterial infection. Give until gone.",
+    class: "Antibiotic",
+    sideEffects: "May cause vomiting or diarrhea."
+    },
+
+    FUROSEMIDE125: {
     label: "Furosemide 12.5 mg",
     instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
     class: "Diuretic",
@@ -201,22 +236,85 @@
     sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
     },
 
-    GABAPENTIN: {
+    GABAPENTIN50: {
     label: "Gabapentin 50mg",
     instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
     class: "Analgesia, sedative",
     sideEffects: "May cause sedation"
     },
 
-    GRAPIPRANT: {
+    GABAPENTIN100: {
+    label: "Gabapentin 100mg",
+    instructions: "Give your dog 1 capsule by mouth every 8 - 12 hours for treatment of pain.",
+    class: "Analgesia, sedative",
+    sideEffects: "May cause sedation"
+    },
+
+    GABAPENTIN200: {
+    label: "Gabapentin 200mg",
+    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
+    class: "Analgesia, sedative",
+    sideEffects: "May cause sedation"
+    },
+
+    GABAPENTIN300: {
+    label: "Gabapentin 300mg",
+    instructions: "Give your dog 1 capsule by mouth every 8 - 12 hours for treatment of pain.",
+    class: "Analgesia, sedative",
+    sideEffects: "May cause sedation"
+    },
+
+    GABAPENTIN400: {
+    label: "Gabapentin 400mg",
+    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
+    class: "Analgesia, sedative",
+    sideEffects: "May cause sedation"
+    },
+
+    GABAPENTIN600: {
+    label: "Gabapentin 600mg",
+    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
+    class: "Analgesia, sedative",
+    sideEffects: "May cause sedation"
+    },
+
+    GRAPIPRANT20: {
+    label: "Galliprant 20mg (grapiprant)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
+    },
+
+    GRAPIPRANT60: {
+    label: "Galliprant 60mg (grapiprant)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
+    },
+
+    GRAPIPRANT100: {
     label: "Galliprant 100mg (grapiprant)",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
     sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
     },
 
-    HEARTGARD: {
-    label: "Heartgard",
+    HEARTGARD25: {
+    label: "Heartgard 0 - 25 lbs",
+    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    HEARTGARD50: {
+    label: "Heartgard 25 - 50 lbs",
+    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    HEARTGARD100: {
+    label: "Heartgard 50 - 100 lbs",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
@@ -229,8 +327,29 @@
     sideEffects: "Rarely causes seizures, urinary tract infection, or skin infections."
     },
 
-    MAROPITANT: {
+    MAROPITANT16: {
     label: "Cerenia 16mg (maropitant)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
+    class: "Antiemetic",
+    sideEffects: "Well tolerated"
+    },
+
+    MAROPITANT24: {
+    label: "Cerenia 24mg (maropitant)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
+    class: "Antiemetic",
+    sideEffects: "Well tolerated"
+    },
+
+    MAROPITANT60: {
+    label: "Cerenia 60mg (maropitant)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
+    class: "Antiemetic",
+    sideEffects: "Well tolerated"
+    },
+
+    MAROPITANT160: {
+    label: "Cerenia 160mg (maropitant)",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
     class: "Antiemetic",
     sideEffects: "Well tolerated"
@@ -243,14 +362,14 @@
     sideEffects: "Well tolerated"
     },
 
-    MELOXICAM: {
+    MELOXICAM75: {
     label: "Meloxicam 7.5mg",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
     sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITH OTHER NSAIDs OR STEROIDS."
     },
 
-    MELOXICAMLIQUID: {
+    MELOXICAM15LIQUID: {
     label: "Meloxicam liquid 1.5mg/mL",
     instructions: "Give your dog 1 mL by mouth every 24 hours for pain and inflammation.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
@@ -299,15 +418,71 @@
     sideEffects: "Well tolerated"
     },
 
-    PIMOBENDAN: {
+    PIMOBENDAN125: {
     label: "Vetmedin 1.25mg\n(pimobendan)",
     instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
     class: "Inotropic agent",
     sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
     },
+    
+    PIMOBENDAN25: {
+    label: "Vetmedin 2.5mg\n(pimobendan)",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
+    class: "Inotropic agent",
+    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
+    },
 
-    PREDNISOLONE: {
+    PIMOBENDAN5: {
+    label: "Vetmedin 5mg\n(pimobendan)",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
+    class: "Inotropic agent",
+    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
+    },
+
+    PIMOBENDAN10: {
+    label: "Vetmedin 10mg\n(pimobendan)",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
+    class: "Inotropic agent",
+    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
+    },
+
+    PREDNISOLONE5: {
     label: "Prednisolone 5mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
+    PREDNISOLONE10: {
+    label: "Prednisolone 10mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
+    PREDNISOLONE20: {
+    label: "Prednisolone 20mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
+    PREDNISONE5: {
+    label: "Prednisone 5mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
+    PREDNISONE10: {
+    label: "Prednisone 10mg",
+    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+    class: "Corticosteroid",
+    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+    },
+
+    PREDNISONE20: {
+    label: "Prednisone 20mg",
     instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
     class: "Corticosteroid",
     sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
@@ -334,21 +509,98 @@
     sideEffects: "Rarely causes redness of the skin or hair loss"
     },
 
-    SIMPARICATRIO: {
-    label: "Simparica Trio",
+    REVOLUTION1: {
+    label: "Revolution 0 - 5 lbs",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    REVOLUTION2: {
+    label: "Revolution 5.1 - 10 lbs",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    REVOLUTION3: {
+    label: "Revolution 10.1 - 20 lbs ",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    REVOLUTION4: {
+    label: "Revolution 20.1 - 40 lbs",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    REVOLUTION5: {
+    label: "Revolution 40.1 - 85 lbs",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    REVOLUTION6: {
+    label: "Revolution 85.1 - 130 lbs",
+    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes redness of the skin or hair loss"
+    },
+
+    SIMPARICATRIO1: {
+    label: "Simparica Trio 2.8 - 5.5 lbs",
     instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
     class: "Antiparasitic",
     sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
     },
 
-    SPIRONOLACTONE: {
+    SIMPARICATRIO2: {
+    label: "Simparica Trio 5.6 - 11.0 lbs",
+    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+    class: "Antiparasitic",
+    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+    },
+
+    SIMPARICATRIO3: {
+    label: "Simparica Trio 11.1 - 22.0 lbs",
+    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+    class: "Antiparasitic",
+    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+    },
+
+    SIMPARICATRIO4: {
+    label: "Simparica Trio 22.1 - 44.0 lbs",
+    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+    class: "Antiparasitic",
+    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+    },
+
+    SIMPARICATRIO5: {
+    label: "Simparica Trio 44.1 - 88.0 lbs",
+    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+    class: "Antiparasitic",
+    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+    },
+
+    SIMPARICATRIO6: {
+    label: "Simparica Trio 88.1 - 132.0 lbs",
+    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+    class: "Antiparasitic",
+    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+    },
+
+    SPIRONOLACTONE25: {
     label: "Spironolactone 25mg",
     instructions: "Give your dog 1 tablet by mouth every 24 hours to decrease heart workload.",
     class: "Diuretic",
     sideEffects: "May cause bloodwork abnormalities (elevated BUN)"
     },
 
-    SYNOTICLIQUID: {
+    SYNOTIC: {
     label: "Synotic Otic Solution",
     instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
     class: "Corticosteroid",
@@ -361,19 +613,62 @@
     sideEffects: "Well tolerated"
     },
 
-    TRAZODONE: {
+    TRAZODONE50: {
+    label: "Trazodone 50mg",
+    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
+    class: "Anxiolytic",
+    sideEffects: "May cause sedation or hyperactivity"
+    },
+
+    TRAZODONE100: {
     label: "Trazodone 100mg",
     instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
     class: "Anxiolytic",
     sideEffects: "May cause sedation or hyperactivity"
     },
 
-    ZENRELIA: {
+    TRAZODONE150: {
+    label: "Trazodone 150mg",
+    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
+    class: "Anxiolytic",
+    sideEffects: "May cause sedation or hyperactivity"
+    },
+
+    VETSULIN: {
+    label: "Vetsulin 40 units/mL (porcine insulin zinc)",
+    instructions: "Give your dog 1 unit every 12 hours. Give after eating. You can skip an injection once if your dog doesn’t eat breakfast/dinner.",
+    class: "Hormone",
+    sideEffects: "May cause low blood sugar (lethargy, drunken appearance, or seizures)"
+    },
+
+
+    ZENRELIA48: {
+    label: "Zenrelia 4.8mg (ilunocitinib)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
+    class: "Anti-allergy (JAK inhibitor)",
+    sideEffects: "Well tolerated"
+    },
+
+    ZENRELIA64: {
+    label: "Zenrelia 6.4mg (ilunocitinib)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
+    class: "Anti-allergy (JAK inhibitor)",
+    sideEffects: "Well tolerated"
+    },
+
+    ZENRELIA85: {
+    label: "Zenrelia 8.5mg (ilunocitinib)",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
+    class: "Anti-allergy (JAK inhibitor)",
+    sideEffects: "Well tolerated"
+    },
+
+    ZENRELIA15: {
     label: "Zenrelia 15mg (ilunocitinib)",
     instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
     class: "Anti-allergy (JAK inhibitor)",
     sideEffects: "Well tolerated"
-    }
+    },
     };
 
   // Medication Prefixes & Registry Logic
@@ -514,6 +809,11 @@
     rank: 220
     },
 
+    DIABETES_MELLITUS: {
+    text: "Diabetes mellitus",
+    rank: 4
+    },
+
     ENTROPION: {
     text: "Entropion",
     rank: 500
@@ -547,6 +847,11 @@
     LEFT_SIDED_CONGESTIVE_HEART_FAILURE: {
     text: "Left sided congestive heart failure",
     rank: 1
+    },
+
+    LARYNGEAL_PARALYSIS: {
+    text: "Laryngeal paralysis",
+    rank: 401
     },
 
     MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
@@ -609,7 +914,12 @@
     rank: 300
     },
 
-    Second_Degree_AV: {
+    REVERSE_SNEEZING: {
+    text: "Reverse sneezing",
+    rank: 800
+    },
+
+    SECOND_DEGREE_AV: {
     text: "2nd Degree Atrioventricular Block",
     rank: 610
     },
@@ -1536,11 +1846,54 @@
     ELONGATED_SOFT_PALATE_TX:
     `Treatment is using surgery to remove the elongated soft palate.`,
 
+    LARYNGEAL_PARALYSIS_HEADER:
+    "Laryngeal paralysis:",
+    
+    LARYNGEAL_PARALYSIS_IN_DOGS_ARTICLE_ARTICLE: {
+    text: "Laryngeal Paralysis in Dogs article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102899&id=4952489`
+    },
+
+    REVERSE_SNEEZING_HEADER:
+    "Reverse sneezing:",
+
+    REVERSE_SNEEZING_TREATMENT:
+    " includes massaging the throat when it occurs or and giving Benadryl 25mg (give 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 hours) for allergies.",
+
     STENOTIC_NARES_TX:
     `Treatment is surgery to open up the nares more.`,
     
     OVERHEATING_HEADER:
     `Overheating:`,
+
+  // Endocrine Registry
+    CONTINUE_MONITOR_DIABETES:
+    "Continue to monitor for signs of uncontrolled diabetes such as increased thirst, urination, appetite, weight loss, and seizures.",
+    
+    DIABETES_EMERGENCY:
+    "If signs persist, seek immediate medical treatment.",
+
+    DIABETES_HEADER:
+    "Diabetes mellitus:",
+    
+    DIABETES_MELLITUS_INTRODUCTION_ARTICLE: {
+    text: "Diabetes Mellitus Introduction",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951506`
+    },
+
+    DIABETES_SYMPTOMS:
+    " of diabetes include increased thirst, urination, appetite, weight loss, and seizures.",
+
+    LIGHT_KARO_SYRUP_ARTICLE: {
+    text: "light Karo syrup",
+    url: `https://a.co/d/07pkwuVd`
+    },
+
+    INSULIN_ADMINISTRATION_WARNING:
+    "Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes.",
+
+    GLUCOSE_CURVE_ADVISED:
+    "Your dog will need to come back in two weeks for a glucose curve.",
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -2743,7 +3096,7 @@
     }
 
 /* ------------------ CANINE OPTHALMOLOGY------------------ */
-  // Blind | 0, Partial
+  // Blind | 0th, Partial
     function generateCanineBlind0PartialTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -2766,7 +3119,7 @@
     };
     }
 
-  // Blind | 1, Diagnosed
+  // Blind | 1st, Diagnosed
     function generateCanineBlind1Template(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
@@ -2791,7 +3144,7 @@
     };
     }
 
-  // Blind | 2, Known
+  // Blind | 2nd, Known
     function generateCanineBlind2KnownTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
@@ -3071,7 +3424,7 @@
     return {
     sex,
     plurality,
-    diagnoses: ["Second_Degree_AV"],
+    diagnoses: ["SECOND_DEGREE_AV"],
     text: [
     `2nd Degree Atrioventricular Block: An EKG was performed which shows that your dog has an atrioventricular block. This means that occasionally your dog’s heart will skip a beat. Mobitz type II indicates that this occurs consistently in your dog. Symptoms of this disorder include generalized lethargy, decreased energy when exercising, coughing, or collapse. At this time your dog doesn’t show signs of heart disease. An EKG should be performed every 6 months to ensure there are no changes to your dog’s heart rhythm. In the meantime, continue to monitor for the aforementioned symptoms. Most importantly, count how fast your dog breathes while sleeping. If you notice a respiratory rate above 35 breaths per minute while sleeping or any of the other signs, these may indicate worsening heart disease. Contact the clinic immediately.`
     ].join('\n'),
@@ -3432,7 +3785,7 @@
     }
 
 /* ------------------ CANINE RESPIRATORY ------------------ */
-  // Bordetellosis | 0, Presumed
+  // Bordetellosis | 0th, Presumed
     function generateCanineBordetellosis0PresumedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -3491,8 +3844,8 @@
     ],
     };
     }
-
-  // Chronic Bronchitis | 0, Presumed
+  
+  // Chronic Bronchitis | 0th, Presumed
     function generateChronicBronchitis0PresumedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -3525,6 +3878,34 @@
     ],
     };
     }
+  
+  // Collapsing Trachea | 1st, Theophylline
+    function generateCollapsingTrachea1TheophyllineTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["COLLAPSING_TRACHEA"],
+    text: [
+    `Collapsing trachea: Your dog appears to have a collapsing trachea. This occurs when the cartilage rings in the trachea weaken and cause the trachea (the windpipe) to flatten whenever your dog breathes in. The result is that your dog has difficulty breathing and may even start coughing, both of which can cause your dog distress and discomfort. Common causes of tracheal collapse include obesity, respiratory irritants such as smoke, incense, dust, etc.), and heart enlargement.`,
+      `Treatment involves medication to make it easier for your dog to open up the airways and make it easier for your dog to breathe. This will decrease how deeply your dog needs to breathe with each breath which makes the trachea collapse less. Surgery can be pursued to keep the airways open longer and referral to a surgeon for that can be discussed if necessary. You can learn more from the Tracheal Collapse in Dogs article on Veterinary Partner. `
+    ].join('\n'),
+
+    boldKeys: [
+      "COLLAPSING_TRACHEA_HEADER"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "TREATMENT"
+    ],
+
+    linkKeys: [
+      "TRACHEAL_COLLAPSE_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+
+    };
+    }
 
   // Collapsing Trachea | 3rd, Known, No Meds
     function generateCollapsingTrachea3NoMedsTemplate(sex, plurality = 'singular') {
@@ -3553,6 +3934,131 @@
 
     linkKeys: [
       "TRACHEAL_COLLAPSE_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Laryngeal Paralysis | 1st, Diagnosed
+    function generateLaryngealParalysis1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["LARYNGEAL_PARALYSIS"],
+    text: [
+    `Laryngeal paralysis: The roaring sound present whenever your dog breathes is caused by laryngeal paralysis. When we breathe in, the larynx (commonly called the voice box) opens up to allow air to enter the trachea & then the lungs. Dogs with laryngeal paralysis have part of the larynx paralyzed. This means that it doesn’t fully open up & breathing becomes more difficult.`,
+    `Symptoms include difficulty breathing, panting excessively, or a voice change. You can help improve your dog’s ability to breathe by switching from a collar to a harness, reducing activity, & using anti-anxiety medication if anxiety is present. Alternatively, surgery can be performed to keep the larynx open permanently. You can learn more about laryngeal paralysis from the Laryngeal Paralysis in Dogs article from Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "LARYNGEAL_PARALYSIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "You can help improve your dog’s ability to breathe by switching from a collar to a harness, reducing activity, & using anti-anxiety medication if anxiety is present."
+    ],
+
+    greenKeys: [
+      "SYMPTOMS"
+    ],
+
+    linkKeys: [
+      "LARYNGEAL_PARALYSIS_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Reverse Sneezing
+    function generateReverseSneezingTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["REVERSE_SNEEZING"],
+    text: [
+    `Reverse sneezing: The sound your dog produces is known as a reverse sneeze. This is caused by irritation in the part of the mouth that connects to the nose. You may see this if something irritates your dog's throat (such as perfume, smoke, food, etc.), after excitement, pulling on the leash, or allergies. Treatment includes massaging the throat when it occurs or and giving Benadryl 25mg (give 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 hours) for allergies. Side effects (drowsiness, thirst) are more common with Benadryl than Zyrtec.`
+    ].join('\n'),
+
+    boldKeys: [
+      "REVERSE_SNEEZING_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "REVERSE_SNEEZING_TREATMENT"
+    ],
+
+    greenKeys: [
+      "TREATMENT"
+    ],
+    };
+    }
+
+/* ------------------ CANINE ENDOCRINE ------------------ */
+  // Diabetes Mellitus | 1st, Diagnosed
+    function generateDiabetesMellitus1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["DIABETES_MELLITUS"],
+    text: [
+    `Diabetes mellitus: Based on physical findings and bloodwork results, your dog suffers from diabetes. In dogs this often occurs because their body isn't producing enough insulin. As such, glucose (sugar) isn't being taken out of ${g.his} blood and into ${g.his} cells where they're needed. Symptoms of diabetes include increased thirst, urination, appetite, weight loss, and seizures. Treatment requires giving insulin injections every 12 hours after food, and you are advised to switch to a high fiber/low fat diet. Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes.`,
+    `If you are concerned your dog got too much insulin or got a second helping, you can give 1 tablespoon of light Karo syrup or honey per 5 lbs. If signs persist, seek immediate medical treatment. Your dog will need to come back in two weeks for a glucose curve. You can learn more about diabetes in pets from the Diabetes Mellitus Introduction article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "DIABETES_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "DIABETES_SYMPTOMS",
+      "GLUCOSE_CURVE_ADVISED"
+    ],
+
+    greenKeys: [
+      "SYMPTOMS",
+      "TREATMENT"
+    ],
+
+    redKeys: [
+      "INSULIN_ADMINISTRATION_WARNING",
+      "DIABETES_EMERGENCY",
+    ],
+
+    linkKeys: [
+      "DIABETES_MELLITUS_INTRODUCTION_ARTICLE",
+      "LIGHT_KARO_SYRUP_ARTICLE"
+    ],
+    };
+    }
+
+  // Diabetes Mellitus | 3rd, Controlled
+    function generateDiabetesMellitus3ControlledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["DIABETES_MELLITUS"],
+    text: [
+    `Diabetes mellitus: Your dog is known to have diabetes which appears to be well controlled with your current insulin amount. Continue to monitor for signs of uncontrolled diabetes such as increased thirst, urination, appetite, weight loss, and seizures. Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes. If you are concerned your dog got too much insulin or got a second helping, you can give 1 tablespoon of light Karo syrup or honey per 5 lbs. If signs persist, seek immediate medical treatment. You can learn more about diabetes in pets from the Diabetes Mellitus: Introduction article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "DIABETES_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CONTINUE_MONITOR_DIABETES"
+    ],
+
+    redKeys: [
+      "DIABETES_EMERGENCY",
+      "INSULIN_ADMINISTRATION_WARNING"
+    ],
+
+    linkKeys: [
+      "DIABETES_MELLITUS_INTRODUCTION_ARTICLE",
+      "LIGHT_KARO_SYRUP_ARTICLE"
     ],
     };
     }
@@ -4331,11 +4837,18 @@
     '/cLeftSidedCongestiveHeartFailure': (sex, plurality) => generateCanineLeftSidedCongestiveHeartFailureTemplate(sex, plurality),
     '/cMyxomatousMitralValveDisease': (sex, plurality) => generateCanineMyxomatousMitralValveDiseaseTemplate(sex, plurality),
 
-  // Canine Respriatory Definitions
+  // Canine Respiratory Definitions
     '/cBordetellosis0Presumed': (sex, plurality) => generateCanineBordetellosis0PresumedTemplate(sex, plurality),
     '/cBrachycephalicObstructiveAirwaySyndrome': (sex, plurality) => generateCanineBrachycephalicObstructiveAirwaySyndromeTemplate(sex, plurality),
     '/cChronicBronchitis0Presumed': (sex, plurality) => generateChronicBronchitis0PresumedTemplate(sex, plurality),
+    '/cCollapsingTrachea1Theophylline': (sex, plurality) => generateCollapsingTrachea1TheophyllineTemplate(sex, plurality),
     '/cCollapsingTrachea3NoMeds': (sex, plurality) => generateCollapsingTrachea3NoMedsTemplate(sex, plurality),
+    '/cLaryngealParalysis1Diagnosed': (sex, plurality) => generateLaryngealParalysis1DiagnosedTemplate(sex, plurality),
+    '/cReverseSneezing': (sex, plurality) => generateReverseSneezingTemplate(sex, plurality),
+
+  // Canine Endocrine Definitions
+    '/cDiabetesMellitus1Diagnosed': (sex, plurality) => generateDiabetesMellitus1DiagnosedTemplate(sex, plurality),
+    '/cDiabetesMellitus3Controlled': (sex, plurality) => generateDiabetesMellitus3ControlledTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
