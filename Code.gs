@@ -187,6 +187,20 @@
     sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
     },
 
+    CEFPODOXIME100: {
+    label: "Cefpodoxime 100mg",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite."
+    },
+
+    CEFPODOXIME200: {
+    label: "Cefpodoxime 200mg",
+    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
+    class: "Non-steroidal anti-inflammatory drug (NSAID)",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite."
+    },
+
     COUGHTABLETS: {
     label: "Cough tablets\n(guaifenesin & dextromethorphan hydrobromide)",
     instructions: "Give your dog 1 tablet by mouth every 4 - 6 hours for suppression of cough",
@@ -300,24 +314,87 @@
     },
 
     HEARTGARD25: {
-    label: "Heartgard 0 - 25 lbs",
+    label: "Heartgard Plus Blue 0 - 25 lbs",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
     },
 
     HEARTGARD50: {
-    label: "Heartgard 25 - 50 lbs",
+    label: "Heartgard Plus Green 25 - 50 lbs",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
     },
 
     HEARTGARD100: {
-    label: "Heartgard 50 - 100 lbs",
+    label: "Heartgard Plus Brown 50 - 100 lbs",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    LEVOTHYROXINE01: {
+    label: "Thyro-tabs 0.1 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE02: {
+    label: "Thyro-tabs 0.2 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE03: {
+    label: "Thyro-tabs 0.3 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE04: {
+    label: "Thyro-tabs 0.4 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE05: {
+    label: "Thyro-tabs 0.5 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE06: {
+    label: "Thyro-tabs 0.6 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE07: {
+    label: "Thyro-tabs 0.7 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE08: {
+    label: "Thyro-tabs 0.8 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
+    },
+
+    LEVOTHYROXINE1: {
+    label: "Thyro-tabs 1.0 mg (levothyroxine)",
+    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
+    class: "Thyroid hormone",
+    sideEffects: "Well tolerated"
     },
 
     LIBRELAINJECTION: {
@@ -397,8 +474,29 @@
     sideEffects: "Well tolerated"
     },
     
-    NEXGARD: {
-    label: "Nexgard",
+    NEXGARD1: {
+    label: "Nexgard Orange 4 - 10 lbs",
+    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    NEXGARD2: {
+    label: "Nexgard Blue 10.1 - 24 lbs",
+    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    NEXGARD3: {
+    label: "Nexgard Purple 24.1 - 60 lbs",
+    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+    class: "Parasiticide",
+    sideEffects: "Rarely causes vomiting or diarrhea"
+    },
+
+    NEXGARD4: {
+    label: "Nexgard Red 60.1 - 121",
     instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
     class: "Parasiticide",
     sideEffects: "Rarely causes vomiting or diarrhea"
@@ -634,6 +732,13 @@
     sideEffects: "May cause sedation or hyperactivity"
     },
 
+    Trilostane: {
+    label: "Vetoryl (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
     VETSULIN: {
     label: "Vetsulin 40 units/mL (porcine insulin zinc)",
     instructions: "Give your dog 1 unit every 12 hours. Give after eating. You can skip an injection once if your dog doesn’t eat breakfast/dinner.",
@@ -837,6 +942,21 @@
     HYPERTENSION: {
     text: "Hypertension (high blood pressure)",
     rank: 230
+    },
+
+    HYPERADRENOCORTICISM_PRESUMED: {
+    text: "Hyperadrenocorticism (presumed)",
+    rank: 201
+    },
+
+    HYPERADRENOCORTICISM: {
+    text: "Hyperadrenocorticism",
+    rank: 201
+    },
+
+    HYPOTHYROIDISM: {
+    text: "Hypothyroidism",
+    rank: 202
     },
 
     KERATOCONJUNCTIVITIS_SICCA: {
@@ -1870,6 +1990,11 @@
     CONTINUE_MONITOR_DIABETES:
     "Continue to monitor for signs of uncontrolled diabetes such as increased thirst, urination, appetite, weight loss, and seizures.",
     
+    CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE: {
+    text: "Cushing's Syndrome (Hyperadrenocorticism) article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951495`
+    },
+
     DIABETES_EMERGENCY:
     "If signs persist, seek immediate medical treatment.",
 
@@ -1884,16 +2009,48 @@
     DIABETES_SYMPTOMS:
     " of diabetes include increased thirst, urination, appetite, weight loss, and seizures.",
 
+    GLUCOSE_CURVE_ADVISED:
+    "Your dog will need to come back in two weeks for a glucose curve.",
+
+    HYPERADRENOCORTICISM_HEADER:
+    "Hyperadrenocorticism:",
+
+    HYPOTHYROIDISM_DIAGNOSED:
+    "Your dog has been diagnosed with hypothyroidism.",
+
+    HYPOTHYROIDISM_HEADER:
+    "Hypothyroidism:",
+
+    HYPOTHYROIDISM_IN_DOGS_ARTICLE_ARTICLE: {
+    text: "Hypothyroidism in Dogs article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952004`
+    },
+
+    HYPOTHYROID_RECHECK:
+    "We will need to recheck thyroid hormone levels in 4 - 6 weeks to ensure we’re not giving too much thyroid & causing hyperthyroidism. Give the medicine 4 - 6 hours BEFORE the appointment.",
+
+    HYPERADRENOCORTICISM_REPEAT_TEST:
+    "Continue to monitor for side effects including vomiting, diarrhea, listlessness, or decreased water intake. A repeat test is necessary 7 days after starting the new medication.",
+
+    HYPERADRENOCORTICISM_SYMPTOMS:
+    "Continue to monitor for side effects including vomiting, diarrhea, listlessness, or decreased water intake.",
+
+    INSULIN_ADMINISTRATION_WARNING:
+    "Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes.",
+
     LIGHT_KARO_SYRUP_ARTICLE: {
     text: "light Karo syrup",
     url: `https://a.co/d/07pkwuVd`
     },
 
-    INSULIN_ADMINISTRATION_WARNING:
-    "Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes.",
+    RECHECK_ACTH_STIM_TEST:
+    "If trilostane is given, a recheck ACTH stim test should be performed two weeks after starting meds to make sure your dog is receiving the right amount.",
 
-    GLUCOSE_CURVE_ADVISED:
-    "Your dog will need to come back in two weeks for a glucose curve.",
+    TRILOSTANE_HYPOADRENOCORTICISM:
+    "However, it’s important we don’t cause an underproduction of cortisol.",
+
+    TRILOSTANE_WARNING:
+    "Make sure to give the trilostane 4 - 6 hours before bringing your dog into the clinic. If your dog is feeling lethargic, vomiting, or has a decreased appetite, contact the clinic immediately and we can discuss having the test done sooner.",
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -2024,6 +2181,9 @@
     COMMON_CAUSES:
     /Common causes/i,
 
+    CONTINUE_MEDICATION_LABWORK_6_MONTHS:
+    "Continue to give the medication as you have been. Bloodwork is recommended every 6 months.",
+
     DIAGNOSE:
     /Diagnose/i,
     
@@ -2048,6 +2208,8 @@
     TREATMENT:
     /Treatment/i,
 
+    YOU_WILL_BE_CALLED_WITH_RESULTS:
+    "You will be called with results in 3 - 4 business days.",
     };
 
 /* ------------------ Reset & Replacement ------------------ */
@@ -2315,7 +2477,7 @@
     diagnoses: [""],
     text: [
     ${paragraphs.join(",\n      ")}
-    ].join('\\n'),\n\n`; // Extra newline added here
+    ].join('\\n'),\n\n`
 
     if (boldKeys.size > 0) outputCode += `    boldKeys: [\n      ${formatKeys(boldKeys)}\n    ],\n\n`;
     if (boldUnderlineKeys.size > 0) outputCode += `    boldUnderlineKeys: [\n      ${formatKeys(boldUnderlineKeys)}\n    ],\n\n`;
@@ -4063,6 +4225,198 @@
     };
     }
 
+  // Hypothyroidism | 1st, Diagnosed
+    function generateHypothyroidism1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["Hypothyroidism"],
+    text: [
+    `Hypothyroidism: Your dog has been diagnosed with hypothyroidism. Hypothyroidism in dogs occurs when the thyroid gland doesn’t produce as much hormone as it should due to the body’s own immune system attacking the thyroid gland. This causes decreased energy, increased weight gain, & dry hair coat. Treatment involves giving thyroid hormone as a pill.`,
+    `We will need to recheck thyroid hormone levels in 4 - 6 weeks to ensure we’re not giving too much thyroid & causing hyperthyroidism. Give the medicine 4 - 6 hours BEFORE the appointment. Medication must be given consistently as prescribed. You can learn more about hypothyroidism from the Hypothyroidism in Dogs article by Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPOTHYROIDISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HYPOTHYROIDISM_DIAGNOSED",
+      "HYPOTHYROID_RECHECK",
+    ],
+
+    linkKeys: [
+      "HYPOTHYROIDISM_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Hypothyroidism | 2nd, Recheck
+    function generateHypothyroidism2RecheckTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPOTHYROIDISM"],
+    text: [
+    `Hypothyroidism: Your dog is known to have hypothyroidism, a disease process where the body’s own immune system attacks the thyroid gland, thereby decreasing the amount of thyroid hormone produced. You are also giving a thyroid hormone supplement pill to counteract that reduction. Samples were drawn from your dog today to check the current thyroid hormone levels. You will be called with results in 3 - 4 business days. You can learn more about hypothyroidism from the Hypothyroidism in Dogs article by Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPOTHYROIDISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "YOU_WILL_BE_CALLED_WITH_RESULTS"
+    ],
+
+    linkKeys: [
+      "HYPOTHYROIDISM_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Hypothyroidism | 3rd, Controlled
+    function generateHypothyroidism3ControlledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPOTHYROIDISM"],
+    text: [
+    `Hypothyroidism: Your dog is known to have hypothyroidism. Hypothyroidism in dogs occurs when the thyroid gland doesn’t produce as much hormone as it should due to the body’s own immune system attacking the thyroid gland, leading to decreased energy, increased weight gain, & dry hair coat. Bloodwork was performed which shows that the thyroid hormone levels are within normal limits. Continue to give the medication as you have been. Bloodwork is recommended every 6 months. You can learn more about hypothyroidism from the Hypothyroidism in Dogs article by Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPOTHYROIDISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CONTINUE_MEDICATION_LABWORK_6_MONTHS",
+    ],
+
+    linkKeys: [
+      "HYPOTHYROIDISM_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Hyperadrenocorticism | 1st, ACTH Stim Test
+    function generateHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPERADRENOCORTICISM_PRESUMED"],
+    text: [
+    `Hyperadrenocorticism: Your dog shows signs of hyperadrenocorticism (also known as HOC, Cushing’s disease, or Cushing’s syndrome). The most common causes of this disease is due to a tumour in the brain or adrenal glands causing an overproduction of cortisol, the stress hormone. Symptoms of the disease include hair loss, increased thirst/urination, voracious appetite, enlarged belly, lethargy, recurrent infections, and excessive panting.`,
+    ` In order to diagnose the disease, the ACTH stim test was performed and blood has been drawn. You will be called with results in 3 - 4 business days. This test only tells us if your dog has hyperadrenocorticism. It does not tell us whether the tumour is in the brain or adrenal glands. Depending on the location, treatment with medicine (such as trilostane) or surgery (adrenalectomy) to remove part or all of the adrenal gland can be discussed.`,
+    `If trilostane is given, a recheck ACTH stim test should be performed two weeks after starting meds to make sure your dog is receiving the right amount. You can learn more about hyperadrenocorticism from the Cushing's Syndrome (Hyperadrenocorticism) article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPERADRENOCORTICISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      
+      "RECHECK_ACTH_STIM_TEST",
+      "YOU_WILL_BE_CALLED_WITH_RESULTS"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "DIAGNOSE",
+      "SYMPTOMS",
+      "TREATMENT",
+    ],
+
+    linkKeys: [
+      "CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE"
+    ],
+    };
+    }
+
+  // Hyperadrenocorticism | 2nd, Diagnosed
+    function generateHyperadrenocorticism2DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPERADRENOCORTICISM"],
+    text: [
+    `Hyperadrenocorticism: Your dog has been diagnosed with hyperadrenocorticism (also known as HOC, Cushing’s disease, or Cushing’s syndrome). We will be treating using trilostane to prevent the overproduction of the steroid hormone known as cortisol. However, it’s important we don’t cause an underproduction of cortisol. As such we’ll be starting your dog on a low dose and increasing to a higher dose as needed.`,
+    `We will need to perform an ACTH stim test in 2 weeks to ensure your dog’s cortisol levels are normal. Make sure to give the trilostane 4 - 6 hours before bringing your dog into the clinic. If your dog is feeling lethargic, vomiting, or has a decreased appetite, contact the clinic immediately and we can discuss having the test done sooner. You can learn more about hyperadrenocorticism from the Cushing's Syndrome (Hyperadrenocorticism) article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPERADRENOCORTICISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "TRILOSTANE_HYPOADRENOCORTICISM",
+      "TRILOSTANE_WARNING",
+    ],
+
+    linkKeys: [
+      "CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE"
+    ],
+    };
+    }
+
+  // Hyperadrenocorticism | 3rd, Controlled
+    function generateHyperadrenocorticism3ControlledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPERADRENOCORTICISM"],
+    text: [
+    `Hyperadrenocorticism: Your dog is known to have hyperadrenocorticism (also known as HOC, Cushing’s disease, or Cushing’s syndrome) and is currently on trilostane to control it. The ACTH stim is recommended every 3 - 4 months to ensure the disease is still well monitored. Adjustments to the dose can be made as needed. Continue to monitor for side effects including vomiting, diarrhea, listlessness, or decreased water intake. You can learn more about hyperadrenocorticism from the Cushing's Syndrome (Hyperadrenocorticism) article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPERADRENOCORTICISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HYPERADRENOCORTICISM_SYMPTOMS"
+    ],
+
+    linkKeys: [
+      "CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE"
+    ],
+    };
+    }
+
+  // Hyperadrenocorticism | 4th, Uncontrolled
+    function generateHyperadrenocorticism4UncontrolledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPERADRENOCORTICISM"],
+    text: [
+    `Hyperadrenocorticism: Your dog is known to have hyperadrenocorticism (also known as HOC, Cushing’s disease, or Cushing’s syndrome) and is currently on trilostane to control it. The ACTH stim test was performed today which shows that the disease is not fully controlled with the current medication. We will need to increase by 25%. Continue to monitor for side effects including vomiting, diarrhea, listlessness, or decreased water intake. A repeat test is necessary 7 days after starting the new medication. You can learn more about hyperadrenocorticism from the Cushing's Syndrome (Hyperadrenocorticism) article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPERADRENOCORTICISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HYPERADRENOCORTICISM_REPEAT_TEST"
+    ],
+
+    linkKeys: [
+      "CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE"
+    ],
+    };
+    }
+
+  
+
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
   // Periodontal Disease | Mild
     function generateCanine1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
@@ -4849,6 +5203,13 @@
   // Canine Endocrine Definitions
     '/cDiabetesMellitus1Diagnosed': (sex, plurality) => generateDiabetesMellitus1DiagnosedTemplate(sex, plurality),
     '/cDiabetesMellitus3Controlled': (sex, plurality) => generateDiabetesMellitus3ControlledTemplate(sex, plurality),
+    '/cHypothyroidism1Diagnosed': (sex, plurality) => generateHypothyroidism1DiagnosedTemplate(sex, plurality),
+    '/cHypothyroidism2Recheck': (sex, plurality) => generateHypothyroidism2RecheckTemplate(sex, plurality),
+    '/cHypothyroidism3Controlled': (sex, plurality) => generateHypothyroidism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism1ACTHStimTest': (sex, plurality) => generateHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality),
+    '/cHyperadrenocorticism2Diagnosed': (sex, plurality) => generateHyperadrenocorticism2DiagnosedTemplate(sex, plurality),
+    '/cHyperadrenocorticism3Controlled': (sex, plurality) => generateHyperadrenocorticism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism4Uncontrolled': (sex, plurality) => generateHyperadrenocorticism4UncontrolledTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
