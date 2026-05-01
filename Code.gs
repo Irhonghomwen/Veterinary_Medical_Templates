@@ -243,6 +243,20 @@
     sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
     },
 
+    FUROSEMIDE20: {
+    label: "Furosemide 20 mg",
+    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
+    class: "Diuretic",
+    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
+    },
+
+    FUROSEMIDE50: {
+    label: "Furosemide 50 mg",
+    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
+    class: "Diuretic",
+    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
+    },
+
     FUROSEMIDEINJECTION: {
     label: "Furosemide injection",
     instructions: "Injection given in clinic to drain fluid from your dog’s lungs.",
@@ -1019,6 +1033,11 @@
     rank: 700
     },
 
+    PANCREATITIS: {
+    text: "Pancreatitis",
+    rank: 203
+    },
+    
     PARTIALLY_BLIND: {
     text: "Partially blind",
     rank: 900
@@ -2043,6 +2062,17 @@
     url: `https://a.co/d/07pkwuVd`
     },
 
+    PANCREATITIS_HEADER:
+    "Pancreatitis:",
+    
+    PANCREATITIS_IN_DOGS_ARTICLE: {
+    text: "Pancreatitis in Dogs",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952412`
+    },
+
+    PANCREATITIS_PREVENTION:
+    "The best way to prevent pancreatic flare ups is by feeding a low fat diet and cutting out treats that are high in fat.",
+
     RECHECK_ACTH_STIM_TEST:
     "If trilostane is given, a recheck ACTH stim test should be performed two weeks after starting meds to make sure your dog is receiving the right amount.",
 
@@ -2181,6 +2211,9 @@
     COMMON_CAUSES:
     /Common causes/i,
 
+    CONTINUE_MEDICATION_AS_PRESCRIBED:
+    "Continue your current medication as previously prescribed",
+    
     CONTINUE_MEDICATION_LABWORK_6_MONTHS:
     "Continue to give the medication as you have been. Bloodwork is recommended every 6 months.",
 
@@ -2248,7 +2281,6 @@
     `Echocardiogram: Results pending`,
     ``,
     `Diagnosis`,
-    ``,
     ``,
     `Comprehensive Summary`,
     ].join('\n');
@@ -2337,7 +2369,6 @@
     `Echocardiogram: Results pending`,
     ``,
     `Diagnosis`,
-    ``,
     ``,
     `Comprehensive Summary`,
     ].join('\n');
@@ -3131,6 +3162,7 @@
     plurality,
     text,
     diagnoses: ["OVERWEIGHT"],
+    cleanupKeys: ["DIET_HEADER"],
     boldKeys: [
     'WEIGHT_HEADER',
     ],
@@ -3181,13 +3213,12 @@
     }
   
   // Canine Underweight
-    function generateCanineUnderweightTemplate(sex) {
-    const p = getPronoun(sex);
-
+    function generateCanineUnderweightTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
     const text = [
-    `Underweight: Your dog weighs less than the average dog of ${p.his} size. Ideally, we would be able to feel ${p.his} ribs but not see them. Helping ${p.him} gain weight can increase ${p.his} quality of life.`,
-    `The best way for ${p.him} to gain weight is through diet. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. You can also add lukewarm water to the food or low sodium chicken broth to increase the smell and flavor.`,
-    `Increase how much ${p.he} eats by as much as 25 - 50%. We're aiming to have ${p.him} gain approximately 10% of ${p.his} current weight. Failure to gain weight is concerning for disease and would prompt us to perform tests such as labwork, ultrasound, or x-rays.`
+    `Underweight: Your dog weighs less than the average dog of ${g.his} size. Ideally, we would be able to feel ${g.his} ribs but not see them. Helping ${g.him} gain weight can increase ${g.his} quality of life.`,
+    `The best way for ${g.him} to gain weight is through diet. Food from Hill’s Science Diet, Purina Pro Plan, or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. You can also add lukewarm water to the food or low sodium chicken broth to increase the smell and flavor.`,
+    `Increase how much ${g.he} eats by as much as 25 - 50%. We're aiming to have ${g.him} gain approximately 10% of ${g.his} current weight. Failure to gain weight is concerning for disease and would prompt us to perform tests such as labwork, ultrasound, or x-rays.`
     ].join('\n');
 
     return {
@@ -4008,7 +4039,7 @@
     }
   
   // Chronic Bronchitis | 0th, Presumed
-    function generateChronicBronchitis0PresumedTemplate(sex, plurality = 'singular') {
+    function generateCanineChronicBronchitis0PresumedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4042,7 +4073,7 @@
     }
   
   // Collapsing Trachea | 1st, Theophylline
-    function generateCollapsingTrachea1TheophyllineTemplate(sex, plurality = 'singular') {
+    function generateCanineCollapsingTrachea1TheophyllineTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4070,7 +4101,7 @@
     }
 
   // Collapsing Trachea | 3rd, Known, No Meds
-    function generateCollapsingTrachea3NoMedsTemplate(sex, plurality = 'singular') {
+    function generateCanineCollapsingTrachea3NoMedsTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4101,7 +4132,7 @@
     }
 
   // Laryngeal Paralysis | 1st, Diagnosed
-    function generateLaryngealParalysis1DiagnosedTemplate(sex, plurality = 'singular') {
+    function generateCanineLaryngealParalysis1DiagnosedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4131,7 +4162,7 @@
     }
 
   // Reverse Sneezing
-    function generateReverseSneezingTemplate(sex, plurality = 'singular') {
+    function generateCanineReverseSneezingTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4157,7 +4188,7 @@
 
 /* ------------------ CANINE ENDOCRINE ------------------ */
   // Diabetes Mellitus | 1st, Diagnosed
-    function generateDiabetesMellitus1DiagnosedTemplate(sex, plurality = 'singular') {
+    function generateCanineDiabetesMellitus1DiagnosedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4195,14 +4226,14 @@
     }
 
   // Diabetes Mellitus | 3rd, Controlled
-    function generateDiabetesMellitus3ControlledTemplate(sex, plurality = 'singular') {
+    function generateCanineDiabetesMellitus3ControlledTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
     plurality,
     diagnoses: ["DIABETES_MELLITUS"],
     text: [
-    `Diabetes mellitus: Your dog is known to have diabetes which appears to be well controlled with your current insulin amount. Continue to monitor for signs of uncontrolled diabetes such as increased thirst, urination, appetite, weight loss, and seizures. Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes. If you are concerned your dog got too much insulin or got a second helping, you can give 1 tablespoon of light Karo syrup or honey per 5 lbs. If signs persist, seek immediate medical treatment. You can learn more about diabetes in pets from the Diabetes Mellitus: Introduction article on Veterinary Partner.`
+    `Diabetes mellitus: Your dog is known to have diabetes which appears to be well controlled with your current insulin amount. Continue to monitor for signs of uncontrolled diabetes such as increased thirst, urination, appetite, weight loss, and seizures. Give insulin AFTER your pet has eaten. Do not mix up 100 unit insulin syringes and 40 unit insulin syringes. If you are concerned your dog got too much insulin or got a second helping, you can give 1 tablespoon of light Karo syrup or honey per 5 lbs. If signs persist, seek immediate medical treatment. You can learn more about diabetes in pets from the Diabetes Mellitus Introduction article on Veterinary Partner.`
     ].join('\n'),
 
     boldKeys: [
@@ -4226,7 +4257,7 @@
     }
 
   // Hypothyroidism | 1st, Diagnosed
-    function generateHypothyroidism1DiagnosedTemplate(sex, plurality = 'singular') {
+    function generateCanineHypothyroidism1DiagnosedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4253,7 +4284,7 @@
     }
 
   // Hypothyroidism | 2nd, Recheck
-    function generateHypothyroidism2RecheckTemplate(sex, plurality = 'singular') {
+    function generateCanineHypothyroidism2RecheckTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4278,7 +4309,7 @@
     }
 
   // Hypothyroidism | 3rd, Controlled
-    function generateHypothyroidism3ControlledTemplate(sex, plurality = 'singular') {
+    function generateCanineHypothyroidism3ControlledTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4303,7 +4334,7 @@
     }
 
   // Hyperadrenocorticism | 1st, ACTH Stim Test
-    function generateHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality = 'singular') {
+    function generateCanineHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4339,7 +4370,7 @@
     }
 
   // Hyperadrenocorticism | 2nd, Diagnosed
-    function generateHyperadrenocorticism2DiagnosedTemplate(sex, plurality = 'singular') {
+    function generateCanineHyperadrenocorticism2DiagnosedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4366,7 +4397,7 @@
     }
 
   // Hyperadrenocorticism | 3rd, Controlled
-    function generateHyperadrenocorticism3ControlledTemplate(sex, plurality = 'singular') {
+    function generateCanineHyperadrenocorticism3ControlledTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4391,7 +4422,7 @@
     }
 
   // Hyperadrenocorticism | 4th, Uncontrolled
-    function generateHyperadrenocorticism4UncontrolledTemplate(sex, plurality = 'singular') {
+    function generateCanineHyperadrenocorticism4UncontrolledTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4415,7 +4446,60 @@
     };
     }
 
-  
+  // Hyperadrenocorticism | 5th, Regular Checkup
+    function generateCanineHyperadrenocorticism5CheckupTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HYPERADRENOCORTICISM"],
+    text: [
+    `Hyperadrenocorticism: Your dog is known to have hyperadrenocorticism (also known as HOC, Cushing’s disease, or Cushing’s syndrome) and is currently on trilostane to control it. The ACTH stim test was performed today to make sure your dog’s disease is well controlled. If abnormalities occur, a change in medication will be necessary. You will be called with results in 3 - 4 business days. Until then, continue your current medication as previously prescribed. If the disease is being well controlled with medication, a repeat ACTH stim test and bloodwork is advised every 3 - 4 months. You can learn more about hyperadrenocorticism from the Cushing's Syndrome (Hyperadrenocorticism) article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HYPERADRENOCORTICISM_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CONTINUE_MEDICATION_AS_PRESCRIBED",
+      "YOU_WILL_BE_CALLED_WITH_RESULTS"
+    ],
+
+    linkKeys: [
+      "CUSHINGS_SYNDROME_HYPERADRENOCORTICISM_ARTICLE"
+    ],
+    };
+    }
+
+  // Pancreatitis | 1st, Diagnosed
+    function generateCaninePancreatitis1DiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PANCREATITIS"],
+    text: [
+    `Pancreatitis: The canine pancreatic lipase immunoreactivity (cPLI) test was performed today which shows that your dog has pancreatitis. This is an inflammation of the pancreas that is caused by a variety of different issues. Symptoms include decreased appetite, vomiting, diarrhea, painful abdomen, and excessive panting/sweating from the paw pads. The best way to prevent pancreatic flare ups is by feeding a low fat diet and cutting out treats that are high in fat. You can learn more about pancreatitis from the Pancreatitis in Dogs article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PANCREATITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "PANCREATITIS_PREVENTION"
+    ],
+
+    greenKeys: [
+      "SYMPTOMS"
+    ],
+
+    linkKeys: [
+      "PANCREATITIS_IN_DOGS_ARTICLE"
+    ],
+    };
+    }
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
   // Periodontal Disease | Mild
@@ -5194,22 +5278,24 @@
   // Canine Respiratory Definitions
     '/cBordetellosis0Presumed': (sex, plurality) => generateCanineBordetellosis0PresumedTemplate(sex, plurality),
     '/cBrachycephalicObstructiveAirwaySyndrome': (sex, plurality) => generateCanineBrachycephalicObstructiveAirwaySyndromeTemplate(sex, plurality),
-    '/cChronicBronchitis0Presumed': (sex, plurality) => generateChronicBronchitis0PresumedTemplate(sex, plurality),
-    '/cCollapsingTrachea1Theophylline': (sex, plurality) => generateCollapsingTrachea1TheophyllineTemplate(sex, plurality),
-    '/cCollapsingTrachea3NoMeds': (sex, plurality) => generateCollapsingTrachea3NoMedsTemplate(sex, plurality),
-    '/cLaryngealParalysis1Diagnosed': (sex, plurality) => generateLaryngealParalysis1DiagnosedTemplate(sex, plurality),
-    '/cReverseSneezing': (sex, plurality) => generateReverseSneezingTemplate(sex, plurality),
+    '/cChronicBronchitis0Presumed': (sex, plurality) => generateCanineChronicBronchitis0PresumedTemplate(sex, plurality),
+    '/cCollapsingTrachea1Theophylline': (sex, plurality) => generateCanineCollapsingTrachea1TheophyllineTemplate(sex, plurality),
+    '/cCollapsingTrachea3NoMeds': (sex, plurality) => generateCanineCollapsingTrachea3NoMedsTemplate(sex, plurality),
+    '/cLaryngealParalysis1Diagnosed': (sex, plurality) => generateCanineLaryngealParalysis1DiagnosedTemplate(sex, plurality),
+    '/cReverseSneezing': (sex, plurality) => generateCanineReverseSneezingTemplate(sex, plurality),
 
   // Canine Endocrine Definitions
-    '/cDiabetesMellitus1Diagnosed': (sex, plurality) => generateDiabetesMellitus1DiagnosedTemplate(sex, plurality),
-    '/cDiabetesMellitus3Controlled': (sex, plurality) => generateDiabetesMellitus3ControlledTemplate(sex, plurality),
-    '/cHypothyroidism1Diagnosed': (sex, plurality) => generateHypothyroidism1DiagnosedTemplate(sex, plurality),
-    '/cHypothyroidism2Recheck': (sex, plurality) => generateHypothyroidism2RecheckTemplate(sex, plurality),
-    '/cHypothyroidism3Controlled': (sex, plurality) => generateHypothyroidism3ControlledTemplate(sex, plurality),
-    '/cHyperadrenocorticism1ACTHStimTest': (sex, plurality) => generateHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality),
-    '/cHyperadrenocorticism2Diagnosed': (sex, plurality) => generateHyperadrenocorticism2DiagnosedTemplate(sex, plurality),
-    '/cHyperadrenocorticism3Controlled': (sex, plurality) => generateHyperadrenocorticism3ControlledTemplate(sex, plurality),
-    '/cHyperadrenocorticism4Uncontrolled': (sex, plurality) => generateHyperadrenocorticism4UncontrolledTemplate(sex, plurality),
+    '/cDiabetesMellitus1Diagnosed': (sex, plurality) => generateCanineDiabetesMellitus1DiagnosedTemplate(sex, plurality),
+    '/cDiabetesMellitus3Controlled': (sex, plurality) => generateCanineDiabetesMellitus3ControlledTemplate(sex, plurality),
+    '/cHypothyroidism1Diagnosed': (sex, plurality) => generateCanineHypothyroidism1DiagnosedTemplate(sex, plurality),
+    '/cHypothyroidism2Recheck': (sex, plurality) => generateCanineHypothyroidism2RecheckTemplate(sex, plurality),
+    '/cHypothyroidism3Controlled': (sex, plurality) => generateCanineHypothyroidism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism1ACTHStimTest': (sex, plurality) => generateCanineHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality),
+    '/cHyperadrenocorticism2Diagnosed': (sex, plurality) => generateCanineHyperadrenocorticism2DiagnosedTemplate(sex, plurality),
+    '/cHyperadrenocorticism3Controlled': (sex, plurality) => generateCanineHyperadrenocorticism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism4Uncontrolled': (sex, plurality) => generateCanineHyperadrenocorticism4UncontrolledTemplate(sex, plurality),
+    '/cHyperadrenocorticism5Checkup': (sex, plurality) => generateCanineHyperadrenocorticism5CheckupTemplate(sex, plurality),
+    '/cPancreatitis1Diagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
