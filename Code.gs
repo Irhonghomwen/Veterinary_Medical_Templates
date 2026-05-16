@@ -348,6 +348,20 @@
     sideEffects: "Rarely causes vomiting or diarrhea"
     },
 
+    HILLSIDCANNED: {
+    label: "Hill's Prescription i/d (canned food)",
+    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    HILLSIDDRY: {
+    label: "Hill's Prescription i/d Biome (dry food)",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
     LEVOTHYROXINE01: {
     label: "Thyro-tabs 0.1 mg (levothyroxine)",
     instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
@@ -516,6 +530,20 @@
     sideEffects: "Rarely causes vomiting or diarrhea"
     },
 
+    ONDASETRON4: {
+    label: "Ondansetron 4mg",
+    instructions: "Give your dog 1 tablet every 8 - 12 hours for management of pancreatitis.",
+    class: "5-HT3 Antagonist, antiemetic",
+    sideEffects: "Well tolerated"
+    },
+
+    ONDASETRON8: {
+    label: "Ondansetron 8mg",
+    instructions: "Give your dog 1 tablet every 8 - 12 hours for management of pancreatitis.",
+    class: "5-HT3 Antagonist, antiemetic",
+    sideEffects: "Well tolerated"
+    },
+
     OPTIMMUNEOINTMENT: {
     label: "Optimmune ointment (cyclosporine 0.2%)",
     instructions: "Apply ¼ inch in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
@@ -525,7 +553,7 @@
 
     OPTIXCARE: {
     label: "Optixcare Eye Lube",
-    instructions: "nApply ¼ inch or 1 - 2 drops in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
+    instructions: "Apply ¼ inch or 1 - 2 drops in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
     class: "Lubricant",
     sideEffects: "Well tolerated"
     },
@@ -612,6 +640,48 @@
     instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 12 months.",
     class: "Antiparasitic",
     sideEffects: "May cause lethargy, decreased appetite, or vomiting"
+    },
+
+    PROVIABLECAPSULES: {
+    label: "Proviable Forte capsules",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for 15 days to treat diarrhea.",
+    class: "Probiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    PROVIABLEPASTE: {
+    label: "Proviable Forte paste",
+    instructions: "Give your dog 1 mL by mouth every 8 hours. Give for 3 days or until diarrhea stops, whichever occurs first.",
+    class: "Antidiarrheal",
+    sideEffects: "Well tolerated"
+    },
+
+    PURINAENCANNED: {
+    label: "Purina Pro Plan Gastroenteric Diet (EN)",
+    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    PURINAENLOWFATCANNED: {
+    label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat wet food",
+    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    PURINAENDRY: {
+    label: "Purina Pro Plan Gastroenteric Diet (EN) dry food",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    PURINAENLOWFATDRY: {
+    label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat dry food",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
     },
 
     REVOLUTION: {
@@ -710,6 +780,20 @@
     instructions: "Give your dog 1 tablet by mouth every 24 hours to decrease heart workload.",
     class: "Diuretic",
     sideEffects: "May cause bloodwork abnormalities (elevated BUN)"
+    },
+
+    SUCRALFATE: {
+    label: "Sucralfate 1 gram",
+    instructions: "Crush/dissolve 1 tablet with 3 - 5 mL of water before giving by mouth every 12 hours. GIVE 2 HOURS BEFORE OR AFTER OTHER FOODS OR MEDS.",
+    class: "Antiulcer",
+    sideEffects: "May cause decreased absorption of other medicines & food given by mouth"
+    },
+
+    SUBCUTANEOUSFLUIDS: {
+    label: "Subcutaneous fluids",
+    instructions: "Fluids injected beneath your dog’s skin to rehydrate patient",
+    class: "Fluids",
+    sideEffects: "Well tolerated"
     },
 
     SYNOTIC: {
@@ -873,6 +957,16 @@
       // 800 - 899: Low priority, advise (underweight)
       // 900 - 999: Non-vital, incidental findings, no treatment necessary (nuclear sclerosis)
 
+    ACUTE_GASTROENTERITIS_DIARRHEA: {
+    text: "Acute gastroenteritis (diarrhea)",
+    rank: 500
+    },
+
+    ACUTE_GASTROENTERITIS_VOMITING_DIARRHEA: {
+    text: "Acute gastroenteritis (vomiting & diarrhea)",
+    rank: 500
+    },
+
     ATOPIC_DERMATITIS: {
     text: "Atopic dermatitis (allergies)",
     rank: 400
@@ -935,7 +1029,7 @@
 
     ENTROPION: {
     text: "Entropion",
-    rank: 500
+    rank: 501
     },
 
     GLAUCOMA: {
@@ -2082,6 +2176,10 @@
     TRILOSTANE_WARNING:
     "Make sure to give the trilostane 4 - 6 hours before bringing your dog into the clinic. If your dog is feeling lethargic, vomiting, or has a decreased appetite, contact the clinic immediately and we can discuss having the test done sooner.",
 
+  // Gastrointestinal Registry
+    ACUTE_GASTROENTERITIS_HEADER:
+    "Acute gastroenteritis:",
+
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
     `Arthritis was detected in your ${g.dogs} joints.`,
@@ -2232,8 +2330,11 @@
     E_COLLAR_MONITOR:
     "but you must monitor your dog all throughout & replace the e collar immediately.",
 
-    RECHECK_ADVISE:
+    RECHECK_ADVISE_1_WEEK:
     "Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).",
+
+    RECHECK_ADVISE_3_DAYS:
+    "Bring your dog back in 3 days for a recheck appointment if no improvement is seen (return immediately if worsening).",
     
     SYMPTOMS:
     /Symptoms/i,
@@ -3424,7 +3525,7 @@
     ],
 
     boldUnderlineKeys: [
-      "RECHECK_ADVISE"
+      "RECHECK_ADVISE_1_WEEK"
     ],
     };
     }
@@ -3445,7 +3546,7 @@
     ],
 
     boldUnderlineKeys: [
-      "RECHECK_ADVISE"
+      "RECHECK_ADVISE_1_WEEK"
     ],
     };
     }
@@ -3468,7 +3569,7 @@
 
     boldUnderlineKeys: [
     "E_COLLAR_ADVISE",
-    "RECHECK_ADVISE",
+    "RECHECK_ADVISE_1_WEEK",
     "E_COLLAR_MONITOR"
     ],
     };
@@ -3995,7 +4096,7 @@
     ],
 
     boldUnderlineKeys: [
-      "RECHECK_ADVISE"
+      "RECHECK_ADVISE_1_WEEK"
     ],
 
     italicKeys: [
@@ -4056,7 +4157,7 @@
     ],
 
     boldUnderlineKeys: [
-      "RECHECK_ADVISE"
+      "RECHECK_ADVISE_1_WEEK"
     ],
 
     greenKeys: [
@@ -4501,7 +4602,115 @@
     };
     }
 
+  // Pancreatitis | 2nd, Flare Up
+    function generatecCaninePancreatitis2FlareUpTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PANCREATITIS"],
+    text: [
+    `Pancreatic flare up: Your dog is known to have pancreatitis or has previously had it & is currently suffering from a flare up. These flare ups can occur due to stress, hormone imbalance, trauma, & high fat meals. In order to reduce pain & discomfort related to pancreatitis, pain medicine (gabapentin), anti-vomiting/anti-nausea medicine (Cerenia), & fluids are recommended. Sucralfate, a medicine that covers ulcers & prevents further intestinal pain, has also been prescribed.`,
+    `Going forward, you can help reduce the risk of pancreatitis by removing any source of stress for your dog & feeding low fat diets such as Hill’s Science Diet i/d low fat (i/d low fat dry food, i/d low fat stew, or i/d low fat patée), Purina EN low fat (EN low fat dry food or EN low fat wet food), or Royal Canine Gastrointestinal Low Fat (RC small dog dry, RC large dog dry, or RC wet food). You can learn more about pancreatitis from the Pancreatitis in Dogs article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PANCREATIC_FLARE_UP_HEADER"
+    ],
+
+    linkKeys: [
+      "EN_LOW_FAT_DRY_FOOD_ARTICLE",
+      "EN_LOW_FAT_WET_FOOD_ARTICLE",
+      "I_D_LOW_FAT_DRY_FOOD_ARTICLE",
+      "I_D_LOW_FAT_PAT_E_ARTICLE",
+      "I_D_LOW_FAT_STEW_ARTICLE",
+      "PANCREATITIS_IN_DOGS_ARTICLE",
+      "RC_LARGE_DOG_DRY_ARTICLE",
+      "RC_SMALL_DOG_DRY_ARTICLE",
+      "RC_WET_FOOD_ARTICLE"
+    ],
+    };
+    }
+
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
+  // Acute Gastroenteritis | Diarrhea, Home Diet
+    function generateAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. Based on your dog’s history & age, the most likely cause of diarrhea is dietary indiscretion (eating something that isn’t healthy for dogs). Ideally your dog would be fed a prescription gastrointestinal diet as a bland, easy to digest aid. At this time you’ve elected to use a homemade bland diet of boiled chicken & rice without salt or other spices. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+    };
+    }
+
+  // Acute Gastroenteritis | Diarrhea, Fecal Test
+    function generateAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites is currently running. You will be called with results in 3 - 4 business days. In the meantime your dog’s diarrhea will be treated symptomatically. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "YOU_WILL_BE_CALLED_WITH_RESULTS"
+    ],
+    };
+    }
+
+  // Acute Gastroenteritis | Diarrhea, Fecal Test Declined
+    function generateAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites has been declined so we are treating symptomatically instead. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+    };
+    }
+
+  // AG | Diarrhea/Vomiting, Bldwrk Normal, Fecal Pending
+    function generateAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_VOMITING_DIARRHEA"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of vomiting and soft stool were identified. Your dog likely has dietary indiscretion (eating something that isn’t healthy for dogs). Bloodwork to check internal organs came back within normal limits meaning your dog likely hasn’t eaten anything toxic. A fecal test to check for intestinal parasites is still pending. You will be called with results in 3 - 4 business days. In the meantime, medication to help improve the symptoms has been started. Bring your dog back in 3 days for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_3_DAYS",
+      "YOU_WILL_BE_CALLED_WITH_RESULTS"
+    ],
+
+    };
+    }
+
   // Periodontal Disease | Mild
     function generateCanine1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
@@ -5298,6 +5507,10 @@
     '/cPancreatitis1Diagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
+    '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality) => generateAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality) => generateAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest': (sex, plurality) => generateAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality),
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease2': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease3': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
