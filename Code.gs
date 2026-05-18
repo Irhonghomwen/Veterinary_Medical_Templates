@@ -348,6 +348,20 @@
     sideEffects: "Rarely causes vomiting or diarrhea"
     },
 
+    HILLSGIBIOMECANNED: {
+    label: "Hill's Prescription Gastrointestinal Biome (canned food)",
+    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
+    HILLSGIBIOMEDRY: {
+    label: "Hill's Prescription Gastrointestinal Biome (dry food)",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    class: "Prebiotic, probiotic, & postbiotic",
+    sideEffects: "Well tolerated"
+    },
+
     HILLSIDCANNED: {
     label: "Hill's Prescription i/d (canned food)",
     instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
@@ -957,8 +971,13 @@
       // 800 - 899: Low priority, advise (underweight)
       // 900 - 999: Non-vital, incidental findings, no treatment necessary (nuclear sclerosis)
 
-    ACUTE_GASTROENTERITIS_DIARRHEA: {
+    ACUTE_GASTROENTERITIS_DIARRHEA_ONLY: {
     text: "Acute gastroenteritis (diarrhea)",
+    rank: 500
+    },
+
+    ACUTE_GASTROENTERITIS_VOMITING_ONLY: {
+    text: "Acute gastroenteritis (vomiting)",
     rank: 500
     },
 
@@ -1030,6 +1049,11 @@
     ENTROPION: {
     text: "Entropion",
     rank: 501
+    },
+
+    FULL_ANAL_GLANDS: {
+    text: "Full anal glands",
+    rank: 702
     },
 
     GLAUCOMA: {
@@ -2179,6 +2203,26 @@
   // Gastrointestinal Registry
     ACUTE_GASTROENTERITIS_HEADER:
     "Acute gastroenteritis:",
+
+    ANAL_GLANDS_BRING_STOOL:
+    "If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.",
+
+    ANAL_GLANDS_EXPRESSED:
+    "Your dog had full anal glands that were expressed at the clinic.",
+
+    ANAL_GLANDS_HEADER:
+    "Anal glands:",
+    
+    ANAL_GLAND_SYMPTOMS:
+    "If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.",
+
+    EMPTYING_A_DOG_OR_CAT_S_ANAL_SACS_ARTICLE: {
+    text: "Emptying a Dog or Cat's Anal Sacs",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951501`
+    },
+
+    VOMITING_POST_MAROPITANT:
+    "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -4634,12 +4678,12 @@
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
   // Acute Gastroenteritis | Diarrhea, Home Diet
-    function generateAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
     plurality,
-    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
     `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. Based on your dog’s history & age, the most likely cause of diarrhea is dietary indiscretion (eating something that isn’t healthy for dogs). Ideally your dog would be fed a prescription gastrointestinal diet as a bland, easy to digest aid. At this time you’ve elected to use a homemade bland diet of boiled chicken & rice without salt or other spices. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks.`
     ].join('\n'),
@@ -4651,12 +4695,12 @@
     }
 
   // Acute Gastroenteritis | Diarrhea, Fecal Test
-    function generateAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
     plurality,
-    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
     `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites is currently running. You will be called with results in 3 - 4 business days. In the meantime your dog’s diarrhea will be treated symptomatically. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
     ].join('\n'),
@@ -4672,12 +4716,12 @@
     }
 
   // Acute Gastroenteritis | Diarrhea, Fecal Test Declined
-    function generateAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
     plurality,
-    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA"],
+    diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
     `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites has been declined so we are treating symptomatically instead. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
     ].join('\n'),
@@ -4689,7 +4733,7 @@
     }
 
   // AG | Diarrhea/Vomiting, Bldwrk Normal, Fecal Pending
-    function generateAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality = 'singular') {
+    function generateCanineAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -4707,7 +4751,118 @@
       "RECHECK_ADVISE_3_DAYS",
       "YOU_WILL_BE_CALLED_WITH_RESULTS"
     ],
+    };
+    }
 
+  // Acute Gastroenteritis | Vomiting, Bloodwork Normal
+    function generateCanineAcuteGastroenteritisVomitingBloodworkNormalTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_VOMITING_ONLY"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of vomiting were identified. Your dog likely has dietary indiscretion (eating something that isn’t healthy for dogs) which led to inflammation of the stomach and intestines (gastroenteritis). Bloodwork was performed which showed normal values meaning whatever it was isn’t toxic enough to damage the liver, kidneys, and other vital internal organs. We will start out by treating your dog’s symptoms. Bring your dog back in 3 days for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_3_DAYS"
+    ],
+    };
+    }
+
+  // Acute Gastroenteritis | Vomiting, Bloodwork Declined
+    function generateCanineAcuteGastroenteritisVomitingBloodworkDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_VOMITING_ONLY"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of vomiting were identified. Your dog likely has dietary indiscretion (eating something that isn’t healthy for dogs). Bloodwork to check for signs of toxicity or organ dysfunction has been declined, so we will move forward with symptomatic treatment. Medicine to help your dog’s clinical signs improve has been started. Bring your dog back in 3 days for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_3_DAYS"
+    ],
+    };
+    }
+
+  // Acute Gastroenteritis | Vomiting, Radiographs
+    function generateCanineAcuteGastroenteritisVomitingRadiographsNormalTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_VOMITING_ONLY"],
+    text: [
+    `Acute gastroenteritis: No overt causes of vomiting were identified on physical exam, and x-rays did not find an object stuck in your dog’s stomach or intestines. The most likely cause of vomiting is dietary indiscretion (eating something that isn’t healthy for dogs). Your dog was given an anti-vomiting injection and will need anti-vomiting medicine over the next several days as prescribed below. If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "VOMITING_POST_MAROPITANT"
+    ],
+    };
+    }
+
+  // Acute Gastroenteritis | Vomiting, Rads Declined
+    function generateCanineAcuteGastroenteritisVomitingRadsDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ACUTE_GASTROENTERITIS_VOMITING_ONLY"],
+    text: [
+    `Acute gastroenteritis: At this time no overt causes of vomiting were identified. X-rays can be performed to differentiate between something being stuck in the intestines and dietary indiscretion (eating something that isn’t healthy for dogs). You’ve declined x-rays in favour of symptomatic treatment at this time. Give the medication as prescribed below. If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ACUTE_GASTROENTERITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "VOMITING_POST_MAROPITANT"
+    ],
+    };
+    }
+
+  // Anal Glands | Full, Expressed
+    function generateCanineAnalGlands1FullExpressedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["FULL_ANAL_GLANDS"],
+    text: [
+    `Anal glands: Your dog had full anal glands that were expressed at the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them. You can add psyllium husk to increase the fiber content if stools are soft or watery. Some dogs have anal glands that never empty correctly. If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.`,
+      `You can learn how to express your dog’s anal glands yourself by reading the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise you can visit a clinic or groomer to have them expressed. If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ANAL_GLANDS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "ANAL_GLANDS_EXPRESSED",
+      "ANAL_GLANDS_BRING_STOOL",
+      "ANAL_GLAND_SYMPTOMS",
+    ],
+
+    linkKeys: [
+      "EMPTYING_A_DOG_OR_CAT_S_ANAL_SACS_ARTICLE"
+    ],
     };
     }
 
@@ -5507,10 +5662,15 @@
     '/cPancreatitis1Diagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
   // Gastrointestinal Definitions
-    '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
-    '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality) => generateAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality),
-    '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality) => generateAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality),
-    '/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest': (sex, plurality) => generateAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest': (sex, plurality) => generateCanineAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingBloodworkNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingBloodworkNormalTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingBloodworkDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingBloodworkDeclinedTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingRadiographsNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadiographsNormalTemplate(sex, plurality),
+    '/cAcuteGastroenteritisVomitingRadiographsDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadsDeclinedTemplate(sex, plurality),
+    '/cAnalGlands1FullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease2': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease3': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
