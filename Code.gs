@@ -112,10 +112,21 @@
     purple: '#B4A7D6',
     };
   
-/* ------------------ MEDICINE REGISTRY ------------------ */
+/* ------------------ MEDICINE CABINET ------------------ */
   // Medications
+
+    // Compiles a clean list of labels and keys for the sidebar to build buttons.
+    function getMedicineRegistryKeys() {
+    return Object.keys(MEDICINE_REGISTRY).map(key => {
+    return {
+    key: key,
+    label: MEDICINE_REGISTRY[key].label
+    };
+    });
+    }
+
     let TABLE_ROW_BUFFER = [];
-    const MEDICINE_REGISTRY = {
+    var MEDICINE_REGISTRY = {
 
     ADEQUANINJECTION: {
     label: "Adequan",
@@ -199,6 +210,34 @@
     instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
     sideEffects: "Vomiting, diarrhea, or decreased appetite."
+    },
+
+    CLAVAMOX625: {
+    label: "Amoxicillin clavulanate 62.5mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
+    },
+
+    CLAVAMOX125: {
+    label: "Amoxicillin clavulanate 125mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
+    },
+
+    CLAVAMOX250: {
+    label: "Amoxicillin clavulanate 250mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
+    },
+
+    CLAVAMOX375: {
+    label: "Amoxicillin clavulanate 375mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
     },
 
     COUGHTABLETS: {
@@ -844,8 +883,43 @@
     sideEffects: "May cause sedation or hyperactivity"
     },
 
-    Trilostane: {
-    label: "Vetoryl (trilostane)",
+    TRILOSTANE5: {
+    label: "Vetoryl 5mg (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
+    TRILOSTANE10: {
+    label: "Vetoryl 10mg (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
+    TRILOSTANE20: {
+    label: "Vetoryl 20mg (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
+    TRILOSTANE30: {
+    label: "Vetoryl 30mg (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
+    TRILOSTANE60: {
+    label: "Vetoryl 60mg (trilostane)",
+    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
+    class: "Adrenal suppressant",
+    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
+    },
+
+    TRILOSTANE120: {
+    label: "Vetoryl 120mg (trilostane)",
     instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
     class: "Adrenal suppressant",
     sideEffects: "May cause vomiting, decreased appetite, or lethargy."
@@ -887,6 +961,65 @@
     sideEffects: "Well tolerated"
     },
     };
+
+    function insertMedicineFromSidebar(medKey) {
+  // 1. Fallback safety check if the base medication key doesn't exist
+  if (!MEDICINE_REGISTRY[medKey]) {
+    throw new Error("Medication key '" + medKey + "' was not found in the Registry.");
+  }
+  
+  // 2. Open up the native Google Docs UI prompt
+  const ui = DocumentApp.getUi();
+  const promptResult = ui.prompt(
+    "Select Instruction Variation", 
+    "Type the option number to apply a prefix modifier:\n\n" +
+    "1 - Starting today\n" +
+    "2 - Starting tomorrow\n" +
+    "3 - NEW DOSE\n" +
+    "4 - DISCONTINUE\n" +
+    "5 - Continue\n" +
+    "6 - Wait 3 days then start\n" +
+    "7 - Administered in clinic\n" +
+    "8 - As needed\n\n" +
+    "Leave blank for default (Starting today).",
+    ui.ButtonSet.OK_CANCEL
+  );
+  
+  // Exit gracefully if user cancels out
+  if (promptResult.getSelectedButton() !== ui.Button.OK) {
+    return; 
+  }
+  
+  // 3. Map user numbers directly to your internal MED_PREFIX keys
+  let userInput = promptResult.getResponseText().trim();
+  let prefixKey = "START"; // Default fallback
+  
+  if (userInput === "1") prefixKey = "START";
+  else if (userInput === "2") prefixKey = "TOMORROW";
+  else if (userInput === "3") prefixKey = "NEWDOSE";
+  else if (userInput === "4") prefixKey = "DISCONTINUE";
+  else if (userInput === "5") prefixKey = "CONTINUE";
+  else if (userInput === "6") prefixKey = "WAIT3";
+  else if (userInput === "7") prefixKey = "CLINIC";
+  else if (userInput === "8") prefixKey = "ASNEEDED";
+  else if (userInput.length > 0) {
+    throw new Error("Invalid selection. Please type a valid number option (1-8) or leave it completely blank.");
+  }
+  
+  // 4. Construct the precise target code string used by your Forward Generator
+  const targetLookupKey = (medKey + prefixKey).toUpperCase();
+  const commandData = MED_COMMAND_LOOKUP[targetLookupKey];
+  
+  if (!commandData) {
+    throw new Error("Could not find precomputed configuration data for: " + targetLookupKey);
+  }
+  
+  // 5. PIPE DATA DIRECTLY INTO YOUR BUILT-IN BUFFER AND PROCESSING LOOPS
+  TABLE_ROW_BUFFER.push(commandData);
+  
+  // This triggers your core engine to sort, match existing headers, color backgrounds, and underline text automatically
+  generateMedicineTableFromBuffer();
+}
 
   // Medication Prefixes & Registry Logic
     const MED_PREFIX = {
