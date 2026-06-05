@@ -962,64 +962,31 @@
     },
     };
 
-    function insertMedicineFromSidebar(medKey) {
-  // 1. Fallback safety check if the base medication key doesn't exist
-  if (!MEDICINE_REGISTRY[medKey]) {
+    function insertMedicineFromSidebar(medKey, prefixKey) {
+    // 1. Fallback safety check if the base medication key doesn't exist
+    if (!MEDICINE_REGISTRY[medKey]) {
     throw new Error("Medication key '" + medKey + "' was not found in the Registry.");
-  }
-  
-  // 2. Open up the native Google Docs UI prompt
-  const ui = DocumentApp.getUi();
-  const promptResult = ui.prompt(
-    "Select Instruction Variation", 
-    "Type the option number to apply a prefix modifier:\n\n" +
-    "1 - Starting today\n" +
-    "2 - Starting tomorrow\n" +
-    "3 - NEW DOSE\n" +
-    "4 - DISCONTINUE\n" +
-    "5 - Continue\n" +
-    "6 - Wait 3 days then start\n" +
-    "7 - Administered in clinic\n" +
-    "8 - As needed\n\n" +
-    "Leave blank for default (Starting today).",
-    ui.ButtonSet.OK_CANCEL
-  );
-  
-  // Exit gracefully if user cancels out
-  if (promptResult.getSelectedButton() !== ui.Button.OK) {
-    return; 
-  }
-  
-  // 3. Map user numbers directly to your internal MED_PREFIX keys
-  let userInput = promptResult.getResponseText().trim();
-  let prefixKey = "START"; // Default fallback
-  
-  if (userInput === "1") prefixKey = "START";
-  else if (userInput === "2") prefixKey = "TOMORROW";
-  else if (userInput === "3") prefixKey = "NEWDOSE";
-  else if (userInput === "4") prefixKey = "DISCONTINUE";
-  else if (userInput === "5") prefixKey = "CONTINUE";
-  else if (userInput === "6") prefixKey = "WAIT3";
-  else if (userInput === "7") prefixKey = "CLINIC";
-  else if (userInput === "8") prefixKey = "ASNEEDED";
-  else if (userInput.length > 0) {
-    throw new Error("Invalid selection. Please type a valid number option (1-8) or leave it completely blank.");
-  }
-  
-  // 4. Construct the precise target code string used by your Forward Generator
-  const targetLookupKey = (medKey + prefixKey).toUpperCase();
-  const commandData = MED_COMMAND_LOOKUP[targetLookupKey];
-  
-  if (!commandData) {
-    throw new Error("Could not find precomputed configuration data for: " + targetLookupKey);
-  }
-  
-  // 5. PIPE DATA DIRECTLY INTO YOUR BUILT-IN BUFFER AND PROCESSING LOOPS
-  TABLE_ROW_BUFFER.push(commandData);
-  
-  // This triggers your core engine to sort, match existing headers, color backgrounds, and underline text automatically
-  generateMedicineTableFromBuffer();
-}
+    }
+
+    // 2. Set default fallback configuration if no prefix was passed over
+    if (!prefixKey) {
+    prefixKey = "START";
+    }
+
+    // 3. Construct the precise target uppercase lookup token matched in your Forward Generator
+    const targetLookupKey = (medKey + prefixKey).toUpperCase();
+    const commandData = MED_COMMAND_LOOKUP[targetLookupKey];
+
+    if (!commandData) {
+    throw new Error("Could not find configuration data for combination key: " + targetLookupKey);
+    }
+
+    // 4. Send metadata payload into your active template routing engine
+    TABLE_ROW_BUFFER.push(commandData);
+
+    // Natively triggers sorting, deduplication, row background coloring, and first-line bold/underlines
+    generateMedicineTableFromBuffer();
+    }
 
   // Medication Prefixes & Registry Logic
     const MED_PREFIX = {
@@ -1222,6 +1189,11 @@
     HYPOTHYROIDISM: {
     text: "Hypothyroidism",
     rank: 202
+    },
+
+    INFECTED_ANAL_GLANDS: {
+    text: "Infected anal glands",
+    rank: 204
     },
 
     KERATOCONJUNCTIVITIS_SICCA: {
@@ -2345,6 +2317,9 @@
 
     ANAL_GLANDS_HEADER:
     "Anal glands:",
+
+    ANAL_GLANDS_STILL_SCOOTING:
+    "If your dog continues to scoot on the floor, bring back a stool sample & we can test for intestinal parasites.",
     
     ANAL_GLAND_SYMPTOMS:
     "If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.",
@@ -2353,6 +2328,11 @@
     text: "Emptying a Dog or Cat's Anal Sacs",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951501`
     },
+
+    INFECTED_ANAL_GLANDS_SEEN:
+    "Your dog had full anal glands that appeared infected when they were expressed in the clinic.",
+
+    INFECTED_ANAL_GLANDS_HEADER: "Infected anal glands:",
 
     VOMITING_POST_MAROPITANT:
     "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
@@ -4999,6 +4979,60 @@
     };
     }
 
+  // Anal Glands | 2nd, Known
+    function generateCanineAnalGlands2KnownTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["FULL_ANAL_GLANDS"],
+    text: [
+    `Anal glands: Your dog had full anal glands that were expressed at the clinic. If you’d like you to learn how to express them yourself, you can learn more from the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise bring your pet back as needed. If your dog continues to scoot on the floor, bring back a stool sample & we can test for intestinal parasites.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ANAL_GLANDS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "ANAL_GLANDS_EXPRESSED",
+      "ANAL_GLANDS_STILL_SCOOTING"
+    ],
+
+    linkKeys: [
+      "EMPTYING_A_DOG_OR_CAT_S_ANAL_SACS_ARTICLE"
+    ],
+    };
+    }
+
+  // Anal Glands | 3rd, Infected
+    function generateCanineAnalGlands3InfectedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["INFECTED_ANAL_GLANDS"],
+    text: [
+    `Infected anal glands: Your dog had full anal glands that appeared infected when they were expressed in the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them.  If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus. Ultimately this can lead to infection, similar to what your dog appears to have today. You can add psyllium husk to increase the fiber content if stools are soft or watery.`,
+      `Your dog has been administered antibiotics and pain control for the infection. You can learn how to express your dog’s anal glands yourself by reading the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise you can visit a clinic or groomer to have them expressed. If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.`
+    ].join('\n'),
+
+    boldKeys: [
+      "INFECTED_ANAL_GLANDS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "ANAL_GLANDS_BRING_STOOL",
+      "ANAL_GLAND_SYMPTOMS",
+      "INFECTED_ANAL_GLANDS_SEEN"
+    ],
+
+    linkKeys: [
+      "EMPTYING_A_DOG_OR_CAT_S_ANAL_SACS_ARTICLE"
+    ],
+    };
+    }
+
   // Periodontal Disease | Mild
     function generateCanine1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
@@ -5369,6 +5403,7 @@
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
     'ATOPIC_DERMATITIS_HEADER',
+    'ANTIHISTAMINE_ADDITION',
     ],
 
     boldUnderlineKeys: [
@@ -5804,6 +5839,8 @@
     '/cAcuteGastroenteritisVomitingRadiographsNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadiographsNormalTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingRadiographsDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadsDeclinedTemplate(sex, plurality),
     '/cAnalGlands1FullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
+    '/cAnalGlands2Known': (sex, plurality) => generateCanineAnalGlands2KnownTemplate(sex, plurality),
+    '/cAnalGlands3Infected': (sex, plurality) => generateCanineAnalGlands3InfectedTemplate(sex, plurality),
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease2': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease3': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
