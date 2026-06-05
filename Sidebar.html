@@ -50,241 +50,283 @@ cursor: pointer;
 .template-button:hover {
 background-color: #e8f0fe;
 }
+
+/* Styling specifically for the prefix selector interface */
+.prefix-title {
+font-size: 15px;
+font-weight: bold;
+color: #1a73e8;
+margin-bottom: 12px;
+padding-bottom: 6px;
+border-bottom: 2px solid #e8f0fe;
+}
+.cancel-button {
+background-color: #f1f3f4;
+font-weight: bold;
+text-align: center;
+margin-bottom: 15px;
+}
+.cancel-button:hover {
+background-color: #dcdcdc;
+}
 </style>
 </head>
 
 <body>
 
-<h3>Medical Template Picker</h3>
-<input type="text" id="searchBox" placeholder="Search templates...">
-<button class="template-button" onclick="insertTemplate('/cReset')">Canine Reset</button>
-<button class="template-button" onclick="insertTemplate('/fReset')">Feline Reset</button>
-<button class="template-button" onclick="expandKeywords()">Generate Templates</button>
-<button class="template-button" onclick="runReverseGenerator()">Reverse Generator</button>
-<button class="template-button" onclick="insertTemplate('/ieolibrary')">Template Library</button>
+<div id="mainView">
+  <h3>Medical Template Picker</h3>
+  <input type="text" id="searchBox" placeholder="Search templates...">
+  <button class="template-button" onclick="insertTemplate('/cReset')">Canine Reset</button>
+  <button class="template-button" onclick="insertTemplate('/fReset')">Feline Reset</button>
+  <button class="template-button" onclick="expandKeywords()">Generate Templates</button>
+  <button class="template-button" onclick="runReverseGenerator()">Reverse Generator</button>
+  <button class="template-button" onclick="insertTemplate('/ieolibrary')">Template Library</button>
 
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">💊 Pharmacy &amp; Medications 🧪</div>
-  <div class="category-content" id="buttonContainer">
-    <div style="padding: 5px; color: #666; font-style: italic;">Loading pharmacy...</div>
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">💊 Medicine Cabinet 💊</div>
+    <div class="category-content" id="buttonContainer">
+      <div style="padding: 5px; color: #666; font-style: italic;">Loading pharmacy...</div>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 General Wellness 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/c8wksSmallMale')">8 Weeks – Small Male</button>
+      <button class="template-button" onclick="insertTemplate('/c8wksSmallMales')">8 Weeks – Small Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c8wksLargeMale')">8 Weeks – Large Male</button>
+      <button class="template-button" onclick="insertTemplate('/c8wksLargeMales')">8 Weeks – Large Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c8wksSmallFemale')">8 Weeks – Female</button>
+      <button class="template-button" onclick="insertTemplate('/c8wksSmallFemales')">8 Weeks – Females Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksSmallMale')">12 Weeks – Small Male</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksSmallMales')">12 Weeks – Small Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksLargeMale')">12 Weeks – Large Male</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksLargeMales')">12 Weeks – Large Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksSmallFemale')">12 Weeks – Female</button>
+      <button class="template-button" onclick="insertTemplate('/c12wksSmallFemales')">12 Weeks – Females Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksSmallMale')">16 Weeks – Small Male</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksSmallMales')">16 Weeks – Small Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksLargeMale')">16 Weeks – Large Male</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksLargeMales')">16 Weeks – Large Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksSmallFemale')">16 Weeks – Female</button>
+      <button class="template-button" onclick="insertTemplate('/c16wksSmallFemales')">16 Weeks – Females Dogs (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/cInitialAdultMale')">Adult Initials ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cInitialAdultMales')">Adult Initials ♂s</button>
+      <button class="template-button" onclick="insertTemplate('/cInitialAdultFemale')">Adult Initials ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cInitialAdultFemales')">Adult Initials ♀s</button>
+      <button class="template-button" onclick="insertTemplate('/c1yearMale')">1st Annual  ♂</button>
+      <button class="template-button" onclick="insertTemplate('/c1yearFemale')">1st Annual ♀</button>
+      <button class="template-button" onclick="insertTemplate('/c1yearFemales')">1st Annual (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearMale')">2nd Annual  ♂</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearFemale')">2nd Annual ♀</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearFemales')">2nd Annual (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearLeptoMale')">2nd Annual Lepto ♂</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemale')">2nd Annual Lepto ♀</button>
+      <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemales')">2nd Annual Lepto (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearMale')">7th Annual ♂</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearFemale')">7th Annual ♀</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearFemales')">7th Annual (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearLeptoMale')">7th Annual Lepto ♂</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemale')">7th Annual Lepto ♀</button>
+      <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemales')">7th Annual Lepto (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight1Male')">Overweight ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight1Female')">Overweight ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight1Males')">Overweight (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight2Male')">Overweight | Continue ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight2Female')">Overweight | Continue ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cOverweight2Males')">Overweight | Continue (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale')">Healthy Weight ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemale')">Healthy Weight ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemales')">Healthy Weight (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cUnderweightMale')">Underweight ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cUnderweightFemale')">Underweight ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cUnderweightFemales')">Underweight (Multiple Pets)</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Ophthalmology 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cBlind0Partial')">Blind | 0th, Partial</button>
+      <button class="template-button" onclick="insertTemplate('/cBlind1')">Blind | 1st, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cBlind2Known')">Blind | 2nd, Known</button>
+      <button class="template-button" onclick="insertTemplate('/cCherryEye')">Cherry Eye (Single)</button>
+      <button class="template-button" onclick="insertTemplate('/cCherryEyes')">Cherry Eyes (Both)</button>
+      <button class="template-button" onclick="insertTemplate('/cCompleteCataract')">Complete Cataract (Single)</button>
+      <button class="template-button" onclick="insertTemplate('/cCompleteCataracts')">Complete Cataract (Both)</button>
+      <button class="template-button" onclick="insertTemplate('/cConjunctivitisDiagnosed')">Conjunctivitis | Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cConjunctivitisTestsDeclined')">Conjunctivitis | Tests Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cCornealUlcer')">Corneal Ulcer (Single)</button>
+      <button class="template-button" onclick="insertTemplate('/cCornealUlcers')">Corneal Ulcers (Multiple)</button>
+      <button class="template-button" onclick="insertTemplate('/cEntropion')">Entropion</button>
+      <button class="template-button" onclick="insertTemplate('/cGlaucoma1')">Glaucoma</button>
+      <button class="template-button" onclick="insertTemplate('/cKeratoconjunctivitisSicca1Diagnosed')">Keratoconjunctivitis Sicca | 1st, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cKeratoconjunctivitisSicca2Controlled')">Keratoconjunctivitis Sicca | 2nd, Controlled</button>
+      <button class="template-button" onclick="insertTemplate('/cMeibomianGlandAdenoma1')">Meibomian Gland Adenoma | 1st, Presumed</button>
+      <button class="template-button" onclick="insertTemplate('/cNuclearSclerosis')">Nuclear Sclerosis</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Cardiology 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/c2ndDegreeAVBlock')">2nd Degree AV Block Mobitz Type II | Asymptomatic</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartMurmur0')">Heart Murmur 0th, Discovered</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartMurmur1RadiographsNormal')">Heart Murmur | 1st, Radiographs Normal</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartMurmur1Cardiomegaly')">Heart Murmur | 1st, Cardiomegaly, Start Pimobendan</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartMurmur3Known')">Heart Murmur | 3rd, Known</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartwormsAdulticidalTreatment')">Heartworms Adulticidal Treatment</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartwormsSlowKillHealthyTreatment')">Heartworms Slow Kill Treatment (Healthy Dog)</button>
+      <button class="template-button" onclick="insertTemplate('/cHeartwormTestRepeat')">Heartworm Test Repeat</button>
+      <button class="template-button" onclick="insertTemplate('/cHypertension1Diagnosed')">Hypertension | 1st, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cLeftSidedCongestiveHeartFailure')">Left Sided Congestive Heart Failure</button>
+      <button class="template-button" onclick="insertTemplate('/cMyxomatousMitralValveDisease')">Myxomatous Mitral Valve Disease</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Respiratory 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cBordetellosis0Presumed')">Bordetellosis (presumed)</button>
+      <button class="template-button" onclick="insertTemplate('/cBrachycephalicObstructiveAirwaySyndrome')">Brachycephalic Obstructive Airway Syndrome</button>
+      <button class="template-button" onclick="insertTemplate('/cChronicBronchitis0Presumed')">Chronic Bronchitis | 0st, Presumed</button>
+      <button class="template-button" onclick="insertTemplate('/cCollapsingTrachea1Theophylline')">Collapsing Trachea | 1st, Theophylline</button>
+      <button class="template-button" onclick="insertTemplate('/cCollapsingTrachea3NoMeds')">Collapsing Trachea | 3rd, Known, No Meds</button>
+      <button class="template-button" onclick="insertTemplate('/cLaryngealParalysis1Diagnosed')">Laryngeal Paralysis | 1, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cReverseSneezing')">Reverse Sneezing</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Endocrine 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus1DiagnosedMale')">Diabetes Mellitus | 1st, Diagnosed ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus1DiagnosedFemale')">Diabetes Mellitus | 1st, Diagnosed ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus3Controlled')">Diabetes Mellitus | 3rd, Controlled</button>
+      <button class="template-button" onclick="insertTemplate('/cHypothyroidism1Diagnosed')">Hypothyroidism | 1st, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cHypothyroidism2Recheck')">Hypothyroidism | 2nd, Recheck</button>
+      <button class="template-button" onclick="insertTemplate('/cHypothyroidism3Controlled')">Hypothyroidism | 3rd, Controlled</button>
+      <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism1ACTHStimTest')">Hyperadrenocorticism | 1st, ACTH Stim Test</button>
+      <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism2Diagnosed')">Hyperadrenocorticism | 2nd, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism3Controlled')">Hyperadrenocorticism | 3rd, Controlled</button>
+      <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism4Uncontrolled')">Hyperadrenocorticism | 4th, Uncontrolled</button>
+      <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism5Checkup')">Hyperadrenocorticism | 5th, Regular Checkup</button>
+      <button class="template-button" onclick="insertTemplate('/cPancreatitis1Diagnosed')">Pancreatitis | 1st, Diagnosed</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Gastrointestinal 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaHomeDiet')">Acute Gastroenteritis | Diarrhea, Home Diet</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaDeclinedFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest')">Acute Gastroenteritis | Vomiting, Diarrhea, Bloodwork, Fecal Test</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkNormal')">Acute Gastroenteritis | Vomiting, Bloodwork Normal</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkDeclined')">Acute Gastroenteritis | Vomiting, Bloodwork Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsNormal')">Acute Gastroenteritis | Vomiting, Radiographs Normal</button>
+      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsDeclined')">Acute Gastroenteritis | Vomiting, Radiographs Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cAnalGlands1FullExpressed')">Anal Glands 1 | Full, Expressed</button>
+      <button class="template-button" onclick="insertTemplate('/cAnalGlands2Known')">Anal Glands 2 | Known</button>
+      <button class="template-button" onclick="insertTemplate('/cAnalGlands3Infected')">Anal Glands 3 | Infected</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Male')">Mild Periodontal Disease ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Female')">Mild Periodontal Disease ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Male')">Moderate Periodontal Disease ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Female')">Moderate Periodontal Disease ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Male')">Severe Periodontal Disease ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Female')">Severe Periodontal Disease ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeMale')">Severe Periodontal Disease | Age Restricted ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeFemale')">Severe Periodontal Disease | Age Restricted ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseMale')">Severe Periodontal Disease | Concurrent Disease ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseFemale')">Severe Periodontal Disease | Concurrent Disease ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurMale')">Severe Periodontal Disease | Heart Murmur ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurFemale')">Severe Periodontal Disease | Heart Murmur ♀</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Urinary &amp; Renal 🐕</div>
+    <div class="category-content"></div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Reproductive 🐕</div>
+    <div class="category-content"></div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Musculoskeletal 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cCCL1MM')">CCL Tear – Medical Management</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1NSAID')">Osteoarthritis | 1st NSAID</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2NSAID')">Osteoarthritis | 2nd NSAID, Continue</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis3NSAID')">Osteoarthritis | 3rd NSAID, Switch</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Gabapentin')">Osteoarthritis | 1st Gabapentin</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Gabapentin')">Osteoarthritis | 2nd Gabapentin</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1JointSupplements')">Osteoarthritis | 1st Joint Supplements</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2JointSupplements')">Osteoarthritis | 2nd Joint Supplements, Continue</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Librela')">Osteoarthritis | 1st Librela</button>
+      <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Librela')">Osteoarthritis | 2nd Librela, Continue</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Neurology 🐕</div>
+    <div class="category-content"></div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Immunology 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cVaccineInformation')">Vaccine Information</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Dermatology 🐕</div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Antihistamines')">Atopic Dermatitits | Antihistamines, 1st</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Antihistamines')">Atopic Dermatitits | Antihistamines, 2nd</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Apoquel')">Atopic Dermatitits | Apoquel | 1st</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Apoquel')">Atopic Dermatitits | Apoquel | 2nd, Maintenance</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Apoquel')">Atopic Dermatitits | Apoquel | 3rd, Add Cytopoint</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis4Apoquel')">Atopic Dermatitits | Apoquel | 4th Switch to Zenrelia</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Cytopoint')">Atopic Dermatitits | Cytopoint | 1st</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Cytopoint')">Atopic Dermatitits | Cytopoint | 2nd</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitisMedsDeclined')">Atopic Dermatitits | Meds Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Zenrelia')">Atopic Dermatitits | Zenrelia | 1st</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Zenrelia')">Atopic Dermatitits | Zenrelia | 2nd, Maintenance</button>
+      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Zenrelia')">Atopic Dermatitits | Zenrelia | 3rd, Add Cytopoint</button>
+    </div>
+  </div>
+
+  <div class="category">
+    <div class="category-header" onclick="toggleCategory(this)">🐶 Oncology 🐕</div>
+    <div class="category-content"></div>
   </div>
 </div>
 
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 General Wellness 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/c8wksSmallMale')">8 Weeks – Small Male</button>
-    <button class="template-button" onclick="insertTemplate('/c8wksSmallMales')">8 Weeks – Small Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c8wksLargeMale')">8 Weeks – Large Male</button>
-    <button class="template-button" onclick="insertTemplate('/c8wksLargeMales')">8 Weeks – Large Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c8wksSmallFemale')">8 Weeks – Female</button>
-    <button class="template-button" onclick="insertTemplate('/c8wksSmallFemales')">8 Weeks – Females Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksSmallMale')">12 Weeks – Small Male</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksSmallMales')">12 Weeks – Small Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksLargeMale')">12 Weeks – Large Male</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksLargeMales')">12 Weeks – Large Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksSmallFemale')">12 Weeks – Female</button>
-    <button class="template-button" onclick="insertTemplate('/c12wksSmallFemales')">12 Weeks – Females Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksSmallMale')">16 Weeks – Small Male</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksSmallMales')">16 Weeks – Small Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksLargeMale')">16 Weeks – Large Male</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksLargeMales')">16 Weeks – Large Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksSmallFemale')">16 Weeks – Female</button>
-    <button class="template-button" onclick="insertTemplate('/c16wksSmallFemales')">16 Weeks – Females Dogs (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/cInitialAdultMale')">Adult Initials ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cInitialAdultMales')">Adult Initials ♂s</button>
-    <button class="template-button" onclick="insertTemplate('/cInitialAdultFemale')">Adult Initials ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cInitialAdultFemales')">Adult Initials ♀s</button>
-    <button class="template-button" onclick="insertTemplate('/c1yearMale')">1st Annual  ♂</button>
-    <button class="template-button" onclick="insertTemplate('/c1yearFemale')">1st Annual ♀</button>
-    <button class="template-button" onclick="insertTemplate('/c1yearFemales')">1st Annual (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearMale')">2nd Annual  ♂</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearFemale')">2nd Annual ♀</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearFemales')">2nd Annual (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearLeptoMale')">2nd Annual Lepto ♂</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemale')">2nd Annual Lepto ♀</button>
-    <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemales')">2nd Annual Lepto (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearMale')">7th Annual ♂</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearFemale')">7th Annual ♀</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearFemales')">7th Annual (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearLeptoMale')">7th Annual Lepto ♂</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemale')">7th Annual Lepto ♀</button>
-    <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemales')">7th Annual Lepto (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight1Male')">Overweight ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight1Female')">Overweight ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight1Males')">Overweight (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight2Male')">Overweight | Continue ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight2Female')">Overweight | Continue ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cOverweight2Males')">Overweight | Continue (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale')">Healthy Weight ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemale')">Healthy Weight ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemales')">Healthy Weight (Multiple Pets)</button>
-    <button class="template-button" onclick="insertTemplate('/cUnderweightMale')">Underweight ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cUnderweightFemale')">Underweight ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cUnderweightFemales')">Underweight (Multiple Pets)</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Ophthalmology 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cBlind0Partial')">Blind | 0th, Partial</button>
-    <button class="template-button" onclick="insertTemplate('/cBlind1')">Blind | 1st, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cBlind2Known')">Blind | 2nd, Known</button>
-    <button class="template-button" onclick="insertTemplate('/cCherryEye')">Cherry Eye (Single)</button>
-    <button class="template-button" onclick="insertTemplate('/cCherryEyes')">Cherry Eyes (Both)</button>
-    <button class="template-button" onclick="insertTemplate('/cCompleteCataract')">Complete Cataract (Single)</button>
-    <button class="template-button" onclick="insertTemplate('/cCompleteCataracts')">Complete Cataract (Both)</button>
-    <button class="template-button" onclick="insertTemplate('/cConjunctivitisDiagnosed')">Conjunctivitis | Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cConjunctivitisTestsDeclined')">Conjunctivitis | Tests Declined</button>
-    <button class="template-button" onclick="insertTemplate('/cCornealUlcer')">Corneal Ulcer (Single)</button>
-    <button class="template-button" onclick="insertTemplate('/cCornealUlcers')">Corneal Ulcers (Multiple)</button>
-    <button class="template-button" onclick="insertTemplate('/cEntropion')">Entropion</button>
-    <button class="template-button" onclick="insertTemplate('/cGlaucoma1')">Glaucoma</button>
-    <button class="template-button" onclick="insertTemplate('/cKeratoconjunctivitisSicca1Diagnosed')">Keratoconjunctivitis Sicca | 1st, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cKeratoconjunctivitisSicca2Controlled')">Keratoconjunctivitis Sicca | 2nd, Controlled</button>
-    <button class="template-button" onclick="insertTemplate('/cMeibomianGlandAdenoma1')">Meibomian Gland Adenoma | 1st, Presumed</button>
-    <button class="template-button" onclick="insertTemplate('/cNuclearSclerosis')">Nuclear Sclerosis</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Cardiology 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/c2ndDegreeAVBlock')">2nd Degree AV Block Mobitz Type II | Asymptomatic</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartMurmur0')">Heart Murmur 0th, Discovered</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartMurmur1RadiographsNormal')">Heart Murmur | 1st, Radiographs Normal</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartMurmur1Cardiomegaly')">Heart Murmur | 1st, Cardiomegaly, Start Pimobendan</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartMurmur3Known')">Heart Murmur | 3rd, Known</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartwormsAdulticidalTreatment')">Heartworms Adulticidal Treatment</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartwormsSlowKillHealthyTreatment')">Heartworms Slow Kill Treatment (Healthy Dog)</button>
-    <button class="template-button" onclick="insertTemplate('/cHeartwormTestRepeat')">Heartworm Test Repeat</button>
-    <button class="template-button" onclick="insertTemplate('/cHypertension1Diagnosed')">Hypertension | 1st, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cLeftSidedCongestiveHeartFailure')">Left Sided Congestive Heart Failure</button>
-    <button class="template-button" onclick="insertTemplate('/cMyxomatousMitralValveDisease')">Myxomatous Mitral Valve Disease</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Respiratory 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cBordetellosis0Presumed')">Bordetellosis (presumed)</button>
-    <button class="template-button" onclick="insertTemplate('/cBrachycephalicObstructiveAirwaySyndrome')">Brachycephalic Obstructive Airway Syndrome</button>
-    <button class="template-button" onclick="insertTemplate('/cChronicBronchitis0Presumed')">Chronic Bronchitis | 0st, Presumed</button>
-    <button class="template-button" onclick="insertTemplate('/cCollapsingTrachea1Theophylline')">Collapsing Trachea | 1st, Theophylline</button>
-    <button class="template-button" onclick="insertTemplate('/cCollapsingTrachea3NoMeds')">Collapsing Trachea | 3rd, Known, No Meds</button>
-    <button class="template-button" onclick="insertTemplate('/cLaryngealParalysis1Diagnosed')">Laryngeal Paralysis | 1, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cReverseSneezing')">Reverse Sneezing</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Endocrine 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus1DiagnosedMale')">Diabetes Mellitus | 1st, Diagnosed ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus1DiagnosedFemale')">Diabetes Mellitus | 1st, Diagnosed ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cDiabetesMellitus3Controlled')">Diabetes Mellitus | 3rd, Controlled</button>
-    <button class="template-button" onclick="insertTemplate('/cHypothyroidism1Diagnosed')">Hypothyroidism | 1st, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cHypothyroidism2Recheck')">Hypothyroidism | 2nd, Recheck</button>
-    <button class="template-button" onclick="insertTemplate('/cHypothyroidism3Controlled')">Hypothyroidism | 3rd, Controlled</button>
-    <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism1ACTHStimTest')">Hyperadrenocorticism | 1st, ACTH Stim Test</button>
-    <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism2Diagnosed')">Hyperadrenocorticism | 2nd, Diagnosed</button>
-    <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism3Controlled')">Hyperadrenocorticism | 3rd, Controlled</button>
-    <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism4Uncontrolled')">Hyperadrenocorticism | 4th, Uncontrolled</button>
-    <button class="template-button" onclick="insertTemplate('/cHyperadrenocorticism5Checkup')">Hyperadrenocorticism | 5th, Regular Checkup</button>
-    <button class="template-button" onclick="insertTemplate('/cPancreatitis1Diagnosed')">Pancreatitis | 1st, Diagnosed</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Gastrointestinal 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaHomeDiet')">Acute Gastroenteritis | Diarrhea, Home Diet</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaDeclinedFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test Declined</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest')">Acute Gastroenteritis | Vomiting, Diarrhea, Bloodwork, Fecal Test</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkNormal')">Acute Gastroenteritis | Vomiting, Bloodwork Normal</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkDeclined')">Acute Gastroenteritis | Vomiting, Bloodwork Declined</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsNormal')">Acute Gastroenteritis | Vomiting, Radiographs Normal</button>
-    <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsDeclined')">Acute Gastroenteritis | Vomiting, Radiographs Declined</button>
-    <button class="template-button" onclick="insertTemplate('/cAnalGlands1FullExpressed')">Anal Glands 1 | Full, Expressed</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Male')">Mild Periodontal Disease ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Female')">Mild Periodontal Disease ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Male')">Moderate Periodontal Disease ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Female')">Moderate Periodontal Disease ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Male')">Severe Periodontal Disease ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease3Female')">Severe Periodontal Disease ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeMale')">Severe Periodontal Disease | Age Restricted ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4AgeFemale')">Severe Periodontal Disease | Age Restricted ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseMale')">Severe Periodontal Disease | Concurrent Disease ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4ConcurrentDiseaseFemale')">Severe Periodontal Disease | Concurrent Disease ♀</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurMale')">Severe Periodontal Disease | Heart Murmur ♂</button>
-    <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease4HeartMurmurFemale')">Severe Periodontal Disease | Heart Murmur ♀</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Urinary &amp; Renal 🐕</div>
-  <div class="category-content"></div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Reproductive 🐕</div>
-  <div class="category-content"></div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Musculoskeletal 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cCCL1MM')">CCL Tear – Medical Management</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1NSAID')">Osteoarthritis | 1st NSAID</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2NSAID')">Osteoarthritis | 2nd NSAID, Continue</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis3NSAID')">Osteoarthritis | 3rd NSAID, Switch</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Gabapentin')">Osteoarthritis | 1st Gabapentin</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Gabapentin')">Osteoarthritis | 2nd Gabapentin</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1JointSupplements')">Osteoarthritis | 1st Joint Supplements</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2JointSupplements')">Osteoarthritis | 2nd Joint Supplements, Continue</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis1Librela')">Osteoarthritis | 1st Librela</button>
-    <button class="template-button" onclick="insertTemplate('/cOsteoarthritis2Librela')">Osteoarthritis | 2nd Librela, Continue</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Neurology 🐕</div>
-  <div class="category-content"></div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Immunology 🐕</div>
-  <div class="category-content">
-  <button class="template-button" onclick="insertTemplate('/cVaccineInformation')">Vaccine Information</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Dermatology 🐕</div>
-  <div class="category-content">
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Antihistamines')">Atopic Dermatitits | Antihistamines, 1st</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Antihistamines')">Atopic Dermatitits | Antihistamines, 2nd</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Apoquel')">Atopic Dermatitits | Apoquel | 1st</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Apoquel')">Atopic Dermatitits | Apoquel | 2nd, Maintenance</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Apoquel')">Atopic Dermatitits | Apoquel | 3rd, Add Cytopoint</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis4Apoquel')">Atopic Dermatitits | Apoquel | 4th Switch to Zenrelia</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Cytopoint')">Atopic Dermatitits | Cytopoint | 1st</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Cytopoint')">Atopic Dermatitits | Cytopoint | 2nd</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitisMedsDeclined')">Atopic Dermatitits | Meds Declined</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Zenrelia')">Atopic Dermatitits | Zenrelia | 1st</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Zenrelia')">Atopic Dermatitits | Zenrelia | 2nd, Maintenance</button>
-    <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Zenrelia')">Atopic Dermatitits | Zenrelia | 3rd, Add Cytopoint</button>
-  </div>
-</div>
-
-<div class="category">
-  <div class="category-header" onclick="toggleCategory(this)">🐶 Oncology 🐕</div>
-  <div class="category-content"></div>
+<div id="prefixView" style="display: none;">
+  <div id="prefixTitle" class="prefix-title">Choose Variation</div>
+  <button class="template-button cancel-button" onclick="closePrefixMenu()">Cancel</button>
+  
+  <button class="template-button" onclick="submitMedicationWithPrefix('START')">1 - Starting today</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('TOMORROW')">2 - Starting tomorrow</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('NEWDOSE')">3 - New dose</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('DISCONTINUE')">4 - Discontinue</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('CONTINUE')">5 - Continue</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('WAIT3')">6 - Wait 3 days then start</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('CLINIC')">7 - Administered in clinic</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('ASNEEDED')">8 - As needed</button>
 </div>
 
 <script>
+// State tracking variables for multi-step sidebar execution
+let cachedMedKey = null;
+let cachedMedLabel = null;
+let cachedButtonElement = null;
+
 function expandKeywords() {
   const btn = event.currentTarget;
   const originalText = btn.innerText;
@@ -295,7 +337,6 @@ function expandKeywords() {
     .withSuccessHandler(() => {
       btn.innerText = originalText;
       btn.disabled = false;
-      clearSearch(); 
     })
     .withFailureHandler(err => {
       btn.innerText = originalText;
@@ -326,7 +367,6 @@ function insertTemplate(keyword) {
     .withSuccessHandler(() => {
       btn.innerText = originalText;
       btn.disabled = false;
-      clearSearch(); 
     })
     .withFailureHandler(err => {
       btn.innerText = originalText;
@@ -346,7 +386,6 @@ function runReverseGenerator(){
     .withSuccessHandler(() => {
       btn.innerText = originalText;
       btn.disabled = false;
-      clearSearch(); 
     })
     .withFailureHandler(err => {
       btn.innerText = originalText;
@@ -363,7 +402,7 @@ document.addEventListener("DOMContentLoaded", function(){
   searchBox.addEventListener('input', function() {
     const query = searchBox.value.toLowerCase().trim();
     const categories = document.querySelectorAll('.category');
-    const topLevelButtons = document.querySelectorAll('body > .template-button');
+    const topLevelButtons = document.querySelectorAll('body > #mainView > .template-button');
 
     if (query === '') {
       topLevelButtons.forEach(btn => { btn.style.display = 'block'; });
@@ -403,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 
-// Run this when the sidebar finishes loading
 window.onload = function() {
   google.script.run
     .withSuccessHandler(renderMedicationButtons)
@@ -414,42 +452,77 @@ window.onload = function() {
 function renderMedicationButtons(registryList) {
   const container = document.getElementById('buttonContainer');
   if (!container) return;
-  container.innerHTML = ""; // Clear loader text
+  container.innerHTML = ""; 
 
   if (!registryList || registryList.length === 0) {
     container.innerHTML = '<div style="padding:5px;color:#999;">No medications found in registry.</div>';
     return;
   }
 
-  // Loop through all keys found in your registry and create buttons automatically
   registryList.forEach(med => {
     const btn = document.createElement('button');
     btn.className = 'template-button';
     btn.innerText = med.label; 
-    // FIXED: Safely passes 'this' (the button element) directly to the handler
     btn.onclick = function() { handleMedClick(med.key, this); };
     container.appendChild(btn);
   });
 }
 
-// FIXED: Receives the precise button element explicitly, avoiding the 'event' global variable entirely
+// STEP 1: Handle initial medication click by swapping views
 function handleMedClick(medKey, btn) {
-  const originalText = btn.innerText;
-  btn.innerText = "Inserting...";
-  btn.disabled = true;
+  cachedMedKey = medKey;
+  cachedMedLabel = btn.innerText;
+  cachedButtonElement = btn;
+
+  // Set title info on prefix screen
+  document.getElementById('prefixTitle').innerText = "Select prefix for: " + cachedMedLabel;
+
+  // Hide templates interface and show prefix menu
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('prefixView').style.display = 'block';
+}
+
+// Helper to escape back to template grid view
+function closePrefixMenu() {
+  document.getElementById('prefixView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+  cachedMedKey = null;
+  cachedMedLabel = null;
+  cachedButtonElement = null;
+}
+
+// STEP 2: Process selection with requested prefix parameter string
+function submitMedicationWithPrefix(prefixKey) {
+  if (cachedButtonElement) {
+    cachedButtonElement.innerText = "Inserting...";
+    cachedButtonElement.disabled = true;
+  }
+
+  // Freeze prefix selectors during ongoing injection processing
+  const prefixButtons = document.querySelectorAll('#prefixView .template-button');
+  prefixButtons.forEach(b => b.disabled = true);
 
   google.script.run
     .withSuccessHandler(() => {
-      btn.innerText = originalText;
-      btn.disabled = false;
-      clearSearch();
+      // Re-enable interactive elements
+      prefixButtons.forEach(b => b.disabled = false);
+      if (cachedButtonElement) {
+        cachedButtonElement.innerText = cachedMedLabel;
+        cachedButtonElement.disabled = false;
+      }
+      // Return UI view back to main selection state
+      closePrefixMenu();
     })
     .withFailureHandler(err => {
-      btn.innerText = originalText;
-      btn.disabled = false;
+      prefixButtons.forEach(b => b.disabled = false);
+      if (cachedButtonElement) {
+        cachedButtonElement.innerText = cachedMedLabel;
+        cachedButtonElement.disabled = false;
+      }
       alert('Error inserting medication: ' + err.message);
+      closePrefixMenu();
     })
-    .insertMedicineFromSidebar(medKey);
+    .insertMedicineFromSidebar(cachedMedKey, prefixKey);
 }
 </script>
 </body>
