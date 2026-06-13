@@ -1,77 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-<base target="_top">
-<style>
-body {
-font-family: Arial, sans-serif;
-padding: 10px;
-}
+  <base target="_top">
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  }
 
-input[type="text"] {
-width: 100%;
-padding: 6px;
-margin-bottom: 10px;
-box-sizing: border-box;
-font-size: 14px;
-}
+  input[type="text"] {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  font-size: 14px;
+  }
 
-.category {
-margin-bottom: 6px;
-border: 1px solid #ddd;
-border-radius: 4px;
-}
+  .category {
+  margin-bottom: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  }
 
-.category-header {
-background-color: #f1f3f4;
-padding: 6px 8px;
-font-weight: bold;
-cursor: pointer;
-user-select: none;
-}
+  .category-header {
+  background-color: #f1f3f4;
+  padding: 6px 8px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  }
 
-.category-content {
-display: none; /* auto-collapsed */
-padding: 6px 8px;
-}
+  .category-content {
+  display: none; /* auto-collapsed */
+  padding: 6px 8px;
+  }
 
-.template-button {
-display: block;
-width: 100%;
-margin: 4px 0;
-padding: 6px;
-text-align: left;
-background-color: #ffffff;
-border: 1px solid #ccc;
-border-radius: 4px;
-cursor: pointer;
-}
+  .template-button {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 6px;
+  text-align: left;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  }
 
-.template-button:hover {
-background-color: #e8f0fe;
-}
+  .template-button:hover {
+  background-color: #e8f0fe;
+  }
 
-/* Styling specifically for the prefix selector interface */
-.prefix-title {
-font-size: 15px;
-font-weight: bold;
-color: #1a73e8;
-margin-bottom: 12px;
-padding-bottom: 6px;
-border-bottom: 2px solid #e8f0fe;
-}
-.cancel-button {
-background-color: #f1f3f4;
-font-weight: bold;
-text-align: center;
-margin-bottom: 15px;
-}
-.cancel-button:hover {
-background-color: #dcdcdc;
-}
-</style>
-</head>
-
+  /* Styling specifically for the prefix selector interface */
+  .prefix-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #1a73e8;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e8f0fe;
+  }
+  .cancel-button {
+  background-color: #f1f3f4;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+  }
+  .cancel-button:hover {
+  background-color: #dcdcdc;
+  }
+  </style>
+  </head>
 <body>
 
 <div id="mainView">
@@ -230,6 +229,8 @@ background-color: #dcdcdc;
       <button class="template-button" onclick="insertTemplate('/cAnalGlands1FullExpressed')">Anal Glands 1 | Full, Expressed</button>
       <button class="template-button" onclick="insertTemplate('/cAnalGlands2Known')">Anal Glands 2 | Known</button>
       <button class="template-button" onclick="insertTemplate('/cAnalGlands3Infected')">Anal Glands 3 | Infected</button>
+      <button class="template-button" onclick="insertTemplate('/cAnalGland4Ruptured')">Anal Gland 4 | Ruptured</button>
+      <button class="template-button" onclick="insertTemplate('/cAnalGlands4Ruptured')">Anal Glands 4 | Ruptured</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Male')">Mild Periodontal Disease ♂</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1Female')">Mild Periodontal Disease ♀</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2Male')">Moderate Periodontal Disease ♂</button>
