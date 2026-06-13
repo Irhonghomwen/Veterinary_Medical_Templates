@@ -46,30 +46,46 @@
   // Grammar Dictionary
     const GRAMMAR_DICTIONARY = {
     eyes: {
-    singular: { a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it" },
-    plural:   { a_cataract: "complete cataracts", a_corneal_ulcer: "Corneal ulcers", cataract: "cataracts", cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", it: "them", its: "their", make: "make", this: "these", This: "These", ulcer: "ulcers", was: "were", pro: "they" }
-    },
+      singular: {
+        a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it"
+      },
+      plural:   {
+        a_cataract: "complete cataracts", a_corneal_ulcer: "Corneal ulcers", cataract: "cataracts", cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", it: "them", its: "their", make: "make", this: "these", This: "These", ulcer: "ulcers", was: "were", pro: "they"
+      }
+      },
+
+
+    anal_glands: {
+      singular: {
+        ruptured_anal_gland: "a ruptured anal gland", ruptured_gland_header: "Ruptured anal gland",
+      },
+      plural:   {
+        ruptured_anal_gland: "ruptured anal glands", ruptured_gland_header: "Ruptured anal glands",
+      }
+      },
 
     patella: {
-    singular: { sub: "a luxating patella", bone: "kneecap", v: "slides", is: "is", pos: "its" },
-    plural:   { sub: "luxating patellae", bone: "kneecaps", v: "slide", is: "are", pos: "their" }
-    },
+      singular: {
+        sub: "a luxating patella", bone: "kneecap", v: "slides", is: "is", pos: "its"
+      },
+      plural:   {
+        sub: "luxating patellae", bone: "kneecaps", v: "slide", is: "are", pos: "their"
+      }
+      },
 
     wellness: {
-    singular: { 
+      singular: { 
         begins: "begins", comes: "comes", Dogs: "Dog", dog: "dog", dogs: "dog's", dogss: "dog's", eats: "eats", gets: "gets",
         has: "has", he: "he", him: "him", his: "his", is: "is", life: "life", mother: "mother's", needs: "needs", puppy: "puppy",
         resists: "resists", round: "round", site: "site", shot: "shot", shows: "shows", steals: "steals", them: "them", was: "was", weighs: "weighs", 
-         
-    },
-    plural: { 
+      },
+      plural: { 
         begins: "begin", comes: "come", Dogs: "Dogs", dog: "dogs", dogs: "dogs'", dogss: "dogs'", eats: "eat", gets: "get",
         has: "have", he: "they", him: "them", his: "their", is: "are", life: "lives", mother: "mothers'", needs: "need", puppy: "puppies",
-        resists: "resist", round: "rounds", site: "sites", shot: "shots", shows: "show", steals: "steal", them: "them", was: "were", weighs: "weigh", 
-          
-    }
-    }
-    };
+        resists: "resist", round: "rounds", site: "sites", shot: "shots", shows: "show", steals: "steal", them: "them", was: "were", weighs: "weigh",       
+      }
+      }
+      };
 
     // Plural Pronoun Helper
       function getGrammar(system, plurality = 'singular', sex = 'male') {
@@ -212,7 +228,7 @@
     sideEffects: "Vomiting, diarrhea, or decreased appetite."
     },
 
-    CLAVAMOX625: {
+    CLAVAMOX62: {
     label: "Amoxicillin clavulanate 62.5mg",
     instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
     class: "Broad spectrum potentiated antibiotic",
@@ -235,6 +251,20 @@
 
     CLAVAMOX375: {
     label: "Amoxicillin clavulanate 375mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
+    },
+
+    CLAVAMOX625: {
+    label: "Amoxicillin clavulanate 625mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
+    class: "Broad spectrum potentiated antibiotic",
+    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
+    },
+
+    CLAVAMOX1000: {
+    label: "Amoxicillin clavulanate 1,000mg",
     instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
     class: "Broad spectrum potentiated antibiotic",
     sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
@@ -1281,6 +1311,11 @@
     rank: 800
     },
 
+    RUPTURED_ANAL_GLAND: {
+    text: "Ruptured anal gland",
+    rank: 204
+    },
+
     SECOND_DEGREE_AV: {
     text: "2nd Degree Atrioventricular Block",
     rank: 610
@@ -2309,6 +2344,11 @@
     ACUTE_GASTROENTERITIS_HEADER:
     "Acute gastroenteritis:",
 
+    ANAL_GLANDS_AND_ANAL_GLAND_ABSCESS_IN_DOGS_AND_CATS_ARTICLE: {
+    text: "Anal Glands and Anal Gland Abscess in Dogs and Cats",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102899&Id=9759085`
+    },
+
     ANAL_GLANDS_BRING_STOOL:
     "If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.",
 
@@ -2333,6 +2373,12 @@
     "Your dog had full anal glands that appeared infected when they were expressed in the clinic.",
 
     INFECTED_ANAL_GLANDS_HEADER: "Infected anal glands:",
+
+    RUPTURED_ANAL_GLANDS_DISCOVERED: /Your dog has (a ruptured anal gland|ruptured anal glands)/i,
+
+    RUPTURED_ANAL_GLAND_HEADER: /Ruptured anal gland(s)?:/i,
+
+    RUPTURED_ANAL_GLAND_TREATMENT: "The hair surrounding the anal gland and on the tail was clipped to prevent fecal matter from accumulating and causing further infection. The gland was also cleaned with a dilute surgical antimicrobial called chlorhexidine.",
 
     VOMITING_POST_MAROPITANT:
     "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
@@ -3308,7 +3354,7 @@
     // The regex is widened to handle "dog" vs "dogs" and "his/her" vs "their"
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 3. Add senior dog links to the existing link keys
@@ -3341,7 +3387,7 @@
     // Fixed the very last instance of "dog" to use ${g.dog}
     template.text = template.text.replace(
         /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. ${g.Dogs} that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 4. Update Keys
@@ -4951,7 +4997,7 @@
     };
     }
 
-  // Anal Glands | Full, Expressed
+  // Anal Glands | 1st, Full, Expressed
     function generateCanineAnalGlands1FullExpressedTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -5033,6 +5079,34 @@
     };
     }
 
+  // Anal Glands | 4th, Ruptured
+    function generateCanineAnalGlands4RupturedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('anal_glands', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["RUPTURED_ANAL_GLAND"],
+    text: [
+    `${g.ruptured_gland_header}: Your dog has ${g.ruptured_anal_gland}. This often occurs due to an infection leading to an abscess or due to anal glands that couldn’t express themselves and became too full. Typically the anal glands empty whenever animals defecate, but pets with soft stool or diarrhea have difficulty expressing them. You can add psyllium husk to increase the fiber content if stools are soft or watery.`,
+    `The hair surrounding the anal gland and on the tail was clipped to prevent fecal matter from accumulating and causing further infection. The gland was also cleaned with a dilute surgical antimicrobial called chlorhexidine. Give the medication as prescribed below to control pain and infection, and bring your dog back in 1 week for a recheck appointment if no improvement is noted (or immediately if the wound is worsening). You can learn more from the Anal Glands and Anal Gland Abscess in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "RUPTURED_ANAL_GLAND_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RUPTURED_ANAL_GLANDS_DISCOVERED",
+      "RUPTURED_ANAL_GLAND_TREATMENT",
+    ],
+
+    linkKeys: [
+      "ANAL_GLANDS_AND_ANAL_GLAND_ABSCESS_IN_DOGS_AND_CATS_ARTICLE"
+    ],
+
+    };
+    }
+
   // Periodontal Disease | Mild
     function generateCanine1PeriodontalDiseaseTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
@@ -5072,7 +5146,7 @@
     const g = getGrammar('wellness', plurality, sex);
     const text = [
     `Periodontal disease: Your ${g.dog} ${g.needs} a Complete Oral Health Assessment and Treatment (COHAT) procedure. While brushing ${g.his} teeth is the best way to keep them clean, it will not remove the tartar & calculus that is already there. Schedule a dental cleaning within the next three months.`,
-    `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, canine toothbrush, or finger toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `Brushing can still be performed right now but will be most effective after the next cleaning. Wait 3 weeks after ${g.his} next teeth cleaning before brushing the teeth to allow time for the mouth’s soreness to abate. Use a small dog toothbrush, medium/large dog toothbrush & animal safe toothpaste such as C.E.T. Start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then apply the pet safe toothpaste & let ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
     `If your ${g.dog} ${g.resists} having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`
     ].join('\n');
 
@@ -5829,7 +5903,7 @@
     '/cHyperadrenocorticism5Checkup': (sex, plurality) => generateCanineHyperadrenocorticism5CheckupTemplate(sex, plurality),
     '/cPancreatitis1Diagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
-  // Gastrointestinal Definitions
+  // Canine Gastrointestinal Definitions
     '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
     '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality),
     '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality),
@@ -5841,6 +5915,8 @@
     '/cAnalGlands1FullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
     '/cAnalGlands2Known': (sex, plurality) => generateCanineAnalGlands2KnownTemplate(sex, plurality),
     '/cAnalGlands3Infected': (sex, plurality) => generateCanineAnalGlands3InfectedTemplate(sex, plurality),
+    '/cAnalGland4Ruptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "singular"),
+    '/cAnalGlands4Ruptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "plural"),
     '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease2': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease3': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
