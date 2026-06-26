@@ -4,73 +4,73 @@
   <base target="_top">
   <style>
   body {
-  font-family: Arial, sans-serif;
-  padding: 10px;
+    font-family: Arial, sans-serif;
+    padding: 10px;
   }
 
   input[type="text"] {
-  width: 100%;
-  padding: 6px;
-  margin-bottom: 10px;
-  box-sizing: border-box;
-  font-size: 14px;
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
   }
 
   .category {
-  margin-bottom: 6px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+    margin-bottom: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
   }
 
   .category-header {
-  background-color: #f1f3f4;
-  padding: 6px 8px;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
+    background-color: #f1f3f4;
+    padding: 6px 8px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
   }
 
   .category-content {
-  display: none; /* auto-collapsed */
-  padding: 6px 8px;
+    display: none; /* auto-collapsed */
+    padding: 6px 8px;
   }
 
   .template-button {
-  display: block;
-  width: 100%;
-  margin: 4px 0;
-  padding: 6px;
-  text-align: left;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  cursor: pointer;
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+    padding: 6px;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
   }
 
   .template-button:hover {
-  background-color: #e8f0fe;
+    background-color: #e8f0fe;
   }
 
   /* Styling specifically for the prefix selector interface */
   .prefix-title {
-  font-size: 15px;
-  font-weight: bold;
-  color: #1a73e8;
-  margin-bottom: 12px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #e8f0fe;
+    font-size: 15px;
+    font-weight: bold;
+    color: #1a73e8;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e8f0fe;
   }
   .cancel-button {
-  background-color: #f1f3f4;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
+    background-color: #f1f3f4;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
   }
   .cancel-button:hover {
-  background-color: #dcdcdc;
+    background-color: #dcdcdc;
   }
   </style>
-  </head>
+</head>
 <body>
 
 <div id="mainView">
@@ -129,18 +129,18 @@
       <button class="template-button" onclick="insertTemplate('/c7yearLeptoMale')">7th Annual Lepto ♂</button>
       <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemale')">7th Annual Lepto ♀</button>
       <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemales')">7th Annual Lepto (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight1Male')">Overweight ♂</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight1Female')">Overweight ♀</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight1Males')">Overweight (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight2Male')">Overweight | Continue ♂</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight2Female')">Overweight | Continue ♀</button>
-      <button class="template-button" onclick="insertTemplate('/cOverweight2Males')">Overweight | Continue (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale')">Healthy Weight ♂</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight1Male', this)">Overweight ♂</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight1Female', this)">Overweight ♀</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight1Males', this)">Overweight (Multiple Pets)</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight2Male', this)">Overweight | Continue ♂</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight2Female', this)">Overweight | Continue ♀</button>
+      <button class="template-button" onclick="openWeightMenu('/cOverweight2Males', this)">Overweight | Continue (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale', this)">Healthy Weight ♂</button>
       <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemale')">Healthy Weight ♀</button>
       <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemales')">Healthy Weight (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/cUnderweightMale')">Underweight ♂</button>
-      <button class="template-button" onclick="insertTemplate('/cUnderweightFemale')">Underweight ♀</button>
-      <button class="template-button" onclick="insertTemplate('/cUnderweightFemales')">Underweight (Multiple Pets)</button>
+      <button class="template-button" onclick="openWeightMenu('/cUnderweightMale', this)">Underweight ♂</button>
+      <button class="template-button" onclick="openWeightMenu('/cUnderweightFemale', this)">Underweight ♀</button>
+      <button class="template-button" onclick="openWeightMenu('/cUnderweightFemales', this)">Underweight (Multiple Pets)</button>
     </div>
   </div>
 
@@ -287,18 +287,18 @@
   <div class="category">
     <div class="category-header" onclick="toggleCategory(this)">🐶 Dermatology 🐕</div>
     <div class="category-content">
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Antihistamines')">Atopic Dermatitits | Antihistamines, 1st</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Antihistamines')">Atopic Dermatitits | Antihistamines, 2nd</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Apoquel')">Atopic Dermatitits | Apoquel | 1st</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Apoquel')">Atopic Dermatitits | Apoquel | 2nd, Maintenance</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Apoquel')">Atopic Dermatitits | Apoquel | 3rd, Add Cytopoint</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis4Apoquel')">Atopic Dermatitits | Apoquel | 4th Switch to Zenrelia</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Cytopoint')">Atopic Dermatitits | Cytopoint | 1st</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Cytopoint')">Atopic Dermatitits | Cytopoint | 2nd</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitisMedsDeclined')">Atopic Dermatitits | Meds Declined</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis1Zenrelia')">Atopic Dermatitits | Zenrelia | 1st</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis2Zenrelia')">Atopic Dermatitits | Zenrelia | 2nd, Maintenance</button>
-      <button class="template-button" onclick="insertTemplate('/cAtopicDermatitis3Zenrelia')">Atopic Dermatitits | Zenrelia | 3rd, Add Cytopoint</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis1Antihistamines', this)">Atopic Dermatitits | Antihistamines, 1st</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis2Antihistamines', this)">Atopic Dermatitits | Antihistamines, 2nd</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis1Apoquel', this)">Atopic Dermatitits | Apoquel | 1st</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis2Apoquel', this)">Atopic Dermatitits | Apoquel | 2nd, Maintenance</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis3Apoquel', this)">Atopic Dermatitits | Apoquel | 3rd, Add Cytopoint</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis4Apoquel', this)">Atopic Dermatitits | Apoquel | 4th Switch to Zenrelia</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis1Cytopoint', this)">Atopic Dermatitits | Cytopoint | 1st</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis2Cytopoint', this)">Atopic Dermatitits | Cytopoint | 2nd</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitisMedsDeclined', this)">Atopic Dermatitits | Meds Declined</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis1Zenrelia', this)">Atopic Dermatitits | Zenrelia | 1st</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis2Zenrelia', this)">Atopic Dermatitits | Zenrelia | 2nd, Maintenance</button>
+      <button class="template-button" onclick="openWeightMenu('/cAtopicDermatitis3Zenrelia', this)">Atopic Dermatitits | Zenrelia | 3rd, Add Cytopoint</button>
     </div>
   </div>
 
@@ -306,6 +306,26 @@
     <div class="category-header" onclick="toggleCategory(this)">🐶 Oncology 🐕</div>
     <div class="category-content"></div>
   </div>
+</div>
+
+<div id="weightView" style="display: none;">
+  <div id="weightTitle" class="prefix-title">Select Patient Weight</div>
+  <button class="template-button cancel-button" onclick="closeWeightMenu()">← Back / Cancel</button>
+  
+  <button class="template-button" onclick="submitTemplateWithWeight('1-10')">1 - 10 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('11-20')">11 - 20 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('21-30')">21 - 30 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('31-40')">31 - 40 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('41-50')">41 - 50 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('51-60')">51 - 60 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('61-70')">61 - 70 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('71-80')">71 - 80 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('81-90')">81 - 90 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('91-100')">91 - 100 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('101-110')">101 - 110 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('111-120')">111 - 120 lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('OVER120')">120+ lbs</button>
+  <button class="template-button" onclick="submitTemplateWithWeight('UNKNOWN')">Unknown Weight</button>
 </div>
 
 <div id="prefixView" style="display: none;">
@@ -323,11 +343,65 @@
 </div>
 
 <script>
-// State tracking variables for multi-step sidebar execution
+// State tracking variables for pharmacy workflow
 let cachedMedKey = null;
 let cachedMedLabel = null;
 let cachedButtonElement = null;
 
+// State tracking variables for weight workflow
+let cachedWeightKeyword = null;
+let cachedWeightButtonElement = null;
+let cachedWeightButtonLabel = null;
+
+// --- WEIGHT VIEW CONTROLLERS ---
+function openWeightMenu(keyword, btn) {
+  cachedWeightKeyword = keyword;
+  cachedWeightButtonElement = btn;
+  cachedWeightButtonLabel = btn.innerText;
+
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('weightView').style.display = 'block';
+}
+
+function closeWeightMenu() {
+  document.getElementById('weightView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+  cachedWeightKeyword = null;
+  cachedWeightButtonElement = null;
+  cachedWeightButtonLabel = null;
+}
+
+function submitTemplateWithWeight(weight) {
+  if (cachedWeightButtonElement) {
+    cachedWeightButtonElement.innerText = "Inserting...";
+    cachedWeightButtonElement.disabled = true;
+  }
+
+  const weightButtons = document.querySelectorAll('#weightView .template-button');
+  weightButtons.forEach(b => b.disabled = true);
+
+  google.script.run
+    .withSuccessHandler(() => {
+      weightButtons.forEach(b => b.disabled = false);
+      if (cachedWeightButtonElement) {
+        cachedWeightButtonElement.innerText = cachedWeightButtonLabel;
+        cachedWeightButtonElement.disabled = false;
+      }
+      closeWeightMenu();
+    })
+    .withFailureHandler(err => {
+      weightButtons.forEach(b => b.disabled = false);
+      if (cachedWeightButtonElement) {
+        cachedWeightButtonElement.innerText = cachedWeightButtonLabel;
+        cachedWeightButtonElement.disabled = false;
+      }
+      alert('Error inserting template: ' + err.message);
+      closeWeightMenu();
+    })
+    .expandKeywordsFromSidebar(cachedWeightKeyword, weight); 
+}
+
+// --- STANDARD KEYWORD WORKFLOWS ---
 function expandKeywords() {
   const btn = event.currentTarget;
   const originalText = btn.innerText;
@@ -347,6 +421,7 @@ function expandKeywords() {
     .expandKeywords();
 }
 
+// Helper to expand/collapse sidebar categories
 function toggleCategory(header) {
   const content = header.nextElementSibling;
   content.style.display = content.style.display === 'block' ? 'none' : 'block';
@@ -374,7 +449,7 @@ function insertTemplate(keyword) {
       btn.disabled = false;
       alert('Error: ' + err.message);
     })
-    .expandKeywordsFromSidebar(keyword);
+    .expandKeywordsFromSidebar(keyword); // Fixed: Removed the undefined "weight" variable reference error
 }
 
 function runReverseGenerator(){
@@ -396,53 +471,7 @@ function runReverseGenerator(){
     .reverseGenerateTemplate();
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-  const searchBox = document.getElementById('searchBox');
-  if (!searchBox) return;
-
-  searchBox.addEventListener('input', function() {
-    const query = searchBox.value.toLowerCase().trim();
-    const categories = document.querySelectorAll('.category');
-    const topLevelButtons = document.querySelectorAll('body > #mainView > .template-button');
-
-    if (query === '') {
-      topLevelButtons.forEach(btn => { btn.style.display = 'block'; });
-      categories.forEach(cat => {
-        cat.style.display = 'block';
-        const content = cat.querySelector('.category-content');
-        content.style.display = 'none';
-        const buttons = cat.querySelectorAll('.template-button');
-        buttons.forEach(btn => btn.style.display = 'block');
-      });
-      return;
-    }
-
-    topLevelButtons.forEach(btn => {
-      const isMatch = btn.textContent.toLowerCase().includes(query);
-      btn.style.display = isMatch ? 'block' : 'none';
-    });
-
-    categories.forEach(cat => {
-      const content = cat.querySelector('.category-content');
-      const buttons = cat.querySelectorAll('.template-button');
-      let categoryHasMatch = false;
-
-      buttons.forEach(btn => {
-        const isMatch = btn.textContent.toLowerCase().includes(query);
-        btn.style.display = isMatch ? 'block' : 'none';
-        if (isMatch) categoryHasMatch = true;
-      });
-
-      if (categoryHasMatch) {
-        cat.style.display = 'block';
-        content.style.display = 'block';
-      } else {
-        cat.style.display = 'none';
-      }
-    });
-  });
-});
-
+// --- MEDICINE PHARMACY CABINET WORKFLOWS ---
 window.onload = function() {
   google.script.run
     .withSuccessHandler(renderMedicationButtons)
@@ -475,10 +504,7 @@ function handleMedClick(medKey, btn) {
   cachedMedLabel = btn.innerText;
   cachedButtonElement = btn;
 
-  // Set title info on prefix screen
-  document.getElementById('prefixTitle').innerText = "Select prefix for: " + cachedMedLabel;
-
-  // Hide templates interface and show prefix menu
+  document.getElementById('prefixTitle').innerText = "When do you want to start " + cachedMedLabel;
   document.getElementById('mainView').style.display = 'none';
   document.getElementById('prefixView').style.display = 'block';
 }
@@ -525,6 +551,54 @@ function submitMedicationWithPrefix(prefixKey) {
     })
     .insertMedicineFromSidebar(cachedMedKey, prefixKey);
 }
+
+// --- SEARCH FILTER LOADER ---
+document.addEventListener("DOMContentLoaded", function(){
+  const searchBox = document.getElementById('searchBox');
+  if (!searchBox) return;
+
+  searchBox.addEventListener('input', function() {
+    const query = searchBox.value.toLowerCase().trim();
+    const categories = document.querySelectorAll('.category');
+    const topLevelButtons = document.querySelectorAll('body > #mainView > .template-button');
+
+    if (query === '') {
+      topLevelButtons.forEach(btn => { btn.style.display = 'block'; });
+      categories.forEach(cat => {
+        cat.style.display = 'block';
+        const content = cat.querySelector('.category-content');
+        content.style.display = 'none';
+        const buttons = cat.querySelectorAll('.template-button');
+        buttons.forEach(btn => btn.style.display = 'block');
+      });
+      return;
+    }
+
+    topLevelButtons.forEach(btn => {
+      const isMatch = btn.textContent.toLowerCase().includes(query);
+      btn.style.display = isMatch ? 'block' : 'none';
+    });
+
+    categories.forEach(cat => {
+      const content = cat.querySelector('.category-content');
+      const buttons = cat.querySelectorAll('.template-button');
+      let categoryHasMatch = false;
+
+      buttons.forEach(btn => {
+        const isMatch = btn.textContent.toLowerCase().includes(query);
+        btn.style.display = isMatch ? 'block' : 'none';
+        if (isMatch) categoryHasMatch = true;
+      });
+
+      if (categoryHasMatch) {
+        cat.style.display = 'block';
+        content.style.display = 'block';
+      } else {
+        cat.style.display = 'none';
+      }
+    });
+  });
+});
 </script>
 </body>
 </html>
