@@ -426,7 +426,7 @@
 
     HILLSGIBIOMEDRY: {
     label: "Hill's Prescription Gastrointestinal Biome (dry food)",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
     class: "Prebiotic, probiotic, & postbiotic",
     sideEffects: "Well tolerated"
     },
@@ -440,7 +440,7 @@
 
     HILLSIDDRY: {
     label: "Hill's Prescription i/d Biome (dry food)",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
     class: "Prebiotic, probiotic, & postbiotic",
     sideEffects: "Well tolerated"
     },
@@ -755,14 +755,14 @@
 
     PURINAENDRY: {
     label: "Purina Pro Plan Gastroenteric Diet (EN) dry food",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
     class: "Prebiotic, probiotic, & postbiotic",
     sideEffects: "Well tolerated"
     },
 
     PURINAENLOWFATDRY: {
     label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat dry food",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
     class: "Prebiotic, probiotic, & postbiotic",
     sideEffects: "Well tolerated"
     },
@@ -1683,6 +1683,11 @@
     RESULTS_PENDING:
     `Results pending`,
 
+  // Reviews Registry
+    BANFIELD0620: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+southlake#lrd=0x864dd4ed4186ea27:0x75f2978a14b85b2d,3'
+    },
   // Vaccines Registry
     BORDETELLA_VXN:
     'The 1 year bordetella vaccine',
@@ -2424,14 +2429,13 @@
     ATOPIC_DERMATITIS_HEADER:
     `Atopic Dermatitis:`,
 
-    ANTIHISTAMINE_DOSAGE1:
-    `You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours).`,
+    ANTIHISTAMINE_DOSAGE1: /You can give.*?every 12 - 24 hours\)\./,
 
     ANTIHISTAMINE_DOSAGE2:
-    `Continue to give Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours) as needed.`,
+    /Continue to give.*?as needed\./,
 
     ANTIHISTAMINE_ADDITION:
-    'You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.',
+    /You can still give.*?for additional support\./,
 
     CYTOPOINT_ADDITIONAL_SUPPORT: g =>
     `If the allergies return before 4 weeks, your ${g.dog} may need Apoquel or Zenrelia in addition to Cytopoint.`,
@@ -2974,6 +2978,25 @@
     function escapeBackticks(text) { 
     return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
     }
+
+/* ------------------ REVIEWS ------------------ */
+  // Banfield Southlake #0620
+    function generateBanfieldSouthlake0620Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD0620"],
+    };
+    }
+
 /* ------------------ CANINE WELLNESS ------------------ */
   // 8 Week Wellness Template
     function generate8WkWellnessTemplate(size, sex, plurality = 'singular') {
@@ -3411,20 +3434,68 @@
     }
 
   // Canine Overweight | 1st
-    function generateCanineOverweightTemplate(sex, plurality = 'singular') {
+    function generateCanineOverweightTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Set up a default dosage statement
+    let weightLossAmount = "1 - 2% of the current body weight";
+    
+    // 2. Adjust the text dynamically based on the forwarded parameter string
+    switch (weight) {
+    case '1-10':
+      weightLossAmount = "0.1 - 0.2 lbs (0.045 - 0.09 kgs)";
+      break;
+    case '11-20':
+      weightLossAmount = "";
+      break;
+    case '21-30':
+      weightLossAmount = "";
+      break;
+    case '31-40':
+      weightLossAmount = "";
+      break;
+    case '41-50':
+      weightLossAmount = "";
+      break;
+    case '51-60':
+      weightLossAmount = "";
+      break;
+    case '61-70':
+      weightLossAmount = "";
+      break;
+    case '71-80':
+      weightLossAmount = "";
+      break;
+    case '81-90':
+      weightLossAmount = "";
+      break;
+    case '91-100':
+      weightLossAmount = "";
+      break;
+      case '101-110':
+      weightLossAmount = "";
+      break;
+      case '111-120':
+      weightLossAmount = "";
+      break;
+    case 'OVER120':
+      weightLossAmount = "";
+      break;
+    // 'Unknown Weight' or any fallback uses the original text defined above
+    }
 
     const text = [
         `Weight: Your ${g.dog} ${g.weighs} more than the average ${g.dog} of ${g.his} size. Ideally we would be able to feel ${g.his} ribs but not see them. Helping ${g.him} to lose weight can increase ${g.his} life span by as much as 1 ½ years. The best way to lose weight is through diet.`,
         
         `You can use the diet ${g.he} ${g.is} currently on or you can use a prescription weight loss food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food). Regardless, begin by measuring how much your ${g.dog} ${g.eats} using a measuring cup. Make sure to feed twice daily on a schedule rather than leaving food down at all times. If ${g.he} ${g.steals} food from siblings, you may need to feed separately. Finally, decrease ${g.his} food by 10 - 25%.`,
         
-        `We’re aiming to have ${g.him} lose 1 - 2% of ${g.his} body weight per week. If ${g.he} ${g.begins} losing more than that per week, increase the amount of food ${g.he} ${g.gets}. Another way you can help ${g.him} lose weight is by converting ${g.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
+        `We’re aiming to have ${g.him} lose ${weightLossAmount} per week. If ${g.he} ${g.begins} losing more than that per week, increase the amount of food ${g.he} ${g.gets}. Another way you can help ${g.him} lose weight is by converting ${g.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["OVERWEIGHT"],
     cleanupKeys: ["DIET_HEADER"],
@@ -5297,63 +5368,238 @@
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
-    function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
 
     const text = [
     `Atopic dermatitis: Unlike humans where allergies present in the respiratory tract (runny nose, sneezing/coughing, etc.), allergies in pets usually appear in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
-    `At this time we will not be starting with daily oral medicine (Apoquel and Zenrelia) or monthly injectable medicine (Cytopoint). You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Potential side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
+    `At this time we will not be starting with daily oral medicine (Apoquel and Zenrelia) or monthly injectable medicine (Cytopoint). You can give over the counter antihistamines such as ${antihistamineDosage}. Potential side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec. You can also give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
-    boldKeys: [
-    'ATOPIC_DERMATITIS_HEADER'
-    ],
-
-    boldUnderlineKeys: [
-    `ALLERGY_EAR_RELATIONSHIP`,
-    'ANTIHISTAMINE_DOSAGE1',
-    ],
+    boldKeys: ['ATOPIC_DERMATITIS_HEADER'],
+    boldUnderlineKeys: [`ALLERGY_EAR_RELATIONSHIP`,'ANTIHISTAMINE_DOSAGE1']
     };
     }
 
   // Atopic Dermatitis | Antihistamines 2
-    function generateCanineAtopicDermatitisMild2Template(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitisMild2Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+
     const text = [
-    `Atopic dermatitis: Your dog is known to have allergies which you currently give over the counter antihistamines for. Continue to give Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours) as needed. If you feel like allergies are not well controlled, prescription medicine such as Cytopoint (an injection given every 4 - 8 weeks) or Apoquel OR Zenrelia (oral pills given every 24 hours) can be given for better control.`
+    `Atopic dermatitis: Your dog is known to have allergies which you currently give over the counter antihistamines for. Continue to give ${antihistamineDosage} as needed. If you feel like allergies are not well controlled, prescription medicine such as Cytopoint (an injection given every 4 - 8 weeks) or Apoquel OR Zenrelia (oral pills given every 24 hours) can be given for better control. You can also give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
-    boldKeys: [
-    'ATOPIC_DERMATITIS_HEADER',
-    ],
+    boldKeys: ['ATOPIC_DERMATITIS_HEADER',],
 
-    boldUnderlineKeys: [
-    'ANTIHISTAMINE_DOSAGE2',
-    ],
+    boldUnderlineKeys: ['ANTIHISTAMINE_DOSAGE2',],
     };
     }
 
   // Atopic Dermatitis | Apoquel 1
-    function generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-    `Apoquel has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
+    `Apoquel has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`,
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5371,15 +5617,77 @@
     }
 
   // Atopic Dermatitis | Apoquel 2, Maintenance
-    function generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
-    `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5393,16 +5701,77 @@
     }
 
   // Atopic Dermatitis | Apoquel 3, Add Cytopoint
-    function generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
-    `Continue to give Apoquel as you’ve been doing. If you see full allergy control, you can try discontinuing Apoquel in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    `Continue to give Apoquel as you’ve been doing. If you see full allergy control, you can try discontinuing Apoquel in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5417,16 +5786,78 @@
     }
 
   // Atopic Dermatitis | Apoquel 4 Switch to Zenrelia
-    function generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Apoquel to control them. However, Apoquel doesn’t appear to be effective enough. We will be switching your dog to Zenrelia instead to see if this better controls allergies. Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
-    `If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    `If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5441,16 +5872,78 @@
     }
 
   // Atopic Dermatitis | Cytopoint 1
-    function generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-    `Cytopoint has been given in clinic to resolve allergies. It typically lasts 4 - 8 weeks. If itching & scratching occurs before 4 weeks, Apoquel OR Zenrelia (oral pills given once a day) can be sent home in addition to monthly Cytopoint injections to better control allergies.`
+    `Cytopoint has been given in clinic to resolve allergies. It typically lasts 4 - 8 weeks. If itching & scratching occurs before 4 weeks, Apoquel OR Zenrelia (oral pills given once a day) can be sent home in addition to monthly Cytopoint injections to better control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5464,15 +5957,77 @@
     }
 
   // Atopic Dermatitis | Cytopoint 2
-    function generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
-    `Atopic dermatitis: Your dog is known to have allergies & gets Cytopoint injections to control them. The injection was given today & typically lasts 4 - 8 weeks. If the allergies return before 4 weeks, your dog may need Apoquel or Zenrelia in addition to Cytopoint. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    `Atopic dermatitis: Your dog is known to have allergies & gets Cytopoint injections to control them. The injection was given today & typically lasts 4 - 8 weeks. If the allergies return before 4 weeks, your dog may need Apoquel or Zenrelia in addition to Cytopoint. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5487,16 +6042,78 @@
     }
 
   // Atopic Dermatitis | Meds Declined
-    function generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively. etc.). In fact, one of the most common causes of chronic ear infections is allergies.`,
-    `Cytopoint (an injection given every 4 - 8 weeks) or either Apoquel OR Zenrelia (oral pills given every 24 hours) are more effective than over the counter medicine and are advised, but you have elected to try antihistamines first. You can give over the counter antihistamines such as Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours). Side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec.`
+    `Cytopoint (an injection given every 4 - 8 weeks) or either Apoquel OR Zenrelia (oral pills given every 24 hours) are more effective than over the counter medicine and are advised, but you have elected to try antihistamines first. You can give over the counter antihistamines such as ${antihistamineDosage}. Side effects (drowsiness, increased drinking) are more common with Benadryl than Zyrtec. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5510,16 +6127,78 @@
     }
 
   // Atopic Dermatitis | Zenrelia 1
-    function generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
-    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (Benadryl, Zyrtec, etc.) occasionally help, your dog shows signs of severe allergies.`,
-    `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies.`,
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (${antihistamineDosage}) occasionally help, your dog shows signs of severe allergies.`,
+    `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`,
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5536,15 +6215,77 @@
     }
 
   // Atopic Dermatitis | Zenrelia 2, Maintenance
-    function generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
-    `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`,
+    `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. If itching & scratching persists, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`,
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5558,16 +6299,78 @@
     }
 
   // Atopic Dermatitis | Zenrelia 3, Add Cytopoint
-    function generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality = 'singular') {
+    function generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+    
+    // 1. Set up default dosage
+    let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
+    let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+
+    // 2. Adjust both texts dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            antihistamineDosage = "Benadryl 25mg (give ¼ - ½ tablet every 12 hours) or Zyrtec 10mg (give ½ - 1 tablet every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,000mg per day for your dog's current weight";
+            break;
+        case '11-20':
+            antihistamineDosage = "Benadryl 25mg (give ½ - 1 tablet every 12 hours) or Zyrtec 10mg (give 1 - 2 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 1,500mg per day for your dog's current weight";
+            break;
+        case '21-30':
+            antihistamineDosage = "Benadryl 25mg (give 1 - 1 ½ tablet every 12 hours) or Zyrtec 10mg (give 2 - 3 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,200mg per day for your dog's current weight";
+            break;
+        case '31-40':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ tablets every 12 hours) or Zyrtec 10mg (give 3 - 4 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 2,800mg per day for your dog's current weight";
+            break;
+        case '41-50':
+            antihistamineDosage = "Benadryl 25mg (give 1 ½ - 2 tablets every 12 hours) or Zyrtec 10mg (give 4 - 5 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,200mg per day for your dog's current weight";
+            break;
+        case '51-60':
+            antihistamineDosage = "Benadryl 25mg (give 2 to 2 ½ tablets every 12 hours) or Zyrtec 10mg (give 5 - 6 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 3,600mg per day for your dog's current weight";
+            break;
+        case '61-70':
+            antihistamineDosage = "Benadryl 25mg (give 2 ½ - 3 tablets every 12 hours) or Zyrtec 10mg (give 6 - 7 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,100mg per day for your dog's current weight";
+            break;
+        case '71-80':
+            antihistamineDosage = "Benadryl 25mg (give 3 to 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 7 - 8 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 4,500mg per day for your dog's current weight";
+            break;
+        case '81-90':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ tablets every 12 hours) or Zyrtec 10mg (give 8 - 9 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,000mg per day for your dog's current weight";
+            break;
+        case '91-100':
+            antihistamineDosage = "Benadryl 25mg (give 3 ½ - 4 tablets every 12 hours) or Zyrtec 10mg (give 9 - 10 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,400mg per day for your dog's current weight";
+            break;
+        case '101-110':
+            antihistamineDosage = "Benadryl 25mg (give 4 to 4 ½ tablets every 12 hours) or Zyrtec 10mg (give 10 - 11 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 5,800mg per day for your dog's current weight";
+            break;
+        case '111-120':
+            antihistamineDosage = "Benadryl 25mg (give 4 ½ - 5 tablets every 12 hours) or Zyrtec 10mg (give 11 - 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Make sure the DHA & EPA adds up to around 6,200mg per day for your dog's current weight";
+            break;
+        case 'OVER120':
+            antihistamineDosage = "Benadryl 25mg (give 5 tablets every 12 hours) or Zyrtec 10mg (give 12 tablets every 12 - 24 hours)";
+            omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
+            break;
+    }
+    
     const text = [
     `Atopic dermatitis: Your dog is known to have allergies & gets Zenrelia to control them. However, Zenrelia on its own doesn’t appear effective enough to control allergies. As such we will be adding Cytopoint to the plan. These medications improve the effectiveness of the other and are safe to give together.`,
-    `Continue to give Zenrelia as you’ve been doing. If you see full allergy control, you can try discontinuing Zenrelia in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give Benadryl 25mg (1 tablet per 25 lbs every 12 hours) or Zyrtec (up to 1 tablet per 10 lbs every 12 - 24 hours) for additional support.`
+    `Continue to give Zenrelia as you’ve been doing. If you see full allergy control, you can try discontinuing Zenrelia in 2 weeks to see if Cytopoint on its own can help control allergies. You can still give ${antihistamineDosage} for additional support. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`
     ].join('\n');
 
     return {
     sex,
     plurality,
+    weight,
     text,
     diagnoses: ["ATOPIC_DERMATITIS"],
     boldKeys: [
@@ -5823,6 +6626,8 @@
     text: "",
     customAction: generateMedicineTableFromBuffer
     }),
+  // Reviews
+    '/B0620': () => generateBanfieldSouthlake0620Template(),
 
   // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
@@ -5844,10 +6649,10 @@
     '/c7year': (sex, plurality) => generate7YearAdultTemplate(sex, plurality),
     '/c7yearLepto': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
 
-    '/cOverweight1': (sex, plurality) => generateCanineOverweightTemplate(sex, plurality),
-    '/cOverweight2': (sex, plurality) => generateCanineOverweight2Template(sex, plurality),
+    '/cOverweight1': (sex, plurality, weight) => generateCanineOverweightTemplate(sex, plurality, weight),
+    '/cOverweight2': (sex, plurality, weight) => generateCanineOverweight2Template(sex, plurality, weight),
     '/cHealthyWeight': (sex, plurality) => generateCanineHealthyWeightTemplate(sex, plurality),
-    '/cUnderweight': (sex, plurality) => generateCanineUnderweightTemplate(sex, plurality),
+    '/cUnderweight': (sex, plurality, weight) => generateCanineUnderweightTemplate(sex, plurality, weight),
 
   // Canine Ophthalmology Definitions
     '/cBlind0Partial': (sex, plurality) => generateCanineBlind0PartialTemplate(sex, plurality),
@@ -5939,18 +6744,18 @@
     '/cVaccineInformation': (sex, plurality) => generateCanineVaccineInformationTemplate(sex, plurality),
 
   // Dermatology/ Definitions
-    '/cAtopicDermatitis1Antihistamines': (sex, plurality) => generateCanineAtopicDermatitisMild1Template(sex, plurality),
-    '/cAtopicDermatitis2Antihistamines': (sex, plurality) => generateCanineAtopicDermatitisMild2Template(sex, plurality),
-    '/cAtopicDermatitis1Apoquel': (sex, plurality) => generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality),
-    '/cAtopicDermatitis2Apoquel': (sex, plurality) => generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality),
-    '/cAtopicDermatitis3Apoquel': (sex, plurality) => generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality),
-    '/cAtopicDermatitis4Apoquel': (sex, plurality) => generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality),
-    '/cAtopicDermatitis1Cytopoint': (sex, plurality) => generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality),
-    '/cAtopicDermatitis2Cytopoint': (sex, plurality) => generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality),
-    '/cAtopicDermatitisMedsDeclined': (sex, plurality) => generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality),
-    '/cAtopicDermatitis1Zenrelia': (sex, plurality) => generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality),
-    '/cAtopicDermatitis2Zenrelia': (sex, plurality) => generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality),
-    '/cAtopicDermatitis3Zenrelia': (sex, plurality) => generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality),
+    '/cAtopicDermatitis1Antihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild1Template(sex, plurality, weight),
+    '/cAtopicDermatitis2Antihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild2Template(sex, plurality, weight),
+    '/cAtopicDermatitis1Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis3Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis4Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis1Cytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2Cytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality, weight),
+    '/cAtopicDermatitisMedsDeclined': (sex, plurality, weight) => generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis1Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis3Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality, weight),
     };
 
   // Template Definitions
@@ -5988,7 +6793,7 @@
 
 /* ------------------ EXPAND KEYWORDS ENGINE ------------------ */
   // Main Function
-    function runExpansionEngine(matches) {
+    function runExpansionEngine(matches, weight = 'UNKNOWN') {
     const body = DocumentApp.getActiveDocument().getBody();
     const cleanupQueue = [];
 
@@ -6013,7 +6818,7 @@
     const templateFn = TEMPLATE_DEFINITIONS[base];
 
     if (templateFn) {
-    const template = templateFn(sex, plurality);
+    const template = templateFn(sex, plurality, weight);
 
     if (template.cleanupKeys && template.cleanupKeys.length > 0) {
     cleanupQueue.push(...template.cleanupKeys);
@@ -6087,7 +6892,7 @@
     if (matches.length > 0) runExpansionEngine(matches);
     }
 
-    function expandKeywordsFromSidebar(keyword) {
+    function expandKeywordsFromSidebar(keyword, weight) {
     const normalized = keyword.toLowerCase().trim();
     if (normalized === "/generatemedicinetable") {
     insertDiagnosesIntoDocument();
@@ -6095,7 +6900,7 @@
     if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     return;
     }
-    runExpansionEngine([{ text: keyword, normalized: normalized }]);
+    runExpansionEngine([{ text: keyword, normalized: normalized }], weight);
     }
 
     function escapeForRegex(str) {
