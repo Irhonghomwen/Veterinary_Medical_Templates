@@ -305,6 +305,13 @@
     sideEffects: "May cause vomiting or diarrhea."
     },
 
+    FAMOTIDINE20: {
+    label: "Famotidine 20mg",
+    instructions: "Give your dog 1 tablet by mouth every 12 hours for suppression of stomach acids.",
+    class: "Antacid",
+    sideEffects: "May cause decreased absorption of some oral medicine"
+    },
+
     FUROSEMIDE125: {
     label: "Furosemide 12.5 mg",
     instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
@@ -1118,7 +1125,7 @@
 
     ATOPIC_DERMATITIS: {
     text: "Atopic dermatitis (allergies)",
-    rank: 400
+    rank: 401 //402 reserved for diet trial information
     },
 
     BLIND: {
@@ -1186,6 +1193,11 @@
     rank: 702
     },
 
+    GASTROESOPHAGEAL_REFLUX_DISEASE: {
+    text: "Gastroesophageal reflux disease (presumed)",
+    rank: 703
+    },
+
     GLAUCOMA: {
     text: "Glaucoma",
     rank: 200
@@ -1238,7 +1250,7 @@
 
     LARYNGEAL_PARALYSIS: {
     text: "Laryngeal paralysis",
-    rank: 401
+    rank: 403
     },
 
     MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
@@ -1934,7 +1946,7 @@
     /Continuing to help .*? lose weight can extend .*? life span by as much as 1 ½ years\./,
     
     DIET_WEEKLY_GOAL:
-    /We’re aiming to have .*? lose 1 - 2% of .*? body weight per week\./,
+    /We’re aiming to.*?per week\./,
 
     HEALTHY_WEIGHT_LIFESPAN: g =>
     `Your ${g.dog} is a healthy weight for a ${g.dog} of ${g.his} size.`,
@@ -2369,15 +2381,76 @@
     ANAL_GLAND_SYMPTOMS:
     "If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.",
 
+    CANINE_ATOPIC_DERMATITIS:
+    /If your dog does not respond.*?canine atopic dermatitis\./,
+
+    DIET_TRIAL_FOOD_ONLY: "Regardless of choice, you must feed ONLY these diets without giving any snacks for 8 weeks.",
+    
+    DIET_TRIAL_HEADER: "Diet trial:",
+
+    EATING_GRASS_HEADER: "Eating grass:",
+
     EMPTYING_A_DOG_OR_CAT_S_ANAL_SACS_ARTICLE: {
     text: "Emptying a Dog or Cat's Anal Sacs",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951501`
     },
 
+    FECAL_COLLECTION_HEADER: "Fecal collection:",
+
+    FECAL_SAMPLE_RETURN: "The sample must be brought back within two weeks to avoid an additional charge.",
+
+    FOOD_TRANSITIONING_HEADER: "Food transitioning:",
+
+    GASTROINTESTINAL_REFLUX_DISEASE_HEADER: "Gastrointestinal reflux disease:",
+
+    HILLS_DD_DRY_FOOD_LINK: {
+    text: "Hill's dry food",
+    url: `https://www.hillspet.com/dog-food/pd-dd-canine-potato-and-venison-formula-dry`
+    },
+
+    HILLS_DD_WET_FOOD_LINK: {
+    text: "Hill's wet food",
+    url: `https://www.hillspet.com/dog-food/pd-dd-canine-duck-formula-canned`
+    },
+
+    HILLS_FOOD_SENSITIVITY: {
+    text: "Hill’s Science Diet",
+    url: `https://www.hillspet.com/dog-food?condition=foodsensitivity`
+    },
+
+    HYDROLYZED_PROTEIN_DIET_TRIAL: "A hydrolyzed protein diet trial",
+
     INFECTED_ANAL_GLANDS_SEEN:
     "Your dog had full anal glands that appeared infected when they were expressed in the clinic.",
 
     INFECTED_ANAL_GLANDS_HEADER: "Infected anal glands:",
+
+    NOVEL_PROTEIN_DIET_TRIAL: "A novel protein diet trial",
+
+    PURINA_FOOD_SENSITIVITY: {
+    text: "Purina Pro Plan",
+    url: `https://www.purina.com/dogs/dog-food?items_per_page=10&sort_by=relevance&f%5B0%5D=health_benefits%3A936`
+    },
+
+    PURINA_DRY_FOOD_LINK: {
+    text: "Purina dry food",
+    url: `https://www.purina.com/dogs/shop/pro-plan-veterinary-diets-ha-hydrolyzed-vegetarian-dry-dog-food`
+    },
+
+    PURINA_WET_FOOD_LINK: {
+    text: "Purina wet food",
+    url: `https://www.purina.com/dogs/shop/pro-plan-veterinary-diets-ha-chicken-canned-wet-dog-food`
+    },
+
+    ROYAL_CANIN_FOOD_SENSITIVITY: {
+    text: "Royal Canin",
+    url: `https://www.royalcanin.com/us/dogs/products/retail-products?specific_needs=digestive_support`
+    },
+
+    ROYAL_CANIN_HYDROLYZED_LINK: {
+    text: "Royal Canin Hydrolyzed Protein",
+    url: `https://www.royalcanin.com/us/dogs/products/vet-products/hydrolyzed-protein-hp-3910?ean=030111427670`
+    },
 
     RUPTURED_ANAL_GLANDS_DISCOVERED: /Your dog has (a ruptured anal gland|ruptured anal glands)/i,
 
@@ -3443,43 +3516,43 @@
     // 2. Adjust the text dynamically based on the forwarded parameter string
     switch (weight) {
     case '1-10':
-      weightLossAmount = "0.1 - 0.2 lbs (0.045 - 0.09 kgs)";
+      weightLossAmount = "0.05 - 0.1 lbs (0.023 - 0.045 kgs)";
       break;
     case '11-20':
-      weightLossAmount = "";
+      weightLossAmount = "0.1 - 0.2 lbs (0.045 - 0.09 kgs)";
       break;
     case '21-30':
-      weightLossAmount = "";
+      weightLossAmount = "0.2 - 0.3 lbs (0.091 -  0.14 kgs)";
       break;
     case '31-40':
-      weightLossAmount = "";
+      weightLossAmount = "0.3 - 0.4 lbs (0.14 - 0.18 kgs)";
       break;
     case '41-50':
-      weightLossAmount = "";
+      weightLossAmount = "0.4 - 0.5 lbs (0.18 - 0.23 kgs)";
       break;
     case '51-60':
-      weightLossAmount = "";
+      weightLossAmount = "0.5 - 0.6 lbs (0.23 - 0.27 kgs)";
       break;
     case '61-70':
-      weightLossAmount = "";
+      weightLossAmount = "0.6 - 0.7 lbs (0.27 - 0.32 kgs)";
       break;
     case '71-80':
-      weightLossAmount = "";
+      weightLossAmount = "0.7 - 0.8 lbs (0.32 - 0.36 kgs)";
       break;
     case '81-90':
-      weightLossAmount = "";
+      weightLossAmount = "0.8 - 0.9 lbs (0.36 - 0.41 kgs)";
       break;
     case '91-100':
-      weightLossAmount = "";
+      weightLossAmount = "0.9 - 1.0 lbs (0.41 -  0.45 kgs)";
       break;
       case '101-110':
-      weightLossAmount = "";
+      weightLossAmount = "1.0 - 1.1 lbs (0.45 - 0.5 kgs)";
       break;
       case '111-120':
-      weightLossAmount = "";
+      weightLossAmount = "1.1 - 1.2 lbs (0.5 - 0.55 kgs)";
       break;
     case 'OVER120':
-      weightLossAmount = "";
+      weightLossAmount = "1.2 - 1.3 lbs (0.55 - 0.59 kgs)";
       break;
     // 'Unknown Weight' or any fallback uses the original text defined above
     }
@@ -4962,7 +5035,7 @@
     };
     }
 
-  // AG | Diarrhea/Vomiting, Bldwrk Normal, Fecal Pending
+  // Acute Gastroenteritis | Diarrhea/Vomiting, Bloodwork Normal, Fecal Pending
     function generateCanineAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     return {
@@ -5366,12 +5439,129 @@
     };
     }
 
+  // Diet Trial
+    function generateCanineDietTrialTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 402,
+    text: [
+    `Diet trial: 70% of allergic dogs are allergic to the pollen and dust in the air while 20% are allergic to the food source. Of those allergic to food, the most common issue is the protein source (chicken, beef, fish, etc.). To determine if your dog has a food allergy, you can conduct a novel protein or hydrolyzed protein diet trial.`,
+    `A novel protein diet trial involves feeding a new source of protein such as sheep or kangaroo since most dogs don’t have allergies to this. A hydrolyzed protein diet trial involves feeding a hydrolyzed protein product. These meals have the protein broken down so small that it’s impossible to have reaction to it. `,
+    `Regardless of choice, you must feed ONLY these diets without giving any snacks for 8 weeks. You can use the kibble version of the food as a snack instead. The recommended brands are Hill’s Prescription Diet d/d (Hill's dry food or Hill's wet food), Purina Hydrolyzed (Purina dry food or Purina wet food), or Royal Canin (Royal Canin Hydrolyzed Protein). Hydrolyzed protein diet trials tend to be more accurate since it’s still possible for dogs to be allergic to things like sheep or kangaroo.`,
+    `If your dog doesn’t respond to the novel protein diet trial, consider the hydrolyzed protein source instead. If your dog does not respond to the hydrolyzed protein diet trial, it is likely ${g.he} has a disease known as canine atopic dermatitis.`
+    ].join('\n'),
+
+    boldKeys: [
+      "DIET_TRIAL_HEADER",
+      "NOVEL_PROTEIN_DIET_TRIAL",
+      "HYDROLYZED_PROTEIN_DIET_TRIAL",
+    ],
+
+    boldUnderlineKeys: [
+      "CANINE_ATOPIC_DERMATITIS",
+      "DIET_TRIAL_FOOD_ONLY"
+    ],
+
+    linkKeys: [
+      "HILLS_DD_DRY_FOOD_LINK",
+      "HILLS_DD_WET_FOOD_LINK",
+      "PURINA_DRY_FOOD_LINK",
+      "PURINA_WET_FOOD_LINK",
+      "ROYAL_CANIN_HYDROLYZED_LINK",
+    ],
+    };
+    }  
+
+  // Eating Grass
+    function generateCanineEatingGrassTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    text: [
+    `Eating grass: Your dog believes ${g.him}self to be a lawn mower & enjoys eating grass. Growing grass smells & tastes sweet to dogs but they cannot digest it, so they often vomit it back up. Eating grass isn't a concern for our dogs & treatment is preventing them from eating grass as best you can. You can provide some healthy snacks during or before walks such as cucumbers, carrots, green beans, or ice cubes.`
+    ].join('\n'),
+
+    boldKeys: [
+      "EATING_GRASS_HEADER"
+    ],
+    };
+    }
+
+  // Fecal Collection
+    function generateCanineFecalCollectionTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    text: [
+    `Fecal collection: A stool sample was not collected during today’s physical exam. Bring back a fecal sample in a plastic bag or a fecal container. The fresher the stool, the more accurate it will be. The sample must be brought back within two weeks to avoid an additional charge.`
+    ].join('\n'),
+
+    boldKeys: [
+      "FECAL_COLLECTION_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "FECAL_SAMPLE_RETURN"
+    ],
+    };
+    }
+
+  // Food Transition
+    function generateCanineFoodTransitionTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    text: [
+    `Food transitioning: It is recommended to slowly transition from an old diet to a new diet for our pets. Switching their food abruptly can cause severe diarrhea which takes weeks to resolve. To transition from one food to another, feed your dog 75% of ${g.his} old diet & 25% of ${g.his} new diet for 3 days. Next, feed 50% of the old diet & 50% of the new diet for 3 days. Finally, feed 25% of the old diet & 75% of the new diet for three days until switching over to 100% of the new diet.`
+    ].join('\n'),
+
+    boldKeys: [
+      "FOOD_TRANSITIONING_HEADER"
+    ],
+    };
+    }
+
+  // Gastroesophageal Reflux Disease
+    function generateCanineGastroesophagealRefluxDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["GASTROESOPHAGEAL_REFLUX_DISEASE"],
+    text: [
+    `Gastrointestinal reflux disease: Based on your dog’s history, it’s possible ${g.he} has gastroesophageal reflux disease (GERD). Symptoms include decreased appetite, difficulty swallowing, and chronic regurgitation. Definitive diagnosis requires referral for endoscopy. In the meantime you can use famotidine as prescribed below or feed sensitive stomach diets from Hill’s Science Diet, Purina Pro Plan, or Royal Canin. Feeding small amounts of food throughout the day can also reduce reflux.`
+    ].join('\n'),
+
+    boldKeys: [
+      "GASTROINTESTINAL_REFLUX_DISEASE_HEADER"
+    ],
+
+    greenKeys: [
+      "SYMPTOMS",
+      "DIANGOSIS",
+    ],
+
+    linkKeys: [
+      "HILLS_FOOD_SENSITIVITY",
+      "PURINA_FOOD_SENSITIVITY",
+      "ROYAL_CANIN_FOOD_SENSITIVITY"
+    ],
+    };
+    }
+
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
     function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
 
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5451,7 +5641,7 @@
     function generateCanineAtopicDermatitisMild2Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
 
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5531,7 +5721,7 @@
     function generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5620,7 +5810,7 @@
     function generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5703,7 +5893,7 @@
   // Atopic Dermatitis | Apoquel 3, Add Cytopoint
     function generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5789,7 +5979,7 @@
     function generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5875,7 +6065,7 @@
     function generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -5960,7 +6150,7 @@
     function generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -6045,7 +6235,7 @@
     function generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -6130,7 +6320,7 @@
     function generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -6191,7 +6381,7 @@
     }
     
     const text = [
-    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (${antihistamineDosage}) occasionally help, your dog shows signs of severe allergies.`,
+    `Atopic dermatitis: Unlike humans where allergies presents in the respiratory tract (runny nose, sneezing, etc.), allergies in pets usually appears in the skin (shaking the head, chewing/licking the paws, scratching excessively, etc.). In fact, one of the most common causes of chronic ear infections is allergies. While antihistamines (${antihistamineDosage} occasionally help, your dog shows signs of severe allergies.`,
     `Zenrelia has been sent home to resolve allergies. Give as prescribed. If itching & scratching persists after two weeks, Cytopoint (an injection given every 4 - 8 weeks) can be tried instead. Alternatively, they can be given together to have a more powerful effect to control allergies. Finally, you can give antioxidants such as blueberries and cold water fish oil pills with a high amount of DHA & EPA. ${omega3FattyAcids}.`,
     ].join('\n');
 
@@ -6218,7 +6408,7 @@
     function generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -6302,7 +6492,7 @@
     function generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
     
-    // 1. Set up default dosage
+    // 1. Default dosage
     let antihistamineDosage = "Benadryl 25mg (give up to 1 tablet per 25 lbs every 12 hours) or Zyrtec 10mg (give up to 1 tablet per 10 lbs every 12 - 24 hours)";
     let omega3FattyAcids = "Aim for at least 1,000mg of DHA & EPA per serving size and start your dog at one serving size. Slowly increase to the highest amount that you can without seeing soft stool";
 
@@ -6627,7 +6817,7 @@
     customAction: generateMedicineTableFromBuffer
     }),
   // Reviews
-    '/B0620': () => generateBanfieldSouthlake0620Template(),
+    '/BanfieldSouthlake': () => generateBanfieldSouthlake0620Template(),
 
   // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
@@ -6649,15 +6839,15 @@
     '/c7year': (sex, plurality) => generate7YearAdultTemplate(sex, plurality),
     '/c7yearLepto': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
 
-    '/cOverweight1': (sex, plurality, weight) => generateCanineOverweightTemplate(sex, plurality, weight),
-    '/cOverweight2': (sex, plurality, weight) => generateCanineOverweight2Template(sex, plurality, weight),
+    '/cOverweight1st': (sex, plurality, weight) => generateCanineOverweightTemplate(sex, plurality, weight),
+    '/cOverweight2nd': (sex, plurality, weight) => generateCanineOverweight2Template(sex, plurality, weight),
     '/cHealthyWeight': (sex, plurality) => generateCanineHealthyWeightTemplate(sex, plurality),
     '/cUnderweight': (sex, plurality, weight) => generateCanineUnderweightTemplate(sex, plurality, weight),
 
   // Canine Ophthalmology Definitions
     '/cBlind0Partial': (sex, plurality) => generateCanineBlind0PartialTemplate(sex, plurality),
-    '/cBlind1': (sex, plurality) => generateCanineBlind1Template(sex, plurality),
-    '/cBlind2Known': (sex, plurality) => generateCanineBlind2KnownTemplate(sex, plurality),
+    '/cBlind1st': (sex, plurality) => generateCanineBlind1Template(sex, plurality),
+    '/cBlind2ndKnown': (sex, plurality) => generateCanineBlind2KnownTemplate(sex, plurality),
     '/cCherryEye': (sex, plurality) => generateCanineCherryEyeTemplate(sex, plurality),
     '/cCherryEyes': (sex) => generateCanineCherryEyeTemplate(sex, "plural"),
     '/cCompleteCataract': (sex, plurality) => generateCompleteCataractsTemplate(sex, plurality),
@@ -6668,45 +6858,45 @@
     '/cCornealUlcers': (sex) => generateCanineCornealUlcerTemplate(sex, "plural"),
     '/cEntropion': (sex, plurality) => generateCanineEntropionTemplate(sex, plurality),
     '/cGlaucoma1': (sex, plurality) => generateCanineGlaucoma1DiagnosedTemplate(sex, plurality),
-    '/cKeratoconjunctivitisSicca1Diagnosed': (sex, plurality) => generateCanineKeratoconjunctivitisSicca1DiagnosedTemplate(sex, plurality),
-    '/cKeratoconjunctivitisSicca2Controlled': (sex, plurality) => generateCanineKeratoconjunctivitisSicca2ControlledTemplate(sex, plurality),
-    '/cMeibomianGlandAdenoma1': (sex, plurality) => generateCanineMeibomianGlandAdenoma1PresumedTemplate(sex, plurality),
+    '/cKeratoconjunctivitisSicca1stDiagnosed': (sex, plurality) => generateCanineKeratoconjunctivitisSicca1DiagnosedTemplate(sex, plurality),
+    '/cKeratoconjunctivitisSicca2ndControlled': (sex, plurality) => generateCanineKeratoconjunctivitisSicca2ControlledTemplate(sex, plurality),
+    '/cMeibomianGlandAdenoma1st': (sex, plurality) => generateCanineMeibomianGlandAdenoma1PresumedTemplate(sex, plurality),
     '/cNuclearSclerosis': (sex, plurality) => generateCanineNuclearSclerosisTemplate(sex, plurality),
 
   // Canine Cardiology Definitions
     '/c2ndDegreeAVBlock': (sex, plurality) => generateCanine2ndDegreeAVBlockTemplate(sex, plurality),
-    '/cHeartMurmur0': (sex, plurality) => generateCanineHeartMurmur0Template(sex, plurality),
-    '/cHeartMurmur1RadiographsNormal': (sex, plurality) => generateCanineHeartMurmur1RadiographsNormalTemplate(sex, plurality),
-    '/cHeartMurmur1Cardiomegaly': (sex, plurality) => generateCanineHeartMurmur1CardiomegalyTemplate(sex, plurality),
-    '/cHeartMurmur3Known': (sex, plurality) => generateCanineHeartMurmur3KnownTemplate(sex, plurality),
+    '/cHeartMurmur0th': (sex, plurality) => generateCanineHeartMurmur0Template(sex, plurality),
+    '/cHeartMurmur1stRadiographsNormal': (sex, plurality) => generateCanineHeartMurmur1RadiographsNormalTemplate(sex, plurality),
+    '/cHeartMurmur1stCardiomegaly': (sex, plurality) => generateCanineHeartMurmur1CardiomegalyTemplate(sex, plurality),
+    '/cHeartMurmur3rdKnown': (sex, plurality) => generateCanineHeartMurmur3KnownTemplate(sex, plurality),
     '/cHeartwormsAdulticidalTreatment': (sex, plurality) => generateCanineHeartwormsAdulticidalTreatmentTemplate(sex, plurality),
     '/cHeartwormsSlowKillHealthyTreatment': (sex, plurality) => generateCanineHeartwormsSlowKillHealthyDogTreatmentTemplate(sex, plurality),
     '/cHeartwormTestRepeat': (sex, plurality) => generateCanineHeartwormTestRepeatTemplate(sex, plurality),
-    '/cHypertension1Diagnosed': (sex, plurality) => generateCanineHypertension1DiagnosedTemplate(sex, plurality),
+    '/cHypertension1stDiagnosed': (sex, plurality) => generateCanineHypertension1DiagnosedTemplate(sex, plurality),
     '/cLeftSidedCongestiveHeartFailure': (sex, plurality) => generateCanineLeftSidedCongestiveHeartFailureTemplate(sex, plurality),
     '/cMyxomatousMitralValveDisease': (sex, plurality) => generateCanineMyxomatousMitralValveDiseaseTemplate(sex, plurality),
 
   // Canine Respiratory Definitions
-    '/cBordetellosis0Presumed': (sex, plurality) => generateCanineBordetellosis0PresumedTemplate(sex, plurality),
+    '/cBordetellosis0thPresumed': (sex, plurality) => generateCanineBordetellosis0PresumedTemplate(sex, plurality),
     '/cBrachycephalicObstructiveAirwaySyndrome': (sex, plurality) => generateCanineBrachycephalicObstructiveAirwaySyndromeTemplate(sex, plurality),
-    '/cChronicBronchitis0Presumed': (sex, plurality) => generateCanineChronicBronchitis0PresumedTemplate(sex, plurality),
-    '/cCollapsingTrachea1Theophylline': (sex, plurality) => generateCanineCollapsingTrachea1TheophyllineTemplate(sex, plurality),
-    '/cCollapsingTrachea3NoMeds': (sex, plurality) => generateCanineCollapsingTrachea3NoMedsTemplate(sex, plurality),
-    '/cLaryngealParalysis1Diagnosed': (sex, plurality) => generateCanineLaryngealParalysis1DiagnosedTemplate(sex, plurality),
+    '/cChronicBronchitis0thPresumed': (sex, plurality) => generateCanineChronicBronchitis0PresumedTemplate(sex, plurality),
+    '/cCollapsingTrachea1stTheophylline': (sex, plurality) => generateCanineCollapsingTrachea1TheophyllineTemplate(sex, plurality),
+    '/cCollapsingTrachea3rdNoMeds': (sex, plurality) => generateCanineCollapsingTrachea3NoMedsTemplate(sex, plurality),
+    '/cLaryngealParalysis1stDiagnosed': (sex, plurality) => generateCanineLaryngealParalysis1DiagnosedTemplate(sex, plurality),
     '/cReverseSneezing': (sex, plurality) => generateCanineReverseSneezingTemplate(sex, plurality),
 
   // Canine Endocrine Definitions
-    '/cDiabetesMellitus1Diagnosed': (sex, plurality) => generateCanineDiabetesMellitus1DiagnosedTemplate(sex, plurality),
-    '/cDiabetesMellitus3Controlled': (sex, plurality) => generateCanineDiabetesMellitus3ControlledTemplate(sex, plurality),
-    '/cHypothyroidism1Diagnosed': (sex, plurality) => generateCanineHypothyroidism1DiagnosedTemplate(sex, plurality),
-    '/cHypothyroidism2Recheck': (sex, plurality) => generateCanineHypothyroidism2RecheckTemplate(sex, plurality),
-    '/cHypothyroidism3Controlled': (sex, plurality) => generateCanineHypothyroidism3ControlledTemplate(sex, plurality),
-    '/cHyperadrenocorticism1ACTHStimTest': (sex, plurality) => generateCanineHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality),
-    '/cHyperadrenocorticism2Diagnosed': (sex, plurality) => generateCanineHyperadrenocorticism2DiagnosedTemplate(sex, plurality),
-    '/cHyperadrenocorticism3Controlled': (sex, plurality) => generateCanineHyperadrenocorticism3ControlledTemplate(sex, plurality),
-    '/cHyperadrenocorticism4Uncontrolled': (sex, plurality) => generateCanineHyperadrenocorticism4UncontrolledTemplate(sex, plurality),
-    '/cHyperadrenocorticism5Checkup': (sex, plurality) => generateCanineHyperadrenocorticism5CheckupTemplate(sex, plurality),
-    '/cPancreatitis1Diagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
+    '/cDiabetesMellitus1stDiagnosed': (sex, plurality) => generateCanineDiabetesMellitus1DiagnosedTemplate(sex, plurality),
+    '/cDiabetesMellitus3rdControlled': (sex, plurality) => generateCanineDiabetesMellitus3ControlledTemplate(sex, plurality),
+    '/cHypothyroidism1stDiagnosed': (sex, plurality) => generateCanineHypothyroidism1DiagnosedTemplate(sex, plurality),
+    '/cHypothyroidism2ndRecheck': (sex, plurality) => generateCanineHypothyroidism2RecheckTemplate(sex, plurality),
+    '/cHypothyroidism3rdControlled': (sex, plurality) => generateCanineHypothyroidism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism1stACTHStimTest': (sex, plurality) => generateCanineHyperadrenocorticism1ACTHStimTestTemplate(sex, plurality),
+    '/cHyperadrenocorticism2ndDiagnosed': (sex, plurality) => generateCanineHyperadrenocorticism2DiagnosedTemplate(sex, plurality),
+    '/cHyperadrenocorticism3rdControlled': (sex, plurality) => generateCanineHyperadrenocorticism3ControlledTemplate(sex, plurality),
+    '/cHyperadrenocorticism4thUncontrolled': (sex, plurality) => generateCanineHyperadrenocorticism4UncontrolledTemplate(sex, plurality),
+    '/cHyperadrenocorticism5thCheckup': (sex, plurality) => generateCanineHyperadrenocorticism5CheckupTemplate(sex, plurality),
+    '/cPancreatitis1stDiagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
   // Canine Gastrointestinal Definitions
     '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
@@ -6717,45 +6907,50 @@
     '/cAcuteGastroenteritisVomitingBloodworkDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingBloodworkDeclinedTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingRadiographsNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadiographsNormalTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingRadiographsDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadsDeclinedTemplate(sex, plurality),
-    '/cAnalGlands1FullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
-    '/cAnalGlands2Known': (sex, plurality) => generateCanineAnalGlands2KnownTemplate(sex, plurality),
-    '/cAnalGlands3Infected': (sex, plurality) => generateCanineAnalGlands3InfectedTemplate(sex, plurality),
-    '/cAnalGland4Ruptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "singular"),
-    '/cAnalGlands4Ruptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "plural"),
-    '/cPeriodontalDisease1': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease2': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease3': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease4Age': (sex, plurality) => generateCanine4PeriodontalDiseaseAgeTemplate(sex, plurality),
-    '/cPeriodontalDisease4ConcurrentDisease': (sex, plurality) => generateCanine4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality),
-    '/cPeriodontalDisease4HeartMurmur': (sex, plurality) => generateCanine4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality),
+    '/cAnalGlands1stFullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
+    '/cAnalGlands2ndKnown': (sex, plurality) => generateCanineAnalGlands2KnownTemplate(sex, plurality),
+    '/cAnalGlands3rdInfected': (sex, plurality) => generateCanineAnalGlands3InfectedTemplate(sex, plurality),
+    '/cAnalGland4thRuptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "singular"),
+    '/cAnalGlands4thRuptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "plural"),
+    '/cPeriodontalDisease1st': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease2nd': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease3rd': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4thAge': (sex, plurality) => generateCanine4PeriodontalDiseaseAgeTemplate(sex, plurality),
+    '/cPeriodontalDisease4thConcurrentDisease': (sex, plurality) => generateCanine4PeriodontalDiseaseConcurrentDiseaseTemplate(sex, plurality),
+    '/cPeriodontalDisease4thHeartMurmur': (sex, plurality) => generateCanine4PeriodontalDiseaseHeartMurmurTemplate(sex, plurality),
+    '/cDietTrial': (sex, plurality) => generateCanineDietTrialTemplate(sex, plurality),
+    '/cEatingGrass': (sex, plurality) => generateCanineEatingGrassTemplate(sex, plurality),
+    '/cFecalCollection': (sex, plurality) => generateCanineFecalCollectionTemplate(sex, plurality),
+    '/cFoodTransition': (sex, plurality) => generateCanineFoodTransitionTemplate(sex, plurality),
+    '/cGastroesophagealRefluxDisease': (sex, plurality) => generateCanineGastroesophagealRefluxDiseaseTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
-    '/cOsteoarthritis1NSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
-    '/cOsteoarthritis2NSAID': (sex, plurality) => generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality),
-    '/cOsteoarthritis3NSAID': (sex, plurality) => generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality),
-    '/cOsteoarthritis1Gabapentin': (sex, plurality) => generateCanineOsteoarthritis1GabapentinTemplate(sex, plurality),
-    '/cOsteoarthritis2Gabapentin': (sex, plurality) => generateCanineOsteoarthritis2GabapentinTemplate(sex, plurality),
-    '/cOsteoarthritis1JointSupplements': (sex, plurality) => generateCanineOsteoarthritis1JointSupplementsTemplate(sex, plurality),
-    '/cOsteoarthritis2JointSupplements': (sex, plurality) => generateCanineOsteoarthritis2JointSupplementsTemplate(sex, plurality),
-    '/cOsteoarthritis1Librela': (sex, plurality) => generateCanineOsteoarthritis1LibrelaTemplate(sex, plurality),
-    '/cOsteoarthritis2Librela': (sex, plurality) => generateCanineOsteoarthritis2LibrelaTemplate(sex, plurality),
+    '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis2ndNSAID': (sex, plurality) => generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis3rdNSAID': (sex, plurality) => generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality),
+    '/cOsteoarthritis1stGabapentin': (sex, plurality) => generateCanineOsteoarthritis1GabapentinTemplate(sex, plurality),
+    '/cOsteoarthritis2ndGabapentin': (sex, plurality) => generateCanineOsteoarthritis2GabapentinTemplate(sex, plurality),
+    '/cOsteoarthritis1stJointSupplements': (sex, plurality) => generateCanineOsteoarthritis1JointSupplementsTemplate(sex, plurality),
+    '/cOsteoarthritis2ndJointSupplements': (sex, plurality) => generateCanineOsteoarthritis2JointSupplementsTemplate(sex, plurality),
+    '/cOsteoarthritis1stLibrela': (sex, plurality) => generateCanineOsteoarthritis1LibrelaTemplate(sex, plurality),
+    '/cOsteoarthritis2ndLibrela': (sex, plurality) => generateCanineOsteoarthritis2LibrelaTemplate(sex, plurality),
 
   // Immunology Definitions
     '/cVaccineInformation': (sex, plurality) => generateCanineVaccineInformationTemplate(sex, plurality),
 
   // Dermatology/ Definitions
-    '/cAtopicDermatitis1Antihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild1Template(sex, plurality, weight),
-    '/cAtopicDermatitis2Antihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild2Template(sex, plurality, weight),
-    '/cAtopicDermatitis1Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis2Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis3Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis4Apoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis1Cytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis2Cytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis1stAntihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild1Template(sex, plurality, weight),
+    '/cAtopicDermatitis2ndAntihistamines': (sex, plurality, weight) => generateCanineAtopicDermatitisMild2Template(sex, plurality, weight),
+    '/cAtopicDermatitis1stApoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis1ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2ndApoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis2ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis3rdApoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis3ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis4thApoquel': (sex, plurality, weight) => generateCanineAtopicDermatitis4ApoquelTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis1stCytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis1CytopointTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2ndCytopoint': (sex, plurality, weight) => generateCanineAtopicDermatitis2CytopointTemplate(sex, plurality, weight),
     '/cAtopicDermatitisMedsDeclined': (sex, plurality, weight) => generateCanineAtopicDermatitisMedsDeclinedTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis1Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis2Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality, weight),
-    '/cAtopicDermatitis3Zenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis1stZenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis1ZenreliaTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis2ndZenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis2ZenreliaTemplate(sex, plurality, weight),
+    '/cAtopicDermatitis3rdZenrelia': (sex, plurality, weight) => generateCanineAtopicDermatitis3ZenreliaTemplate(sex, plurality, weight),
     };
 
   // Template Definitions
@@ -6814,11 +7009,46 @@
     matches.forEach(m => {
     if (m.normalized.endsWith('reset')) return; 
 
-    const { base, sex, plurality } = parseKeywordMetadata(m.normalized);
-    const templateFn = TEMPLATE_DEFINITIONS[base];
+    let { base, sex, plurality } = parseKeywordMetadata(m.normalized);
+
+    // --- DYNAMIC WEIGHT SUFFIX SHORTCUT LOGIC ---
+    let activeWeight = weight;
+    const suffixMatch = base.match(/(\d+)$/); // Finds trailing digits at the end of the command
+
+    if (suffixMatch) {
+    const suffixNum = suffixMatch[1];
+    const calculatedWeight = getWeightClassFromSuffix(suffixNum);
+    if (calculatedWeight) {
+    activeWeight = calculatedWeight;
+    // Strip the trailing weight numbers out of the base command name
+    base = base.substring(0, base.length - suffixNum.length);
+    }
+    }
+
+    // NEW: If stripping the number revealed a hidden gender/plurality suffix, process it now
+    let hiddenModifierMatch;
+    while ((hiddenModifierMatch = base.match(/(male|female|plural|singular)$/i))) {
+    const modifier = hiddenModifierMatch[1].toLowerCase();
+    if (modifier === 'male' || modifier === 'female') {
+    sex = modifier;
+    } else if (modifier === 'plural' || modifier === 'singular') {
+    plurality = modifier;
+    }
+    // Strip the modifier out of the base command so it matches the registry
+    base = base.substring(0, base.length - modifier.length);
+    }
+
+    // Case-insensitive registry key matching fallback
+    let templateFn = TEMPLATE_DEFINITIONS[base];
+    if (!templateFn) {
+    const targetKey = base.toLowerCase();
+    const actualKey = Object.keys(TEMPLATE_DEFINITIONS).find(k => k.toLowerCase() === targetKey);
+    if (actualKey) templateFn = TEMPLATE_DEFINITIONS[actualKey];
+    }
+    // ---------------------------------------------
 
     if (templateFn) {
-    const template = templateFn(sex, plurality, weight);
+    const template = templateFn(sex, plurality, activeWeight); // Passes the calculated weight string
 
     if (template.cleanupKeys && template.cleanupKeys.length > 0) {
     cleanupQueue.push(...template.cleanupKeys);
@@ -6836,7 +7066,7 @@
     if (template.customAction) template.customAction();
     }
 
-    if (m.normalized.startsWith("/c") && !TEMPLATE_DEFINITIONS[base]) {
+    if (m.normalized.startsWith("/c") && !templateFn) {
     const medRow = processMedicationCommand(m.text);
     if (medRow) TABLE_ROW_BUFFER.push(medRow);
     }
@@ -7029,6 +7259,21 @@
     try { body.removeChild(body.getChild(j)); } catch (e) {}
     }
     }
+    }
+
+  // Weight Class
+    function getWeightClassFromSuffix(numStr) {
+    const weightNum = parseInt(numStr, 10);
+    if (isNaN(weightNum)) return null;
+
+    // Anything over 120 defaults to generic fallback text
+    if (weightNum > 120) return 'UNKNOWN';
+
+    // Math formula to map to brackets (e.g., 5 & 10 -> 1-10; 15 & 20 -> 11-20)
+    const upper = Math.ceil(weightNum / 10) * 10;
+    const lower = upper - 9;
+
+    return lower + '-' + upper; // Returns '1-10', '11-20', etc.
     }
 
 /* ------------------ TABLE INSERTION ------------------ */
