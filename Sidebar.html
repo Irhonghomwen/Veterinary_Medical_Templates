@@ -218,19 +218,19 @@
   <div class="category">
     <div class="category-header" onclick="toggleCategory(this)">🐶 Gastrointestinal 🐕</div>
     <div class="category-content">
-      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaHomeDiet')">Acute Gastroenteritis | Diarrhea, Home Diet</button>
-      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test</button>
-      <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisDiarrheaDeclinedFecalTest')">Acute Gastroenteritis | Diarrhea, Fecal Test Declined</button>
+      <button class="template-button" onclick="openWeightMenu('/cAcuteGastroenteritisDiarrheaHomeDiet', this)">Acute Gastroenteritis | Diarrhea, Home Diet</button>
+      <button class="template-button" onclick="openWeightMenu('/cAcuteGastroenteritisDiarrheaFecalTest', this)">Acute Gastroenteritis | Diarrhea, Fecal Test</button>
+      <button class="template-button" onclick="openWeightMenu('/cAcuteGastroenteritisDiarrheaDeclinedFecalTest', this)">Acute Gastroenteritis | Diarrhea, Fecal Test Declined</button>
       <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest')">Acute Gastroenteritis | Vomiting, Diarrhea, Bloodwork, Fecal Test</button>
       <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkNormal')">Acute Gastroenteritis | Vomiting, Bloodwork Normal</button>
       <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingBloodworkDeclined')">Acute Gastroenteritis | Vomiting, Bloodwork Declined</button>
       <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsNormal')">Acute Gastroenteritis | Vomiting, Radiographs Normal</button>
       <button class="template-button" onclick="insertTemplate('/cAcuteGastroenteritisVomitingRadiographsDeclined')">Acute Gastroenteritis | Vomiting, Radiographs Declined</button>
-      <button class="template-button" onclick="insertTemplate('/cAnalGlands1stFullExpressed')">Anal Glands 1 | Full, Expressed</button>
+      <button class="template-button" onclick="openWeightMenu('/cAnalGlands1stFullExpressed', this)">Anal Glands 1 | Full, Expressed</button>
       <button class="template-button" onclick="insertTemplate('/cAnalGlands2ndKnown')">Anal Glands 2 | Known</button>
-      <button class="template-button" onclick="insertTemplate('/cAnalGlands3rdInfected')">Anal Glands 3 | Infected</button>
-      <button class="template-button" onclick="insertTemplate('/cAnalGland4thRuptured')">Anal Gland 4 | Ruptured</button>
-      <button class="template-button" onclick="insertTemplate('/cAnalGlands4thRuptured')">Anal Glands 4 | Ruptured</button>
+      <button class="template-button" onclick="openWeightMenu('/cAnalGlands3rdInfected', this)">Anal Glands 3 | Infected</button>
+      <button class="template-button" onclick="openWeightMenu('/cAnalGland4thRuptured', this)">Anal Gland 4 | Ruptured</button>
+      <button class="template-button" onclick="openWeightMenu('/cAnalGlands4thRuptured', this)">Anal Glands 4 | Ruptured</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1stMale')">Mild Periodontal Disease ♂</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease1stFemale')">Mild Periodontal Disease ♀</button>
       <button class="template-button" onclick="insertTemplate('/cPeriodontalDisease2ndMale')">Moderate Periodontal Disease ♂</button>
@@ -252,6 +252,12 @@
       <button class="template-button" onclick="insertTemplate('/cFoodTransitionFemale')">Food Transition ♀</button>
       <button class="template-button" onclick="insertTemplate('/cGastroesophagealRefluxDiseaseMale')">Gastroesophageal Reflux Disease ♂</button>
       <button class="template-button" onclick="insertTemplate('/cGastroesophagealRefluxDiseaseFemale')">Gastroesophageal Reflux Disease ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cGrainFree')">Grain Free Food</button>
+      <button class="template-button" onclick="insertTemplate('/cHookworms')">Hookworm Infestation</button>
+      <button class="template-button" onclick="insertTemplate('/cMarijuanaIngestionNonToxicMale')">Marijuana Ingestion | Non-toxic, Activated Charcoal ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cMarijuanaIngestionNonToxicFemale')">Marijuana Ingestion | Non-toxic, Activated Charcoal ♀</button>
+      <button class="template-button" onclick="openWeightMenu('/cOakToxicosis', this)">Oak Toxicosis</button>
+      <button class="template-button" onclick="insertTemplate('/cPrognathism')">Prognathism</button>
     </div>
   </div>
 
@@ -337,6 +343,46 @@
   <button class="template-button" onclick="submitTemplateWithWeight('UNKNOWN')">Unknown Weight</button>
 </div>
 
+<div id="doseView" style="display: none;">
+  <div id="doseTitle" class="prefix-title">Select Dose & Unit</div>
+  <button class="template-button cancel-button" onclick="closeDoseMenu()">← Back / Cancel</button>
+  
+  <button class="template-button" onclick="submitDose('cap', '100')">Injection</button>
+  
+  <button class="template-button" onclick="submitDose('cap', '100')">1 capsule</button>
+  <button class="template-button" onclick="submitDose('cap', '200')">2 capsules</button>
+  <button class="template-button" onclick="submitDose('cap', '300')">3 capsules</button>
+
+  <button class="template-button" onclick="submitDose('mL', '025')">¼ mL</button>
+  <button class="template-button" onclick="submitDose('mL', '033')">⅓ mL</button>
+  <button class="template-button" onclick="submitDose('mL', '050')">½ mL</button>
+  <button class="template-button" onclick="submitDose('mL', '066')">⅔ mL</button>
+  <button class="template-button" onclick="submitDose('mL', '075')">¾ mL</button>
+  <button class="template-button" onclick="submitDose('mL', '100')">1 mL</button>
+
+  <button class="template-button" onclick="submitDose('tab', '025')">¼ Tablet</button>
+  <button class="template-button" onclick="submitDose('tab', '033')">⅓ Tablet</button>
+  <button class="template-button" onclick="submitDose('tab', '050')">½ Tablet</button>
+  <button class="template-button" onclick="submitDose('tab', '066')">⅔ Tablet</button>
+  <button class="template-button" onclick="submitDose('tab', '075')">¾ Tablet</button>
+  <button class="template-button" onclick="submitDose('tab', '100')">1 Tablet</button>
+
+  <button class="template-button" onclick="submitDose('can', '025')">¼ can</button>
+  <button class="template-button" onclick="submitDose('can', '033')">⅓ can</button>
+  <button class="template-button" onclick="submitDose('can', '050')">½ can</button>
+  <button class="template-button" onclick="submitDose('can', '066')">⅔ can</button>
+  <button class="template-button" onclick="submitDose('can', '075')">¾ can</button>
+  <button class="template-button" onclick="submitDose('can', '100')">1 can</button>
+
+  <button class="template-button" onclick="submitDose('cup', '025')">¼ cup</button>
+  <button class="template-button" onclick="submitDose('cup', '033')">⅓ cup</button>
+  <button class="template-button" onclick="submitDose('cup', '050')">½ cup</button>
+  <button class="template-button" onclick="submitDose('cup', '066')">⅔ cup</button>
+  <button class="template-button" onclick="submitDose('cup', '075')">¾ cup</button>
+  <button class="template-button" onclick="submitDose('cup', '100')">1 cup</button>
+  
+</div>
+
 <div id="prefixView" style="display: none;">
   <div id="prefixTitle" class="prefix-title">Choose Variation</div>
   <button class="template-button cancel-button" onclick="closePrefixMenu()">Cancel</button>
@@ -352,19 +398,56 @@
 </div>
 
 <script>
-// State tracking variables for pharmacy workflow
+// --- STATE TRACKING ---
 let cachedMedKey = null;
 let cachedMedLabel = null;
+let cachedPrefixKey = null;
+let cachedUnit = null;
+let cachedDose = null;
 let cachedButtonElement = null;
-
-// State tracking variables for weight workflow
+let cachedMedHasWeight = false;
+let cachedMedSelectedWeight = 'UNKNOWN';
 let cachedWeightKeyword = null;
 let cachedWeightButtonElement = null;
 let cachedWeightButtonLabel = null;
 
+// --- WORKFLOW ROUTERS ---
+
+// 1. Initial Click: Always goes to Dose Menu
+function handleMedClick(medKey, btn, hasDynamicWeight) {
+    cachedMedKey = medKey;
+    cachedMedLabel = btn.innerText;
+    cachedButtonElement = btn;
+    cachedMedHasWeight = hasDynamicWeight;
+    cachedMedSelectedWeight = 'UNKNOWN';
+
+    document.getElementById('doseTitle').innerText = "Select Dose for " + cachedMedLabel;
+    document.getElementById('mainView').style.display = 'none';
+    document.getElementById('doseView').style.display = 'block';
+}
+
+// 2. Dose Selected: Decide between Weight or Prefix
+function submitDose(unit, dose) {
+    // Save to the global variables
+    cachedUnit = unit;
+    cachedDose = dose;
+    
+    // Add these console logs to see what's happening when you click
+    console.log("Dose selected - Unit:", cachedUnit, "Dose:", cachedDose);
+    
+    document.getElementById('doseView').style.display = 'none';
+    
+    if (cachedMedHasWeight) {
+        document.getElementById('weightView').style.display = 'block';
+    } else {
+        document.getElementById('prefixTitle').innerText = "When do you want to start " + cachedMedLabel;
+        document.getElementById('prefixView').style.display = 'block';
+    }
+}
+
 // --- WEIGHT VIEW CONTROLLERS ---
 function openWeightMenu(keyword, btn) {
-  cachedWeightKeyword = keyword;
+  cachedWeightKeyword = keyword; // Ensure this is the template keyword
   cachedWeightButtonElement = btn;
   cachedWeightButtonLabel = btn.innerText;
 
@@ -372,43 +455,74 @@ function openWeightMenu(keyword, btn) {
   document.getElementById('weightView').style.display = 'block';
 }
 
-function closeWeightMenu() {
-  document.getElementById('weightView').style.display = 'none';
-  document.getElementById('mainView').style.display = 'block';
-  cachedWeightKeyword = null;
-  cachedWeightButtonElement = null;
-  cachedWeightButtonLabel = null;
-}
-
 function submitTemplateWithWeight(weight) {
-  if (cachedWeightButtonElement) {
-    cachedWeightButtonElement.innerText = "Inserting...";
-    cachedWeightButtonElement.disabled = true;
-  }
-
+  // If a user clicks a weight button, this function now knows to 
+  // send that specific weight to the server using the stored keyword
   const weightButtons = document.querySelectorAll('#weightView .template-button');
   weightButtons.forEach(b => b.disabled = true);
 
   google.script.run
     .withSuccessHandler(() => {
       weightButtons.forEach(b => b.disabled = false);
-      if (cachedWeightButtonElement) {
-        cachedWeightButtonElement.innerText = cachedWeightButtonLabel;
-        cachedWeightButtonElement.disabled = false;
-      }
       closeWeightMenu();
     })
     .withFailureHandler(err => {
       weightButtons.forEach(b => b.disabled = false);
-      if (cachedWeightButtonElement) {
-        cachedWeightButtonElement.innerText = cachedWeightButtonLabel;
-        cachedWeightButtonElement.disabled = false;
-      }
       alert('Error inserting template: ' + err.message);
       closeWeightMenu();
     })
     .expandKeywordsFromSidebar(cachedWeightKeyword, weight); 
 }
+
+// 3. Final Submission: Corrected to send 4 parameters
+function submitMedicationWithPrefix(prefixKey) {
+    if (cachedButtonElement) {
+        cachedButtonElement.innerText = "Inserting...";
+        cachedButtonElement.disabled = true;
+    }
+
+    const prefixButtons = document.querySelectorAll('#prefixView .template-button');
+    prefixButtons.forEach(b => b.disabled = true);
+
+    google.script.run
+        .withSuccessHandler(() => {
+            prefixButtons.forEach(b => b.disabled = false);
+            if (cachedButtonElement) {
+                cachedButtonElement.innerText = cachedMedLabel;
+                cachedButtonElement.disabled = false;
+            }
+            closeAllMenus();
+        })
+        .withFailureHandler(err => {
+            prefixButtons.forEach(b => b.disabled = false);
+            alert('Error: ' + err.message);
+            closeAllMenus();
+        })
+        .insertMedicineFromSidebar(cachedMedKey, prefixKey, cachedUnit, cachedDose);
+}
+
+// --- MENU HELPERS ---
+function closeDoseMenu() {
+    document.getElementById('doseView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+}
+
+function closePrefixMenu() {
+    document.getElementById('prefixView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+}
+
+function closeWeightMenu() {
+    document.getElementById('weightView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+}
+
+function closeAllMenus() {
+    document.getElementById('prefixView').style.display = 'none';
+    document.getElementById('doseView').style.display = 'none';
+    document.getElementById('weightView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
+  }
 
 // --- STANDARD KEYWORD WORKFLOWS ---
 function expandKeywords() {
@@ -458,7 +572,7 @@ function insertTemplate(keyword) {
       btn.disabled = false;
       alert('Error: ' + err.message);
     })
-    .expandKeywordsFromSidebar(keyword); // Fixed: Removed the undefined "weight" variable reference error
+    .expandKeywordsFromSidebar(keyword); 
 }
 
 function runReverseGenerator(){
@@ -502,29 +616,38 @@ function renderMedicationButtons(registryList) {
     const btn = document.createElement('button');
     btn.className = 'template-button';
     btn.innerText = med.label; 
-    btn.onclick = function() { handleMedClick(med.key, this); };
+    // Passes the key, the element context, and the new dynamic weight boolean flag
+    btn.onclick = function() { handleMedClick(med.key, this, med.hasDynamicWeight); };
     container.appendChild(btn);
   });
 }
 
-// STEP 1: Handle initial medication click by swapping views
-function handleMedClick(medKey, btn) {
-  cachedMedKey = medKey;
-  cachedMedLabel = btn.innerText;
-  cachedButtonElement = btn;
+// STEP 1: Handle initial medication click
+function handleMedClick(medKey, btn, hasDynamicWeight) {
+    cachedMedKey = medKey;
+    cachedMedLabel = btn.innerText;
+    cachedButtonElement = btn;
+    cachedMedHasWeight = hasDynamicWeight;
+    cachedMedSelectedWeight = 'UNKNOWN';
 
-  document.getElementById('prefixTitle').innerText = "When do you want to start " + cachedMedLabel;
-  document.getElementById('mainView').style.display = 'none';
-  document.getElementById('prefixView').style.display = 'block';
-}
+    // Set the title
+    document.getElementById('doseTitle').innerText = "Select Dose for " + cachedMedLabel;
+    
+    // Hide main, show ONLY the Dose View
+    document.getElementById('mainView').style.display = 'none';
+    document.getElementById('doseView').style.display = 'block';
+    
+  }
 
-// Helper to escape back to template grid view
+// Helper to escape back to template grid view and wipe variable states
 function closePrefixMenu() {
   document.getElementById('prefixView').style.display = 'none';
   document.getElementById('mainView').style.display = 'block';
   cachedMedKey = null;
   cachedMedLabel = null;
   cachedButtonElement = null;
+  cachedMedHasWeight = false;
+  cachedMedSelectedWeight = 'UNKNOWN';
 }
 
 // STEP 2: Process selection with requested prefix parameter string
@@ -558,8 +681,9 @@ function submitMedicationWithPrefix(prefixKey) {
       alert('Error inserting medication: ' + err.message);
       closePrefixMenu();
     })
-    .insertMedicineFromSidebar(cachedMedKey, prefixKey);
-}
+    // Forwards the medicine key, variant layout modifier, and resolved weight target
+  .insertMedicineFromSidebar(cachedMedKey, prefixKey, cachedUnit, cachedDose);
+  }
 
 // --- SEARCH FILTER LOADER ---
 document.addEventListener("DOMContentLoaded", function(){
