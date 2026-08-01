@@ -130,898 +130,1094 @@
   
 /* ------------------ MEDICINE CABINET ------------------ */
   // Medications
+      const DOSE_MAP = {
+      '025': '¼',
+      '033': '⅓',
+      '050': '½',
+      '066': '⅔',
+      '075': '¾',
+      '100': '1',
+      '125': '1 ¼',
+      '133': '1 ⅓',
+      '150': '1 ½',
+      '166': '1 ⅔',
+      '175': '1 ¾',
+      '200': '2',
+      '225': '2 ¼',
+      '233': '2 ⅓',
+      '250': '2 ½',
+      '266': '2 ⅔',
+      '275': '2 ¾',
+      '300': '3',
+      '325': '3 ¼',
+      '333': '3 ⅓',
+      '350': '3 ½',
+      '366': '3 ⅔',
+      '375': '3 ¾',
+      '400': '4',
+      };
 
-    // Compiles a clean list of labels and keys for the sidebar to build buttons.
-    function getMedicineRegistryKeys() {
-    return Object.keys(MEDICINE_REGISTRY).map(key => {
-    return {
-    key: key,
-    label: MEDICINE_REGISTRY[key].label
-    };
-    });
-    }
+      const UNIT_MAP = {
+      'tab': { singular: 'tablet', plural: 'tablets' },
+      'cap': { singular: 'capsule', plural: 'capsules' },
+      'ml':  { singular: 'mL',     plural: 'mL' },      // mL remains mL
+      'can': { singular: 'can',    plural: 'cans' },
+      'cup': { singular: 'cup',    plural: 'cups' }
+      };
 
-    let TABLE_ROW_BUFFER = [];
-    var MEDICINE_REGISTRY = {
+    // Compiles a clean list of labels, keys, and dynamic-weight configurations for the sidebar
+      function getMedicineRegistryKeys() {
+      return Object.keys(MEDICINE_REGISTRY).map(key => {
+      return {
+      key: key,
+      label: MEDICINE_REGISTRY[key].label,
+      hasDynamicWeight: typeof MEDICINE_REGISTRY[key].instructions === 'function'
+      };
+      });
+      }
+
+      let TABLE_ROW_BUFFER = [];
+      var MEDICINE_REGISTRY = {
 
     ADEQUANINJECTION: {
-    label: "Adequan",
-    instructions: "Injected in your dog’s muscle to improve joint health.",
-    class: "Polysulfated glycosaminoglycan",
-    sideEffects: "Well tolerated"
-    },
+      label: "Adequan",
+      instructions: "Injected in your dog’s muscle to improve joint health.",
+      class: "Polysulfated glycosaminoglycan",
+      sideEffects: "Well tolerated"
+      },
 
     AMLODIPINE25: {
-    label: "Amlodipine 2.5mg tablet",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours to manage high blood pressure. Recheck blood pressure in 1 week.",
-    class: "Calcium channel blocker",
-    sideEffects: "May cause lethargy, decreased appetite, or weight loss"
-    },
+      label: "Amlodipine 2.5mg tablet",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours to manage high blood pressure. DO NOT DISCONTINUE.",
+      class: "Calcium channel blocker",
+      sideEffects: "May cause lethargy, decreased appetite, or weight loss",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     APOQUEL36: {
-    label: "Apoquel 3.6mg (oclacitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Over-suppresses the immune system when given with Zenrelia."
-    },
+      label: "Apoquel 3.6mg (oclacitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Rarely causes vomiting or diarrhea. Over-suppresses the immune system when given with Zenrelia.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     APOQUEL54: {
-    label: "Apoquel 5.4mg (oclacitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Over-suppresses the immune system when given with Zenrelia."
-    },
+      label: "Apoquel 5.4mg (oclacitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Rarely causes vomiting or diarrhea. Over-suppresses the immune system when given with Zenrelia.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     APOQUEL16: {
-    label: "Apoquel 16mg (oclacitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Over-suppresses the immune system when given with Zenrelia."
-    },
+      label: "Apoquel 16mg (oclacitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Rarely causes vomiting or diarrhea. Over-suppresses the immune system when given with Zenrelia.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     ATROPINE: {
-    label: "Atropine 1% Ophthalmic Drops",
-    instructions: "Starting today \nApply 1 drop in your dog’s affected eye to ease pain. Apply BEFORE eye ointments.",
-    class: "Anticholinergic",
-    sideEffects: "May cause light sensitivity"
-    },
+      label: "Atropine 1% Ophthalmic Drops",
+      instructions: "Apply 1 drop in your dog’s affected eye to ease pain. Apply BEFORE eye ointments.",
+      class: "Anticholinergic",
+      sideEffects: "May cause light sensitivity"
+      },
 
     BENAZEPRIL5: {
-    label: "Benazepril 5mg",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for management of heart failure.",
-    class: "Angiotensin converting enzyme (ACE) inhibitor",
-    sideEffects: "May cause bloodwork abnormalities and hypotension"
-    },
+      label: "Benazepril 5mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of heart failure. DO NOT DISCONTINUE.",
+      class: "Angiotensin converting enzyme (ACE) inhibitor",
+      sideEffects: "May cause bloodwork abnormalities and hypotension",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CARPROFEN25: {
-    label: "Carprofen 25mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Carprofen 25mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal). DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CARPROFEN75: {
     label: "Carprofen 75mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
+    instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation. Give to completion.",
     class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
+    sideEffects: "Vomiting, diarrhea, decreased appetite (less common if given with a meal).",
+    defaultUnit: "tab",
+    defaultDose: "100"
     },
 
     CARPROFEN100: {
-    label: "Carprofen 100mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Carprofen 100mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal). DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
+
+    CARPROFENINJECTION: {
+      label: "Carprofen injection",
+      instructions: "Injection given in clinic for management of pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT GIVE other NSAIDs OR STEROIDS WITHIN 3 DAYS."
+      },
 
     CEFPODOXIME100: {
-    label: "Cefpodoxime 100mg",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite."
-    },
+      label: "Cefpodoxime 100mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for infection. Give to until gone.",
+      class: "Antibiotic (third generation cephalosporin)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CEFPODOXIME200: {
-    label: "Cefpodoxime 200mg",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite."
-    },
+      label: "Cefpodoxime 200mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for infection. Give until gone.",
+      class: "Antibiotic (third generation cephalosporin)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX62: {
-    label: "Amoxicillin clavulanate 62.5mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 62.5mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX125: {
-    label: "Amoxicillin clavulanate 125mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 125mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX250: {
-    label: "Amoxicillin clavulanate 250mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 250mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX375: {
-    label: "Amoxicillin clavulanate 375mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 375mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX625: {
-    label: "Amoxicillin clavulanate 625mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 625mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CLAVAMOX1000: {
-    label: "Amoxicillin clavulanate 1,000mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for treatment of infection.",
-    class: "Broad spectrum potentiated antibiotic",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal)."
-    },
+      label: "Amoxicillin clavulanate 1,000mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Broad spectrum potentiated antibiotic",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     COUGHTABLETS: {
-    label: "Cough tablets\n(guaifenesin & dextromethorphan hydrobromide)",
-    instructions: "Give your dog 1 tablet by mouth every 4 - 6 hours for suppression of cough",
-    class: "Antitussive (cough suppressant)",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cough tablets\n(guaifenesin & dextromethorphan hydrobromide)",
+      instructions: "Give your dog {amount} {unit} by mouth every 4 - 6 hours for suppression of cough. Give until gone.",
+      class: "Antitussive (cough suppressant)",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     CYTOPOINTINJECTION: {
-    label: "Cytopoint injection (lokivetmab)",
-    instructions: "Medication injected beneath your dog’s skin to control allergies over the next 4 - 8 weeks.",
-    class: "Anti-allergy (monoclonal antibody)",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cytopoint injection (lokivetmab)",
+      instructions: "Medication injected beneath your dog’s skin to control allergies over the next 4 - 8 weeks.",
+      class: "Anti-allergy (monoclonal antibody)",
+      sideEffects: "Well tolerated"
+      },
 
     DORZOLAMIDE: {
-    label: "Dorzolamide",
-    instructions: "Apply 1 drop in each eye every 8 hours for management of glaucoma.",
-    class: "Carbonic anhydrase inhibitor",
-    sideEffects: "May cause ocular discomfort. Medication tastes bitter and some pets may make faces due to this."
-    },
+      label: "Dorzolamide",
+      instructions: "Apply 1 drop in each eye every 8 hours for management of glaucoma. DO NOT DISCONTINUE.",
+      class: "Carbonic anhydrase inhibitor",
+      sideEffects: "May cause ocular discomfort. Medication tastes bitter and some pets may make faces/stop eating due to this."
+      },
 
     DOXYCYCLINE100: {
-    label: "Doxycycline 100mg",
-    instructions: "Give your dog 1 tablet by mouth with food every 12 hours for treatment of bacterial infection. Give until gone.",
-    class: "Antibiotic",
-    sideEffects: "May cause vomiting or diarrhea."
-    },
+      label: "Doxycycline 100mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Antibiotic",
+      sideEffects: "May cause vomiting or diarrhea (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     DOXYCYCLINE200: {
-    label: "Doxycycline 100mg",
-    instructions: "Give your dog 1 tablet by mouth with food every 12 hours for treatment of bacterial infection. Give until gone.",
-    class: "Antibiotic",
-    sideEffects: "May cause vomiting or diarrhea."
-    },
+      label: "Doxycycline 200mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of infection. Give until gone.",
+      class: "Antibiotic",
+      sideEffects: "May cause vomiting or diarrhea.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     FAMOTIDINE20: {
-    label: "Famotidine 20mg",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours for suppression of stomach acids.",
-    class: "Antacid",
-    sideEffects: "May cause decreased absorption of some oral medicine"
-    },
+      label: "Famotidine 20mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for suppression of stomach acids.",
+      class: "Antacid",
+      sideEffects: "May cause decreased absorption of some oral medicine",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     FUROSEMIDE125: {
-    label: "Furosemide 12.5 mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
-    class: "Diuretic",
-    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
-    },
+      label: "Furosemide 12.5 mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours to drain fluid from the lungs. DO NOT DISCONTINUE UNLESS ADVISED OTHERWISE BY A VETERINARIAN.",
+      class: "Diuretic",
+      sideEffects: "May cause increased drinking and urination or bloodwork abnormalities",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     FUROSEMIDE20: {
-    label: "Furosemide 20 mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
-    class: "Diuretic",
-    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
-    },
+      label: "Furosemide 20 mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours to drain fluid from the lungs. DO NOT DISCONTINUE UNLESS ADVISED OTHERWISE BY A VETERINARIAN.",
+      class: "Diuretic",
+      sideEffects: "May cause increased drinking and urination or bloodwork abnormalities",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     FUROSEMIDE50: {
-    label: "Furosemide 50 mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours to drain fluid from the lungs.",
-    class: "Diuretic",
-    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
-    },
+      label: "Furosemide 50 mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours to drain fluid from the lungs. DO NOT DISCONTINUE UNLESS ADVISED OTHERWISE BY A VETERINARIAN.",
+      class: "Diuretic",
+      sideEffects: "May cause increased drinking and urination or bloodwork abnormalities",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     FUROSEMIDEINJECTION: {
-    label: "Furosemide injection",
-    instructions: "Injection given in clinic to drain fluid from your dog’s lungs.",
-    class: "Diuretic",
-    sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
-    },
+      label: "Furosemide injection",
+      instructions: "Injection given in clinic to drain fluid from your dog’s lungs.",
+      class: "Diuretic",
+      sideEffects: "May cause increased drinking and urination or bloodwork abnormalities"
+      },
 
     GABAPENTIN50: {
-    label: "Gabapentin 50mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 50mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GABAPENTIN100: {
-    label: "Gabapentin 100mg",
-    instructions: "Give your dog 1 capsule by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 100mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     GABAPENTIN200: {
-    label: "Gabapentin 200mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 200mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GABAPENTIN300: {
-    label: "Gabapentin 300mg",
-    instructions: "Give your dog 1 capsule by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 300mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GABAPENTIN400: {
-    label: "Gabapentin 400mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 400mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GABAPENTIN600: {
-    label: "Gabapentin 600mg",
-    instructions: "Give your dog 1 tablet by mouth every 8 - 12 hours for treatment of pain.",
-    class: "Analgesia, sedative",
-    sideEffects: "May cause sedation"
-    },
+      label: "Gabapentin 600mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "025",
+      },
+
+    GABAPENTIN50LIQUID: {
+      label: "Gabapentin 50mg/mL",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "ml",
+      defaultDose: "100",
+      },
+
+    GABAPENTIN100LIQUID: {
+      label: "Gabapentin 100mg/mL",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 - 12 hours for treatment of pain.",
+      class: "Analgesic, anxiolytic",
+      sideEffects: "May cause sedation",
+      defaultUnit: "ml",
+      defaultDose: "100",
+      },
 
     GRAPIPRANT20: {
-    label: "Galliprant 20mg (grapiprant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Galliprant 20mg (grapiprant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GRAPIPRANT60: {
-    label: "Galliprant 60mg (grapiprant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Galliprant 60mg (grapiprant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     GRAPIPRANT100: {
-    label: "Galliprant 100mg (grapiprant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Galliprant 100mg (grapiprant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     HEARTGARD25: {
-    label: "Heartgard Plus Blue 0 - 25 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Heartgard Plus Blue 0 - 25 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     HEARTGARD50: {
-    label: "Heartgard Plus Green 25 - 50 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Heartgard Plus Green 25 - 50 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     HEARTGARD100: {
-    label: "Heartgard Plus Brown 50 - 100 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Heartgard Plus Brown 50 - 100 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of heartworms and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     HILLSGIBIOMECANNED: {
-    label: "Hill's Prescription Gastrointestinal Biome (canned food)",
-    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Hill's Prescription Gastrointestinal Biome (12.5 oz can)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "can",
+      defaultDose: "100",
+      },
 
     HILLSGIBIOMEDRY: {
-    label: "Hill's Prescription Gastrointestinal Biome (dry food)",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Hill's Prescription Gastrointestinal Biome (dry food)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of diarrhea. Give for a minimum of 5 days or until diarrhea resolves.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "cup",
+      defaultDose: "100",
+      },
 
     HILLSIDCANNED: {
-    label: "Hill's Prescription i/d (canned food)",
-    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Hill's Prescription i/d (canned food)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "can",
+      defaultDose: "100",
+      },
 
     HILLSIDDRY: {
-    label: "Hill's Prescription i/d Biome (dry food)",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Hill's Prescription i/d Biome (dry food)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of diarrhea. Give for a minimum of 7 days or until diarrhea resolves, whichever occurs first.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "cup",
+      defaultDose: "100",
+      },
 
     LEVOTHYROXINE01: {
-    label: "Thyro-tabs 0.1 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.1 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE02: {
-    label: "Thyro-tabs 0.2 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.2 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE03: {
-    label: "Thyro-tabs 0.3 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.3 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE04: {
-    label: "Thyro-tabs 0.4 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.4 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE05: {
-    label: "Thyro-tabs 0.5 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.5 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE06: {
-    label: "Thyro-tabs 0.6 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.6 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE07: {
-    label: "Thyro-tabs 0.7 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.7 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE08: {
-    label: "Thyro-tabs 0.8 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 0.8 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LEVOTHYROXINE1: {
-    label: "Thyro-tabs 1.0 mg (levothyroxine)",
-    instructions: "Give your dog 1 tablet by mouth without food every 12 hours. Recheck thyroid levels in 4 - 6 weeks.",
-    class: "Thyroid hormone",
-    sideEffects: "Well tolerated"
-    },
+      label: "Thyro-tabs 1.0 mg (levothyroxine)",
+      instructions: "Give your dog 1 tablet by mouth without food every 12 hours. DO NOT DISCONTINUE.",
+      class: "Thyroid hormone",
+      sideEffects: "Well tolerated"
+      },
 
     LIBRELAINJECTION: {
-    label: "Librela injection (bedinvetmab)",
-    instructions: "Medication injected beneath your dog’s skin to control arthritis over the next 4 weeks.",
-    class: "Anti-arthritis (monoclonal antibody)",
-    sideEffects: "Rarely causes seizures, urinary tract infection, or skin infections."
-    },
+      label: "Librela injection (bedinvetmab)",
+      instructions: "Medication injected beneath your dog’s skin to control arthritis over the next 4 weeks.",
+      class: "Anti-arthritis (monoclonal antibody)",
+      sideEffects: "Rarely causes seizures, urinary tract infection, or skin infections."
+      },
 
     MAROPITANT16: {
-    label: "Cerenia 16mg (maropitant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
-    class: "Antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cerenia 16mg (maropitant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of vomiting & nausea.",
+      class: "Antiemetic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     MAROPITANT24: {
-    label: "Cerenia 24mg (maropitant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
-    class: "Antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cerenia 24mg (maropitant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of vomiting & nausea.",
+      class: "Antiemetic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     MAROPITANT60: {
-    label: "Cerenia 60mg (maropitant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
-    class: "Antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cerenia 60mg (maropitant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of vomiting & nausea.",
+      class: "Antiemetic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     MAROPITANT160: {
-    label: "Cerenia 160mg (maropitant)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of vomiting & nausea.",
-    class: "Antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cerenia 160mg (maropitant)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of vomiting & nausea.",
+      class: "Antiemetic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     MAROPITANTINJECTION: {
-    label: "Cerenia injection (maropitant)",
-    instructions: "Medication injected beneath your dog’s skin to control nausea & vomiting.",
-    class: "Antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Cerenia injection (maropitant)",
+      instructions: "Medication injected beneath your dog’s skin to control nausea & vomiting.",
+      class: "Antiemetic",
+      sideEffects: "Well tolerated"
+      },
 
     MELOXICAM75: {
-    label: "Meloxicam 7.5mg",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITH OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Meloxicam 7.5mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation. Give until gone.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITH OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     MELOXICAM15LIQUID: {
-    label: "Meloxicam liquid 1.5mg/mL",
-    instructions: "Give your dog 1 mL by mouth every 24 hours for pain and inflammation.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS."
-    },
+      label: "Meloxicam liquid 1.5mg/mL",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS.",
+      defaultUnit: "ml",
+      defaultDose: "100",
+      },
 
     NEOPOLYBACOINTMENT: {
-    label: "NeoPolyBac ointment (neomycin, polymyxin, bacitracin)",
-    instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
-    class: "Antibiotic, anti-inflammatory",
-    sideEffects: "Well tolerated"
-    },
+      label: "NeoPolyBac ointment (neomycin, polymyxin, bacitracin)",
+      instructions: "Apply ¼ inch strip in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
+      class: "Antibiotic, anti-inflammatory",
+      sideEffects: "Well tolerated"
+      },
 
     NEOPOLYBACHYDROOINTMENT: {
-    label: "NeoPolyBac with Hydrocortisone ointment\n(neomycin, polymyxin, bacitracin, hydrocortisone)",
-    instructions: "Apply ¼ inch strip in the affected eye every 8 - 12 hours for treatment of corneal ulcer.",
-    class: "Antibiotic, anti-inflammatory",
-    sideEffects: "Well tolerated"
-    },
+      label: "NeoPolyBac with Hydrocortisone ointment\n(neomycin, polymyxin, bacitracin, hydrocortisone)",
+      instructions: "Apply ¼ inch strip in the affected eye every 8 - 12 hours for treatment of corneal ulcer.",
+      class: "Antibiotic, anti-inflammatory",
+      sideEffects: "Well tolerated"
+      },
 
     NEOPOLYDEXSUSPENSION: {
-    label: "NeoPolyDex Suspension (neomycin, polymyxin B, dexamethasone)",
-    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
-    class: "Antibiotic, anti-inflammatory",
-    sideEffects: "Well tolerated"
-    },
+      label: "NeoPolyDex Suspension (neomycin, polymyxin B, dexamethasone)",
+      instructions: "Apply 1 - 2 drops in your dog’s affected eye every 8 - 12 hours for treatment of infection & inflammation.",
+      class: "Antibiotic, anti-inflammatory",
+      sideEffects: "Well tolerated"
+      },
     
     NEXGARD1: {
-    label: "Nexgard Orange 4 - 10 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Nexgard Orange 4 - 10 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     NEXGARD2: {
-    label: "Nexgard Blue 10.1 - 24 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Nexgard Blue 10.1 - 24 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     NEXGARD3: {
-    label: "Nexgard Purple 24.1 - 60 lbs",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Nexgard Purple 24.1 - 60 lbs",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     NEXGARD4: {
-    label: "Nexgard Red 60.1 - 121",
-    instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes vomiting or diarrhea"
-    },
+      label: "Nexgard Red 60.1 - 121",
+      instructions: "Give your dog 1 chewable tablet every 30 days for prevention of fleas and ticks.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes vomiting or diarrhea"
+      },
 
     ONDASETRON4: {
-    label: "Ondansetron 4mg",
-    instructions: "Give your dog 1 tablet every 8 - 12 hours for management of pancreatitis.",
-    class: "5-HT3 Antagonist, antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Ondansetron 4mg",
+      instructions: "Give your dog {amount} {unit} every 8 - 12 hours for management of pancreatitis.",
+      class: "5-HT3 Antagonist, antiemetic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     ONDASETRON8: {
-    label: "Ondansetron 8mg",
-    instructions: "Give your dog 1 tablet every 8 - 12 hours for management of pancreatitis.",
-    class: "5-HT3 Antagonist, antiemetic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Ondansetron 8mg",
+      instructions: "Give your dog {amount} {unit} every 8 - 12 hours for management of pancreatitis.",
+      class: "5-HT3 Antagonist, antiemetic",
+      sideEffects: "Well tolerated"
+      },
 
     OPTIMMUNEOINTMENT: {
-    label: "Optimmune ointment (cyclosporine 0.2%)",
-    instructions: "Apply ¼ inch in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
-    class: "Immunosuppressant",
-    sideEffects: "Well tolerated"
-    },
+      label: "Optimmune ointment (cyclosporine 0.2%)",
+      instructions: "Apply ¼ inch in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
+      class: "Immunosuppressant",
+      sideEffects: "Well tolerated"
+      },
 
     OPTIXCARE: {
-    label: "Optixcare Eye Lube",
-    instructions: "Apply ¼ inch or 1 - 2 drops in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
-    class: "Lubricant",
-    sideEffects: "Well tolerated"
-    },
+      label: "Optixcare Eye Lube",
+      instructions: "Apply ¼ inch or 1 - 2 drops in your dog’s affected eye every 8 hours for treatment of dry eye. Apply 5 minutes AFTER other eye drop medicine.",
+      class: "Lubricant",
+      sideEffects: "Well tolerated"
+      },
 
     PIMOBENDAN125: {
-    label: "Vetmedin 1.25mg\n(pimobendan)",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
-    class: "Inotropic agent",
-    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
-    },
+      label: "Vetmedin 1.25mg\n(pimobendan)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours to increase heart contractility & function. DO NOT DISCONTINUE.",
+      class: "Inotropic agent",
+      sideEffects: "Rarely causes vomiting (less than 1% of dogs)",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
     
     PIMOBENDAN25: {
-    label: "Vetmedin 2.5mg\n(pimobendan)",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
-    class: "Inotropic agent",
-    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
-    },
+      label: "Vetmedin 2.5mg\n(pimobendan)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours to increase heart contractility & function. DO NOT DISCONTINUE.",
+      class: "Inotropic agent",
+      sideEffects: "Rarely causes vomiting (less than 1% of dogs)",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PIMOBENDAN5: {
-    label: "Vetmedin 5mg\n(pimobendan)",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
-    class: "Inotropic agent",
-    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
-    },
+      label: "Vetmedin 5mg\n(pimobendan)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours to increase heart contractility & function. DO NOT DISCONTINUE.",
+      class: "Inotropic agent",
+      sideEffects: "Rarely causes vomiting (less than 1% of dogs)",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PIMOBENDAN10: {
-    label: "Vetmedin 10mg\n(pimobendan)",
-    instructions: "Give your dog 1 tablet by mouth every 12 hours to increase heart contractility & function.",
-    class: "Inotropic agent",
-    sideEffects: "Rarely causes vomiting (less than 1% of dogs)"
-    },
+      label: "Vetmedin 10mg\n(pimobendan)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours to increase heart contractility & function. DO NOT DISCONTINUE.",
+      class: "Inotropic agent",
+      sideEffects: "Rarely causes vomiting (less than 1% of dogs)",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PREDNISOLONE5: {
-    label: "Prednisolone 5mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisolone 5mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PREDNISOLONE10: {
-    label: "Prednisolone 10mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisolone 10mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PREDNISOLONE20: {
-    label: "Prednisolone 20mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisolone 20mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PREDNISONE5: {
-    label: "Prednisone 5mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisone 5mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PREDNISONE10: {
-    label: "Prednisone 10mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisone 10mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PREDNISONE20: {
-    label: "Prednisone 20mg",
-    instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
-    },
+      label: "Prednisone 20mg",
+      instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause vomiting, diarrhea, increased appetite, and/or increased drinking & urination"
+      },
 
     PROHEART6INJECTION: {
-    label: "Proheart 6 (moxidectin)",
-    instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 6 months.",
-    class: "Antiparasitic",
-    sideEffects: "May cause lethargy, decreased appetite, or vomiting"
-    },
+      label: "Proheart 6 (moxidectin)",
+      instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 6 months.",
+      class: "Antiparasitic",
+      sideEffects: "May cause lethargy, decreased appetite, or vomiting"
+      },
 
     PROHEART12INJECTION: {
-    label: "Proheart 12 (moxidectin)",
-    instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 12 months.",
-    class: "Antiparasitic",
-    sideEffects: "May cause lethargy, decreased appetite, or vomiting"
-    },
+      label: "Proheart 12 (moxidectin)",
+      instructions: "Medicine injected beneath your dog’s skin to prevent heartworm infection for 12 months.",
+      class: "Antiparasitic",
+      sideEffects: "May cause lethargy, decreased appetite, or vomiting"
+      },
 
     PROVIABLECAPSULES: {
-    label: "Proviable Forte capsules",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for 15 days to treat diarrhea.",
-    class: "Probiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Proviable Forte capsules",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for 15 days to treat diarrhea.",
+      class: "Probiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PROVIABLEPASTE: {
-    label: "Proviable Forte paste",
-    instructions: "Give your dog 1 mL by mouth every 8 hours. Give for 3 days or until diarrhea stops, whichever occurs first.",
-    class: "Antidiarrheal",
-    sideEffects: "Well tolerated"
-    },
+      label: "Proviable Forte paste",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 hours. Give for a minimum of 7 days or until diarrhea stops, whichever occurs first.",
+      class: "Antidiarrheal",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PURINAENCANNED: {
-    label: "Purina Pro Plan Gastroenteric Diet (EN)",
-    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Purina Pro Plan Gastroenteric Diet (EN)",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "can",
+      defaultDose: "100",
+      },
 
     PURINAENLOWFATCANNED: {
-    label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat wet food",
-    instructions: "Feed your dog 1 can by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat wet food",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours until all cans are gone for treatment of diarrhea.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "can",
+      defaultDose: "100",
+      },
 
     PURINAENDRY: {
-    label: "Purina Pro Plan Gastroenteric Diet (EN) dry food",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Purina Pro Plan Gastroenteric Diet (EN) dry food",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of diarrhea. Give for a minimum of 7 days or until diarrhea resolves, whichever occurs first.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "cup",
+      defaultDose: "100",
+      },
 
     PURINAENLOWFATDRY: {
-    label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat dry food",
-    instructions: "Feed your dog 1 cup by mouth every 12 hours for treatment of diarrhea.",
-    class: "Prebiotic, probiotic, & postbiotic",
-    sideEffects: "Well tolerated"
-    },
+      label: "Purina Pro Plan Gastroenteric Diet (EN) - low fat dry food",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for treatment of diarrhea. Give for a minimum of 7 days or until diarrhea resolves, whichever occurs first.",
+      class: "Prebiotic, probiotic, & postbiotic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "cup",
+      defaultDose: "100",
+      },
 
     REVOLUTION: {
-    label: "Revolution",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION1: {
-    label: "Revolution 0 - 5 lbs",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 0 - 5 lbs",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION2: {
-    label: "Revolution 5.1 - 10 lbs",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 5.1 - 10 lbs",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION3: {
-    label: "Revolution 10.1 - 20 lbs ",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 10.1 - 20 lbs ",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION4: {
-    label: "Revolution 20.1 - 40 lbs",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 20.1 - 40 lbs",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION5: {
-    label: "Revolution 40.1 - 85 lbs",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 40.1 - 85 lbs",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     REVOLUTION6: {
-    label: "Revolution 85.1 - 130 lbs",
-    instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
-    class: "Parasiticide",
-    sideEffects: "Rarely causes redness of the skin or hair loss"
-    },
+      label: "Revolution 85.1 - 130 lbs",
+      instructions: "Apply contents between your dog’s ears every 30 days for prevention of heartworms, fleas, ticks, and common intestinal parasites.",
+      class: "Parasiticide",
+      sideEffects: "Rarely causes redness of the skin or hair loss"
+      },
 
     SIMPARICATRIO1: {
-    label: "Simparica Trio 2.8 - 5.5 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 2.8 - 5.5 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SIMPARICATRIO2: {
-    label: "Simparica Trio 5.6 - 11.0 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 5.6 - 11.0 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SIMPARICATRIO3: {
-    label: "Simparica Trio 11.1 - 22.0 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 11.1 - 22.0 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SIMPARICATRIO4: {
-    label: "Simparica Trio 22.1 - 44.0 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 22.1 - 44.0 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SIMPARICATRIO5: {
-    label: "Simparica Trio 44.1 - 88.0 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 44.1 - 88.0 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SIMPARICATRIO6: {
-    label: "Simparica Trio 88.1 - 132.0 lbs",
-    instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
-    class: "Antiparasitic",
-    sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
-    },
+      label: "Simparica Trio 88.1 - 132.0 lbs",
+      instructions: "Give your dog 1 chewable tablet by mouth every 30 days for prevention of heartworms, fleas, ticks, & common intestinal parasites.",
+      class: "Antiparasitic",
+      sideEffects: "Rarely causes vomiting, diarrhea, or neurologic abnormalities"
+      },
 
     SPIRONOLACTONE25: {
-    label: "Spironolactone 25mg",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours to decrease heart workload.",
-    class: "Diuretic",
-    sideEffects: "May cause bloodwork abnormalities (elevated BUN)"
-    },
+      label: "Spironolactone 25mg",
+      instructions: "Give your dog 1 tablet by mouth every 24 hours to decrease heart workload. DO NOT DISCONTINUE.",
+      class: "Diuretic",
+      sideEffects: "May cause bloodwork abnormalities (elevated BUN)"
+      },
 
     SUCRALFATE: {
-    label: "Sucralfate 1 gram",
-    instructions: "Crush/dissolve 1 tablet with 3 - 5 mL of water before giving by mouth every 12 hours. GIVE 2 HOURS BEFORE OR AFTER OTHER FOODS OR MEDS.",
-    class: "Antiulcer",
-    sideEffects: "May cause decreased absorption of other medicines & food given by mouth"
-    },
+      label: "Sucralfate 1 gram",
+      instructions: "Crush/dissolve {amount} {unit} with 3 - 5 mL of water before giving by mouth every 12 hours. GIVE 2 HOURS BEFORE OR AFTER OTHER FOODS OR MEDS.",
+      class: "Antiulcer",
+      sideEffects: "May cause decreased absorption of other medicines & food given by mouth",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     SUBCUTANEOUSFLUIDS: {
-    label: "Subcutaneous fluids",
-    instructions: "Fluids injected beneath your dog’s skin to rehydrate patient",
-    class: "Fluids",
-    sideEffects: "Well tolerated"
-    },
+      label: "Subcutaneous fluids",
+      instructions: "Fluids injected beneath your dog’s skin to rehydrate patient",
+      class: "Fluids",
+      sideEffects: "Well tolerated"
+      },
 
     SYNOTIC: {
-    label: "Synotic Otic Solution",
-    instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
-    class: "Corticosteroid",
-    sideEffects: "May cause short term ear discomfort or increased thirst/urination." },
+      label: "Synotic Otic Solution",
+      instructions: "Starting today\nApply up to 5 drops in your dog’s affected ear every 12 hours for 1 week, then discontinue.",
+      class: "Corticosteroid",
+      sideEffects: "May cause short term ear discomfort or increased thirst/urination." },
 
     TACROLIMUS: {
-    label: "Tacrolimus 0.02% ophthalmic solution",
-    instructions: "Apply 1 - 2 drops in your dog’s affected eye every 12 hours for management of dry eye. Apply 5 minutes BEFORE other eye drop medicine.",
-    class: "Immunosuppressant",
-    sideEffects: "Well tolerated"
-    },
+      label: "Tacrolimus 0.02% ophthalmic solution",
+      instructions: "Apply 1 - 2 drops in your dog’s affected eye every 12 hours for management of dry eye. Apply 5 minutes BEFORE other eye drop medicine.",
+      class: "Immunosuppressant",
+      sideEffects: "Well tolerated"
+      },
 
     TRAZODONE50: {
-    label: "Trazodone 50mg",
-    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
-    class: "Anxiolytic",
-    sideEffects: "May cause sedation or hyperactivity"
-    },
+      label: "Trazodone 50mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     TRAZODONE100: {
-    label: "Trazodone 100mg",
-    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
-    class: "Anxiolytic",
-    sideEffects: "May cause sedation or hyperactivity"
-    },
+      label: "Trazodone 100mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     TRAZODONE150: {
-    label: "Trazodone 150mg",
-    instructions: "Give your dog 1 tablet the night before and 2 hours prior to a morning appointment.",
-    class: "Anxiolytic",
-    sideEffects: "May cause sedation or hyperactivity"
-    },
+      label: "Trazodone 150mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     TRILOSTANE5: {
-    label: "Vetoryl 5mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 5mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     TRILOSTANE10: {
-    label: "Vetoryl 10mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 10mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     TRILOSTANE20: {
-    label: "Vetoryl 20mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 20mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     TRILOSTANE30: {
-    label: "Vetoryl 30mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 30mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     TRILOSTANE60: {
-    label: "Vetoryl 60mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 60mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     TRILOSTANE120: {
-    label: "Vetoryl 120mg (trilostane)",
-    instructions: "Give your dog 1 capsule by mouth every 24 hours for management of hyperadrenocorticism.",
-    class: "Adrenal suppressant",
-    sideEffects: "May cause vomiting, decreased appetite, or lethargy."
-    },
+      label: "Vetoryl 120mg (trilostane)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of hyperadrenocorticism.",
+      class: "Adrenal suppressant",
+      sideEffects: "May cause vomiting, decreased appetite, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100",
+      },
 
     VETSULIN: {
-    label: "Vetsulin 40 units/mL (porcine insulin zinc)",
-    instructions: "Give your dog 1 unit every 12 hours. Give after eating. You can skip an injection once if your dog doesn’t eat breakfast/dinner.",
-    class: "Hormone",
-    sideEffects: "May cause low blood sugar (lethargy, drunken appearance, or seizures)"
-    },
-
+      label: "Vetsulin 40 units/mL (porcine insulin zinc)",
+      instructions: "Give your dog 1 unit every 12 hours. Give after eating. You can skip an injection once if your dog doesn’t eat breakfast/dinner.",
+      class: "Hormone",
+      sideEffects: "May cause low blood sugar (lethargy, drunken appearance, or seizures)"
+      },
 
     ZENRELIA48: {
-    label: "Zenrelia 4.8mg (ilunocitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Well tolerated"
-    },
+      label: "Zenrelia 4.8mg (ilunocitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     ZENRELIA64: {
-    label: "Zenrelia 6.4mg (ilunocitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Well tolerated"
-    },
+      label: "Zenrelia 6.4mg (ilunocitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     ZENRELIA85: {
-    label: "Zenrelia 8.5mg (ilunocitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Well tolerated"
-    },
+      label: "Zenrelia 8.5mg (ilunocitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     ZENRELIA15: {
-    label: "Zenrelia 15mg (ilunocitinib)",
-    instructions: "Give your dog 1 tablet by mouth every 24 hours for treatment of allergies.",
-    class: "Anti-allergy (JAK inhibitor)",
-    sideEffects: "Well tolerated"
-    },
-    };
+      label: "Zenrelia 15mg (ilunocitinib)",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for treatment of allergies.",
+      class: "Anti-allergy (JAK inhibitor)",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
+      };
 
-    function insertMedicineFromSidebar(medKey, prefixKey) {
-    // 1. Fallback safety check if the base medication key doesn't exist
+    function insertMedicineFromSidebar(medKey, prefixKey, unit, dose) {
     if (!MEDICINE_REGISTRY[medKey]) {
-    throw new Error("Medication key '" + medKey + "' was not found in the Registry.");
+        throw new Error("Medication key '" + medKey + "' was not found.");
     }
+    
+    if (!prefixKey) prefixKey = "START";
 
-    // 2. Set default fallback configuration if no prefix was passed over
-    if (!prefixKey) {
-    prefixKey = "START";
+    // Build the command: only include unit/dose if they aren't null/undefined
+    let fullCommand = `/c${medKey}`;
+    
+    // If unit/dose are provided, append them; otherwise skip
+    if (unit && dose) {
+        fullCommand += `${unit}${dose}`;
     }
+    
+    fullCommand += `${prefixKey}`;
 
-    // 3. Construct the precise target uppercase lookup token matched in your Forward Generator
-    const targetLookupKey = (medKey + prefixKey).toUpperCase();
-    const commandData = MED_COMMAND_LOOKUP[targetLookupKey];
+    console.log("Constructed Command:", fullCommand); // Check this in your logs
+
+    const commandData = processMedicationCommand(fullCommand);
 
     if (!commandData) {
-    throw new Error("Could not find configuration data for combination key: " + targetLookupKey);
+        throw new Error("Could not generate configuration data for: " + fullCommand);
     }
 
-    // 4. Send metadata payload into your active template routing engine
     TABLE_ROW_BUFFER.push(commandData);
-
-    // Natively triggers sorting, deduplication, row background coloring, and first-line bold/underlines
     generateMedicineTableFromBuffer();
     }
 
@@ -1062,35 +1258,88 @@
     return cleanText;
     }
 
-    // Precompute every valid medication command (Forward Generation)
-    const MED_COMMAND_LOOKUP = {};
-    Object.keys(MEDICINE_REGISTRY).forEach(medKey => {
-    Object.keys(MED_PREFIX).forEach(prefixKey => {
-    const cmdKey = (medKey + prefixKey).toUpperCase();
-    const med = MEDICINE_REGISTRY[medKey];
-    const prefixText = MED_PREFIX[prefixKey];
-    const color = PREFIX_ROW_COLOR[prefixKey] || null;
-
-    MED_COMMAND_LOOKUP[cmdKey] = {
-    rowData: [
-    med.label,
-    `${prefixText}\n${med.instructions}`,
-    med.class,
-    med.sideEffects
-    ],
-    color: color
-    };
-    });
-
-    // Default START command
-    const defaultKey = (medKey + "START").toUpperCase();
-    MED_COMMAND_LOOKUP[medKey.toUpperCase()] = MED_COMMAND_LOOKUP[defaultKey];
-    });
-
-    // Medication Command Processor
     function processMedicationCommand(keyword) {
-    const cmd = keyword.replace(/^\/c/i, "").toUpperCase().trim();
-    return MED_COMMAND_LOOKUP[cmd] || null;
+    // 1. Strip the /c, handle the Prefix
+    let cleanInput = keyword.replace(/^\/c/i, "").toUpperCase();
+
+    let matchedPrefixKey = "START";
+    for (let pKey in MED_PREFIX) {
+    if (cleanInput.endsWith(pKey)) {
+    matchedPrefixKey = pKey;
+    cleanInput = cleanInput.substring(0, cleanInput.length - pKey.length);
+    break;
+    }
+    }
+
+    // 2. Extract MedKey, Unit, and DoseCode
+    let regex = /^([A-Z0-9]+)(tab|cap|ml|can|cup)(\d+)/i;
+    let match = cleanInput.match(regex);
+
+    let medKey, amount, unit;
+
+    // Helper logic to format amount & unit based on liquid vs. solid
+    function formatDoseAndUnit(uCode, dCode) {
+      let unitObj = UNIT_MAP[uCode] || { singular: uCode, plural: uCode };
+      let isLiquid = (uCode.toLowerCase() === 'ml');
+      let formattedAmount = '';
+      let numericVal = 0;
+
+      if (isLiquid) {
+        // Liquids (mL) default to decimal notation (e.g., "0.5")
+        numericVal = parseInt(dCode, 10) / 100;
+        formattedAmount = numericVal.toString();
+      } else {
+        // Solids (tab, cap, etc.) use fractions from DOSE_MAP if available
+        if (DOSE_MAP[dCode]) {
+          formattedAmount = DOSE_MAP[dCode]; // e.g., "1/2"
+          numericVal = parseInt(dCode, 10) / 100; // Accurately calculates decimal representation (e.g., 0.5)
+        } else {
+          numericVal = parseInt(dCode, 10) / 100;
+          formattedAmount = numericVal.toString();
+        }
+      }
+
+      return {
+        amount: formattedAmount,
+        // CHANGED: Use singular for anything <= 1 (e.g., 1/2 tablet, 1 tablet), plural only for > 1 (e.g., 2 tablets)
+        unit: (numericVal <= 1) ? unitObj.singular : unitObj.plural
+      };
+    }
+
+    if (match) {
+      medKey = match[1];
+      let unitCode = match[2].toLowerCase();
+      let doseCode = match[3];
+
+      let formatted = formatDoseAndUnit(unitCode, doseCode);
+      amount = formatted.amount;
+      unit = formatted.unit;
+    } else {
+      // Fallback: No unit/dose provided, use the medicine's specific defaults
+      medKey = cleanInput;
+      let med = MEDICINE_REGISTRY[medKey];
+      if (!med) return null;
+
+      let formatted = formatDoseAndUnit(med.defaultUnit, med.defaultDose);
+      amount = formatted.amount;
+      unit = formatted.unit;
+    }
+
+    let med = MEDICINE_REGISTRY[medKey];
+    if (!med) return null;
+
+    // 3. Resolve template
+    let finalInstructions = med.instructions.replace('{amount}', amount).replace('{unit}', unit);
+
+    return {
+      rowData: [
+        med.label,
+        `${MED_PREFIX[matchedPrefixKey]}\n${finalInstructions}`,
+        med.class,
+        med.sideEffects
+      ],
+      color: PREFIX_ROW_COLOR[matchedPrefixKey]
+    };
     }
 
 /* ------------------ DIAGNOSIS & TEMPLATE BUFFER/RANKING ------------------ */
@@ -1105,7 +1354,7 @@
       // 500 - 599: Medium-low priority, treatment advised (conjunctivitis, bordetellosis, etc.)
       // 600 - 699: Low-high priority, medical attention (2nd degree AV block)
       // 700 - 799: Low-medium priority, client attention (overweight, blind, collapsing trachea)
-      // 800 - 899: Low priority, advise (underweight)
+      // 800 - 899: Low priority, information (reverse sneezing, prognathism)
       // 900 - 999: Non-vital, incidental findings, no treatment necessary (nuclear sclerosis)
 
     ACUTE_GASTROENTERITIS_DIARRHEA_ONLY: {
@@ -1185,7 +1434,7 @@
 
     ENTROPION: {
     text: "Entropion",
-    rank: 501
+    rank: 502
     },
 
     FULL_ANAL_GLANDS: {
@@ -1211,6 +1460,11 @@
     HEARTWORMS: {
     text: "Heartworms",
     rank: 2
+    },
+
+    HOOKWORMS: {
+    text: "Hookworms",
+    rank: 501
     },
     
     HYPERTENSION: {
@@ -1253,6 +1507,11 @@
     rank: 403
     },
 
+    MARIJUANA_INGESTION: {
+    text: "Marijuana Ingestion",
+    rank: 205
+    },
+
     MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
     text: "Meibomian gland adenoma (presumed)",
     rank: 310
@@ -1276,6 +1535,11 @@
     NUCLEAR_SCLEROSIS: {
     text: "Nuclear sclerosis",
     rank: 970
+    },
+
+    OAK_TOXICOSIS: {
+    text: "Oak toxicosis",
+    rank: 206
     },
 
     OSTEOARTHRITIS: {
@@ -1318,6 +1582,11 @@
     rank: 300
     },
 
+    PROGNATHISM: {
+    text: "Prognathism",
+    rank: 801
+    },
+
     REVERSE_SNEEZING: {
     text: "Reverse sneezing",
     rank: 800
@@ -1340,7 +1609,7 @@
 
     UNDERWEIGHT: {
     text: "Underweight",
-    rank: 820
+    rank: 704
     },
     };
 
@@ -1699,6 +1968,26 @@
     BANFIELD0620: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
     url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+southlake#lrd=0x864dd4ed4186ea27:0x75f2978a14b85b2d,3'
+    },
+
+    BANFIELD1122: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+watauga#lrd=0x864dd7f743c05f0f:0x21e5558511c540a4,3'
+    },
+
+    BANFIELD1282: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+watauga#lrd=0x864dd7f743c05f0f:0x21e5558511c540a4,3'
+    },
+
+    BANFIELD1728: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+euless#lrd=0x864e7ff8a9861685:0xb021f9085891d4e7,3'
+    },
+
+    BANFIELD2414: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&hs=BE0&sca_esv=bde0b90e1f00e769&sxsrf=APpeQnubBQn74sMBT690jGUEMOHB4nYm4A:1785167688057&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_9xc-5g9PTB0pHPyX36ZAdPGeljmtUUG8-5zaBmxi1zvjlXDAOuyFCZtYBDk8I4kdMH9-tb34bcACETLn2VIBdPZs4-WqGs_0qkIALQl85igWLQUAg%3D%3D&q=Banfield+Pet+Hospital+Reviews&sa=X&ved=2ahUKEwiMz6Tvm_OVAxXGkyYFHTHVAjQQ0bkNegQIPhAH&biw=1366&bih=607&dpr=1#lrd=0x864ea1f4f3cc5d67:0x23ae04781a7d237,3'
     },
   // Vaccines Registry
     BORDETELLA_VXN:
@@ -2403,6 +2692,15 @@
 
     GASTROINTESTINAL_REFLUX_DISEASE_HEADER: "Gastrointestinal reflux disease:",
 
+    GRAIN_FREE_ARTICLE: {
+    text: "Diets & Heart Disease in Dogs & Cats article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102903&id=8989590`
+    },
+
+    GRAIN_FREE_ASSOCIATION: "dogs who eat grain free food more commonly present to veterinary clinics with heart issues.",
+
+    GRAIN_FREE_DIETS_HEADER: "Grain free diets:",
+
     HILLS_DD_DRY_FOOD_LINK: {
     text: "Hill's dry food",
     url: `https://www.hillspet.com/dog-food/pd-dd-canine-potato-and-venison-formula-dry`
@@ -2418,6 +2716,10 @@
     url: `https://www.hillspet.com/dog-food?condition=foodsensitivity`
     },
 
+    HEARTWORM_PREVENTION_HOOKWORMS: "Keep your dog on heartworm prevention to protect against future infections.",
+
+    HOOKWORMS_HEADER: "Hookworms:",
+
     HYDROLYZED_PROTEIN_DIET_TRIAL: "A hydrolyzed protein diet trial",
 
     INFECTED_ANAL_GLANDS_SEEN:
@@ -2425,7 +2727,24 @@
 
     INFECTED_ANAL_GLANDS_HEADER: "Infected anal glands:",
 
+    MARIJUANA_INGESTION_HEADER: "Marijuana ingestion:",
+
+    MARIJUANA_SYMPTOMS: "If chronic vomiting, seizures, or respiratory depression/distress are noted, your dog must be taken to an emergency clinic immediately for stabilization.",
+
+    MARIJUANA_WARNING: /However, it is important to keep.*?high enough doses for dogs\./,
+
     NOVEL_PROTEIN_DIET_TRIAL: "A novel protein diet trial",
+
+    OAK_IS_TOXIC: "All parts of an oak tree are toxic to our pets.",
+
+    OAK_TOXICOSIS_HEADER: "Oak toxicosis:",
+
+    ORTHODONTICS_FOR_PETS_ARTICLE: {
+    text: "Orthodontics for Pets",
+    url: `https://www.vin.com/apputil/project/defaultadv1.aspx?pid=17256&id=4951293&f5=1`
+    },
+
+    PROGNATHISM_HEADER: "Prognathism:",
 
     PURINA_FOOD_SENSITIVITY: {
     text: "Purina Pro Plan",
@@ -2626,7 +2945,7 @@
     "You will be called with results in 3 - 4 business days.",
     };
 
-/* ------------------ Reset & Replacement ------------------ */
+/* ------------------ RESET & REPLACEMENT ------------------ */
   // Canine Reset
     function generateCanineResetTemplate(sex) {
     const p = getPronoun(sex);
@@ -2803,7 +3122,7 @@
     };
     }
 
-/* ------------------ Reverse Template Generator ------------------ */
+/* ------------------ REVERSE TEMPLATE GENERATOR ------------------ */
   // Main Function
     function reverseGenerateTemplate(sex, plurality) {
     const body = DocumentApp.getActiveDocument().getBody();
@@ -3049,10 +3368,73 @@
     }
 
     function escapeBackticks(text) { 
-    return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\\$"); 
+    return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\$"); 
     }
 
-/* ------------------ REVIEWS ------------------ */
+/* ------------------ REVIEWS & GENERIC DYNAMIC TEMPLATE ------------------ */
+  // Generic Weight Template
+    function generateTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
+    const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let genericDosage = "";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '11-20':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '21-30':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '31-40':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '41-50':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '51-60':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '61-70':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '71-80':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '81-90':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '91-100':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '101-110':
+            genericDosage = "GenericTextInformation";
+            break;
+        case '111-120':
+            genericDosage = "GenericTextInformation";
+            break;
+        case 'OVER120':
+            genericDosage = "GenericTextInformation";
+            break;
+    }
+
+    return {
+    sex,
+    plurality,
+    weight,
+    diagnoses: [""],
+    text: [
+    `Header: Insert text with ${genericDosage}.`
+    ].join('\n'),
+
+    boldKeys: [""],
+    };
+    }
+
   // Banfield Southlake #0620
     function generateBanfieldSouthlake0620Template(sex, plurality) {
     const g = getGrammar('wellness', plurality, sex);
@@ -3067,6 +3449,74 @@
     boldKeys: [],
     boldUnderlineKeys: [],
     linkKeys: ["BANFIELD0620"],
+    };
+    }
+
+  // Banfield Watauga #1122
+    function generateBanfieldWatauga1122Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1122"],
+    };
+    }
+
+  // Banfield Flower Mound #1282
+    function generateBanfieldFlowerMound1282Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1282"],
+    };
+    }
+
+  // Banfield Euless #1728
+    function generateBanfieldEuless1728Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1282"],
+    };
+    }
+
+  // Banfield Lakewood #2414
+    function generateBanfieldLakewood2414Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD2414"],
     };
     }
 
@@ -4981,14 +5431,62 @@
 
 /* ------------------ CANINE GASTROINTESTINAL ------------------ */
   // Acute Gastroenteritis | Diarrhea, Home Diet
-    function generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
-    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. Based on your dog’s history & age, the most likely cause of diarrhea is dietary indiscretion (eating something that isn’t healthy for dogs). Ideally your dog would be fed a prescription gastrointestinal diet as a bland, easy to digest aid. At this time you’ve elected to use a homemade bland diet of boiled chicken & rice without salt or other spices. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks.`
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. Based on your dog’s history & age, the most likely cause of diarrhea is dietary indiscretion (eating something that isn’t healthy for dogs). Ideally your dog would be fed a prescription gastrointestinal diet as a bland, easy to digest aid. At this time you’ve elected to use a homemade bland diet of boiled chicken & rice without salt or other spices. You can also add on ${psylliumHuskDosage} daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks.`
     ].join('\n'),
 
     boldKeys: [
@@ -4998,14 +5496,62 @@
     }
 
   // Acute Gastroenteritis | Diarrhea, Fecal Test
-    function generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
-    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites is currently running. You will be called with results in 3 - 4 business days. In the meantime your dog’s diarrhea will be treated symptomatically. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites is currently running. You will be called with results in 3 - 4 business days. In the meantime your dog’s diarrhea will be treated symptomatically. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on ${psylliumHuskDosage} daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
     ].join('\n'),
 
     boldKeys: [
@@ -5019,14 +5565,62 @@
     }
 
   // Acute Gastroenteritis | Diarrhea, Fecal Test Declined
-    function generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality = 'singular') {
+    function generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["ACUTE_GASTROENTERITIS_DIARRHEA_ONLY"],
     text: [
-    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites has been declined so we are treating symptomatically instead. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on psyllium husk (½ gram per lb) once daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
+    `Acute gastroenteritis: At this time no overt causes of diarrhea were identified. A fecal test to check for intestinal parasites has been declined so we are treating symptomatically instead. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add on ${psylliumHuskDosage} daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. `
     ].join('\n'),
 
     boldKeys: [
@@ -5142,14 +5736,62 @@
     }
 
   // Anal Glands | 1st, Full, Expressed
-    function generateCanineAnalGlands1FullExpressedTemplate(sex, plurality = 'singular') {
+    function generateCanineAnalGlands1FullExpressedTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["FULL_ANAL_GLANDS"],
     text: [
-    `Anal glands: Your dog had full anal glands that were expressed at the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them. You can add psyllium husk to increase the fiber content if stools are soft or watery. Some dogs have anal glands that never empty correctly. If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.`,
+    `Anal glands: Your dog had full anal glands that were expressed at the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them. You can add ${psylliumHuskDosage} each day to increase the fiber content if stools are soft or watery. Some dogs have anal glands that never empty correctly. If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus.`,
       `You can learn how to express your dog’s anal glands yourself by reading the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise you can visit a clinic or groomer to have them expressed. If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.`
     ].join('\n'),
 
@@ -5196,15 +5838,63 @@
     }
 
   // Anal Glands | 3rd, Infected
-    function generateCanineAnalGlands3InfectedTemplate(sex, plurality = 'singular') {
+    function generateCanineAnalGlands3InfectedTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["INFECTED_ANAL_GLANDS"],
     text: [
-    `Infected anal glands: Your dog had full anal glands that appeared infected when they were expressed in the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them.  If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus. Ultimately this can lead to infection, similar to what your dog appears to have today. You can add psyllium husk to increase the fiber content if stools are soft or watery.`,
-      `Your dog has been administered antibiotics and pain control for the infection. You can learn how to express your dog’s anal glands yourself by reading the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise you can visit a clinic or groomer to have them expressed. If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.`
+    `Infected anal glands: Your dog had full anal glands that appeared infected when they were expressed in the clinic. Dogs have anal glands on either side of their anus to leave their scent on their stool. Typically this empties whenever they defecate, but dogs with soft stool or diarrhea have difficulty expressing them.  If your dog’s anal glands are full, you may see scooting on the floor or over fixation on the anus. Ultimately this can lead to infection, similar to what your dog appears to have today. You can add ${psylliumHuskDosage} each day to increase the fiber content if stools are soft or watery.`,
+    `Your dog has been administered antibiotics and pain control for the infection. You can learn how to express your dog’s anal glands yourself by reading the Emptying a Dog or Cat's Anal Sacs article on Veterinary Partner. Otherwise you can visit a clinic or groomer to have them expressed. If your dog continues to fixate on the anus, bring back a stool sample & we can test for intestinal parasites.`
     ].join('\n'),
 
     boldKeys: [
@@ -5224,14 +5914,62 @@
     }
 
   // Anal Glands | 4th, Ruptured
-    function generateCanineAnalGlands4RupturedTemplate(sex, plurality = 'singular') {
+    function generateCanineAnalGlands4RupturedTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('anal_glands', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
     return {
     sex,
     plurality,
+    weight,
     diagnoses: ["RUPTURED_ANAL_GLAND"],
     text: [
-    `${g.ruptured_gland_header}: Your dog has ${g.ruptured_anal_gland}. This often occurs due to an infection leading to an abscess or due to anal glands that couldn’t express themselves and became too full. Typically the anal glands empty whenever animals defecate, but pets with soft stool or diarrhea have difficulty expressing them. You can add psyllium husk to increase the fiber content if stools are soft or watery.`,
+    `${g.ruptured_gland_header}: Your dog has ${g.ruptured_anal_gland}. This often occurs due to an infection leading to an abscess or due to anal glands that couldn’t express themselves and became too full. Typically the anal glands empty whenever animals defecate, but pets with soft stool or diarrhea have difficulty expressing them. You can add ${psylliumHuskDosage} each day to increase the fiber content if stools are soft or watery.`,
     `The hair surrounding the anal gland and on the tail was clipped to prevent fecal matter from accumulating and causing further infection. The gland was also cleaned with a dilute surgical antimicrobial called chlorhexidine. Give the medication as prescribed below to control pain and infection, and bring your dog back in 1 week for a recheck appointment if no improvement is noted (or immediately if the wound is worsening). You can learn more from the Anal Glands and Anal Gland Abscess in Dogs and Cats article on Veterinary Partner.`
     ].join('\n'),
 
@@ -5552,6 +6290,176 @@
       "HILLS_FOOD_SENSITIVITY",
       "PURINA_FOOD_SENSITIVITY",
       "ROYAL_CANIN_FOOD_SENSITIVITY"
+    ],
+    };
+    }
+
+  // Grain Free Food
+    function generateCanineGrainFreeFoodTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    cleanupKeys: ["DIET_HEADER"],
+    text: [
+    `Grain free diets: Several studies have been performed on dogs that are fed grain free food to evaluate any changes in health. While studies are still pending and results aren’t final, we often see that dogs who eat grain free food more commonly present to veterinary clinics with heart issues. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re rigoriously tested and proven effective. You can add grains to your dog's diet such as brown rice to help finish out any grain free food you have left before transitioning over to a grain-inclusive diet. You can learn more from the Diets & Heart Disease in Dogs & Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "GRAIN_FREE_DIETS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "GRAIN_FREE_ASSOCIATION",
+    ],
+
+    linkKeys: [
+      "HILLS_DOG_DRY_LINK",
+      "HILLS_DOG_WET_LINK",
+      "PURINA_DOG_DRY_LINK",
+      "PURINA_DOG_WET_LINK",
+      "ROYAL_CANIN_DOG_DRY_LINK",
+      "ROYAL_CANIN_DOG_WET_LINK",
+      "GRAIN_FREE_ARTICLE"
+    ],
+    };
+    }
+
+  // Hookworms Infestation
+    function generateCanineHookwormsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["HOOKWORMS"],
+    text: [
+    `Hookworms: Hookworms were found in your dog’s stool. This is a common parasite that is easily treated with heartworm preventative medication. Give the antiparasitic medication as prescribed and recheck of the stool sample in 3 weeks. Keep your dog on heartworm prevention to protect against future infections.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HOOKWORMS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "HEARTWORM_PREVENTION_HOOKWORMS"
+    ],
+    };
+    }
+
+  // Marijuana Ingestion | Non-toxic, Activated Charcoal
+    function generateCanineMJIngestionNontoxicTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["MARIJUANA_INGESTION"],
+    text: [
+    `Marijuana ingestion: The amount of marijuana your dog ingested is likely non-fatal. However, it is important to keep ${g.him} away from such products in the future as they can cause seizures and death in high enough doses for dogs. Your dog was given activated charcoal to absorb any remaining marijuana left in the system.`,
+    `Over the next 1 - 3 days you may notice ataxia, depression, excessive salivation, and disorientation caused by the marijuana. Make sure to turn ${g.him} every 4 hours if you notice your pet consistently laying on one side. If chronic vomiting, seizures, or respiratory depression/distress are noted, your dog must be taken to an emergency clinic immediately for stabilization. Otherwise offer a dark, quiet place and monitor your dog closely.`
+    ].join('\n'),
+
+    boldKeys: [
+      "MARIJUANA_INGESTION_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "MARIJUANA_SYMPTOMS",
+    ],
+
+    redKeys: [
+      "MARIJUANA_WARNING",
+    ],
+    };
+    }
+
+  // Oak Toxicosis
+    function generateCanineOakToxicosisTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
+    const g = getGrammar('wellness', plurality, sex);
+
+    // 1. Default dosage
+    let psylliumHuskDosage = "psyllium husk (½ gram per lb)";
+
+    // 2. Adjust text dynamically based on the weight
+    switch (weight) {
+        case '1-10':
+            psylliumHuskDosage = "up to 5 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '11-20':
+            psylliumHuskDosage = "up to 10 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '21-30':
+            psylliumHuskDosage = "up to 15 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '31-40':
+            psylliumHuskDosage = "up to 20 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '41-50':
+            psylliumHuskDosage = "up to 25 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '51-60':
+            psylliumHuskDosage = "up to 30 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '61-70':
+            psylliumHuskDosage = "up to 35 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '71-80':
+            psylliumHuskDosage = "up to 40 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '81-90':
+            psylliumHuskDosage = "up to 45 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '91-100':
+            psylliumHuskDosage = "up to 50 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '101-110':
+            psylliumHuskDosage = "up to 55 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case '111-120':
+            psylliumHuskDosage = "up to 60 grams of psyllium husk (at your dog's current weight)";
+            break;
+        case 'OVER120':
+            psylliumHuskDosage = "up to 65 grams of psyllium husk (at your dog's current weight)";
+            break;
+    }
+
+    return {
+    sex,
+    plurality,
+    weight,
+    diagnoses: ["OAK_TOXICOSIS"],
+    text: [
+    `Oak toxicosis: All parts of an oak tree are toxic to our pets. This includes the bark, leaves, & acorns. Symptoms include vomiting, diarrhea, abdominal pain, collapse, & (rarely) death. Fortunately your dog isn’t showing severe symptoms currently. Feed the prescription gastrointestinal diet as prescribed to speed up the healing process. You can also add ${psylliumHuskDosage} daily for further fiber support. Anti-diarrheal medicine has been sent home for the next two weeks. Alternatively you can feed boiled chicken & rice without salt or other spices. Table salt & some of our other spices are toxic to dogs & can cause diarrhea or other problems. Anti-diarrheal medicine has been sent home for the next two weeks. Give as directed below.`
+    ].join('\n'),
+
+    boldKeys: [
+      "OAK_TOXICOSIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "OAK_IS_TOXIC"
+    ],
+    };
+    }
+
+  // Prognathism
+    function generateCaninePrognathismTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PROGNATHISM"],
+    text: [
+    `Prognathism: Your dog has an underbite. This is a normal finding for ${g.his} breed but it predisposes ${g.him} to dental disease. Use the same general dental care advised for all pets (brushing teeth for 10 seconds a day, using products approved by Veterinary Oral Health Council, etc.) to help keep ${g.his} teeth as healthy as possible. You can learn more from the Orthodontics for Pets article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PROGNATHISM_HEADER"
+    ],
+
+    linkKeys: [
+      "ORTHODONTICS_FOR_PETS_ARTICLE",
+      "VOHC_DOG_LINK"
     ],
     };
     }
@@ -6817,7 +7725,11 @@
     customAction: generateMedicineTableFromBuffer
     }),
   // Reviews
-    '/BanfieldSouthlake': () => generateBanfieldSouthlake0620Template(),
+    '/B0620': () => generateBanfieldSouthlake0620Template(),
+    '/B1122': () => generateBanfieldWatauga1122Template(),
+    '/B1282': () => generateBanfieldFlowerMound1282Template(),
+    '/B1728': () => generateBanfieldEuless1728Template(),
+    '/B2414': () => generateBanfieldLakewood2414Template(),
 
   // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
@@ -6899,19 +7811,19 @@
     '/cPancreatitis1stDiagnosed': (sex, plurality) => generateCaninePancreatitis1DiagnosedTemplate(sex, plurality),
 
   // Canine Gastrointestinal Definitions
-    '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality),
-    '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality),
-    '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality) => generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality),
+    '/cAcuteGastroenteritisDiarrheaHomeDiet': (sex, plurality, weight) => generateCanineAcuteGastroenteritisDiarrheaHomeDietTemplate(sex, plurality, weight),
+    '/cAcuteGastroenteritisDiarrheaFecalTest': (sex, plurality, weight) => generateCanineAcuteGastroenteritisDiarrheaFecalTestTemplate(sex, plurality, weight),
+    '/cAcuteGastroenteritisDiarrheaDeclinedFecalTest': (sex, plurality, weight) => generateCanineAcuteGastroenteritisDiarrheaDeclinedFecalTestTemplate(sex, plurality, weight),
     '/cAcuteGastroenteritisVomitingDiarrheaBloodworkFecalTest': (sex, plurality) => generateCanineAGDiarrheaVomitingBloodworkFecalTestTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingBloodworkNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingBloodworkNormalTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingBloodworkDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingBloodworkDeclinedTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingRadiographsNormal': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadiographsNormalTemplate(sex, plurality),
     '/cAcuteGastroenteritisVomitingRadiographsDeclined': (sex, plurality) => generateCanineAcuteGastroenteritisVomitingRadsDeclinedTemplate(sex, plurality),
-    '/cAnalGlands1stFullExpressed': (sex, plurality) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality),
+    '/cAnalGlands1stFullExpressed': (sex, plurality, weight) => generateCanineAnalGlands1FullExpressedTemplate(sex, plurality, weight),
     '/cAnalGlands2ndKnown': (sex, plurality) => generateCanineAnalGlands2KnownTemplate(sex, plurality),
-    '/cAnalGlands3rdInfected': (sex, plurality) => generateCanineAnalGlands3InfectedTemplate(sex, plurality),
+    '/cAnalGlands3rdInfected': (sex, plurality, weight) => generateCanineAnalGlands3InfectedTemplate(sex, plurality, weight),
     '/cAnalGland4thRuptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "singular"),
-    '/cAnalGlands4thRuptured': (sex, plurality) => generateCanineAnalGlands4RupturedTemplate(sex, "plural"),
+    '/cAnalGlands4thRuptured': (sex, plurality, weight) => generateCanineAnalGlands4RupturedTemplate(sex, "plural", weight),
     '/cPeriodontalDisease1st': (sex, plurality) => generateCanine1PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease2nd': (sex, plurality) => generateCanine2PeriodontalDiseaseTemplate(sex, plurality),
     '/cPeriodontalDisease3rd': (sex, plurality) => generateCanine3PeriodontalDiseaseTemplate(sex, plurality),
@@ -6923,6 +7835,11 @@
     '/cFecalCollection': (sex, plurality) => generateCanineFecalCollectionTemplate(sex, plurality),
     '/cFoodTransition': (sex, plurality) => generateCanineFoodTransitionTemplate(sex, plurality),
     '/cGastroesophagealRefluxDisease': (sex, plurality) => generateCanineGastroesophagealRefluxDiseaseTemplate(sex, plurality),
+    '/cGrainFree': (sex, plurality) => generateCanineGrainFreeFoodTemplate(sex, plurality),
+    '/cHookworms': (sex, plurality) => generateCanineHookwormsTemplate(sex, plurality),
+    '/cMarijuanaIngestionNonToxic': (sex, plurality) => generateCanineMJIngestionNontoxicTemplate(sex, plurality),
+    '/cOakToxicosis': (sex, plurality, weight) => generateCanineOakToxicosisTemplate(sex, plurality, weight),
+    '/cPrognathism': (sex, plurality) => generateCaninePrognathismTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
@@ -7013,15 +7930,19 @@
 
     // --- DYNAMIC WEIGHT SUFFIX SHORTCUT LOGIC ---
     let activeWeight = weight;
-    const suffixMatch = base.match(/(\d+)$/); // Finds trailing digits at the end of the command
+
+    // Looks for 'w' or 'W' followed by numbers at the very end of the command
+    const suffixMatch = base.match(/w(\d+)$/i); 
+
+    let rawNumericWeight = null; // Track the precise weight typed
 
     if (suffixMatch) {
     const suffixNum = suffixMatch[1];
+    rawNumericWeight = suffixNum; // Save the precise number (e.g., "18")
     const calculatedWeight = getWeightClassFromSuffix(suffixNum);
     if (calculatedWeight) {
     activeWeight = calculatedWeight;
-    // Strip the trailing weight numbers out of the base command name
-    base = base.substring(0, base.length - suffixNum.length);
+    base = base.substring(0, base.length - (suffixNum.length + 1));
     }
     }
 
@@ -7067,7 +7988,12 @@
     }
 
     if (m.normalized.startsWith("/c") && !templateFn) {
-    const medRow = processMedicationCommand(m.text);
+    const cleanCommand = base.startsWith('/') ? base : '/' + base;
+    
+    // Pass raw numeric weight if typed, otherwise pass the sidebar string group
+    const weightToPass = rawNumericWeight || activeWeight; 
+    
+    const medRow = processMedicationCommand(cleanCommand, weightToPass);
     if (medRow) TABLE_ROW_BUFFER.push(medRow);
     }
     });
@@ -7572,3 +8498,4 @@
     .setTitle("Dr. I.E. Osadiaye's Medical Templates");
     DocumentApp.getUi().showSidebar(html);
     }
+    
