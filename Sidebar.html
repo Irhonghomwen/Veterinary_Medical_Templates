@@ -138,6 +138,7 @@
       <button class="template-button" onclick="insertTemplate('/cHealthyWeightMale', this)">Healthy Weight ♂</button>
       <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemale')">Healthy Weight ♀</button>
       <button class="template-button" onclick="insertTemplate('/cHealthyWeightFemales')">Healthy Weight (Multiple Pets)</button>
+      <button class="template-button" onclick="insertTemplate('/cQualityofLife')">Quality of Life</button>
       <button class="template-button" onclick="openWeightMenu('/cUnderweightMale', this)">Underweight ♂</button>
       <button class="template-button" onclick="openWeightMenu('/cUnderweightFemale', this)">Underweight ♀</button>
       <button class="template-button" onclick="openWeightMenu('/cUnderweightFemales', this)">Underweight (Multiple Pets)</button>
@@ -258,6 +259,10 @@
       <button class="template-button" onclick="insertTemplate('/cMarijuanaIngestionNonToxicFemale')">Marijuana Ingestion | Non-toxic, Activated Charcoal ♀</button>
       <button class="template-button" onclick="openWeightMenu('/cOakToxicosis', this)">Oak Toxicosis</button>
       <button class="template-button" onclick="insertTemplate('/cPrognathism')">Prognathism</button>
+      <button class="template-button" onclick="insertTemplate('/cRetainedDeciduousToothMale')">Retained Deciduous Tooth ♂</button>
+      <button class="template-button" onclick="insertTemplate('/cRetainedDeciduousToothFemale')">Retained Deciduous Tooth ♀</button>
+      <button class="template-button" onclick="insertTemplate('/cRetainedDeciduousTeeth')">Retained Deciduous Teeth</button>
+      <button class="template-button" onclick="insertTemplate('/cStressColitis')">Stress colitis</button>
     </div>
   </div>
 
@@ -348,7 +353,7 @@
   <button class="template-button cancel-button" onclick="closeDoseMenu()">← Back / Cancel</button>
   
   <button class="template-button" onclick="submitDose('cap', '100')">Injection</button>
-  
+
   <button class="template-button" onclick="submitDose('cap', '100')">1 capsule</button>
   <button class="template-button" onclick="submitDose('cap', '200')">2 capsules</button>
   <button class="template-button" onclick="submitDose('cap', '300')">3 capsules</button>
@@ -390,7 +395,7 @@
   <button class="template-button" onclick="submitMedicationWithPrefix('START')">1 - Starting today</button>
   <button class="template-button" onclick="submitMedicationWithPrefix('TOMORROW')">2 - Starting tomorrow</button>
   <button class="template-button" onclick="submitMedicationWithPrefix('NEWDOSE')">3 - New dose</button>
-  <button class="template-button" onclick="submitMedicationWithPrefix('DISCONTINUE')">4 - Discontinue</button>
+  <button class="template-button" onclick="submitMedicationWithPrefix('CEASE')">4 - Discontinue</button>
   <button class="template-button" onclick="submitMedicationWithPrefix('CONTINUE')">5 - Continue</button>
   <button class="template-button" onclick="submitMedicationWithPrefix('WAIT3')">6 - Wait 3 days then start</button>
   <button class="template-button" onclick="submitMedicationWithPrefix('CLINIC')">7 - Administered in clinic</button>
@@ -415,39 +420,37 @@ let cachedWeightButtonLabel = null;
 
 // 1. Initial Click: Always goes to Dose Menu
 function handleMedClick(medKey, btn, hasDynamicWeight) {
-    cachedMedKey = medKey;
-    cachedMedLabel = btn.innerText;
-    cachedButtonElement = btn;
-    cachedMedHasWeight = hasDynamicWeight;
-    cachedMedSelectedWeight = 'UNKNOWN';
+  cachedMedKey = medKey;
+  cachedMedLabel = btn.innerText;
+  cachedButtonElement = btn;
+  cachedMedHasWeight = hasDynamicWeight;
+  cachedMedSelectedWeight = 'UNKNOWN';
 
-    document.getElementById('doseTitle').innerText = "Select Dose for " + cachedMedLabel;
-    document.getElementById('mainView').style.display = 'none';
-    document.getElementById('doseView').style.display = 'block';
+  document.getElementById('doseTitle').innerText = "Select Dose for " + cachedMedLabel;
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('doseView').style.display = 'block';
 }
 
 // 2. Dose Selected: Decide between Weight or Prefix
 function submitDose(unit, dose) {
-    // Save to the global variables
-    cachedUnit = unit;
-    cachedDose = dose;
-    
-    // Add these console logs to see what's happening when you click
-    console.log("Dose selected - Unit:", cachedUnit, "Dose:", cachedDose);
-    
-    document.getElementById('doseView').style.display = 'none';
-    
-    if (cachedMedHasWeight) {
-        document.getElementById('weightView').style.display = 'block';
-    } else {
-        document.getElementById('prefixTitle').innerText = "When do you want to start " + cachedMedLabel;
-        document.getElementById('prefixView').style.display = 'block';
-    }
+  cachedUnit = unit;
+  cachedDose = dose;
+  
+  console.log("Dose selected - Unit:", cachedUnit, "Dose:", cachedDose);
+  
+  document.getElementById('doseView').style.display = 'none';
+  
+  if (cachedMedHasWeight) {
+    document.getElementById('weightView').style.display = 'block';
+  } else {
+    document.getElementById('prefixTitle').innerText = "When do you want to start " + cachedMedLabel;
+    document.getElementById('prefixView').style.display = 'block';
+  }
 }
 
 // --- WEIGHT VIEW CONTROLLERS ---
 function openWeightMenu(keyword, btn) {
-  cachedWeightKeyword = keyword; // Ensure this is the template keyword
+  cachedWeightKeyword = keyword;
   cachedWeightButtonElement = btn;
   cachedWeightButtonLabel = btn.innerText;
 
@@ -456,8 +459,6 @@ function openWeightMenu(keyword, btn) {
 }
 
 function submitTemplateWithWeight(weight) {
-  // If a user clicks a weight button, this function now knows to 
-  // send that specific weight to the server using the stored keyword
   const weightButtons = document.querySelectorAll('#weightView .template-button');
   weightButtons.forEach(b => b.disabled = true);
 
@@ -474,55 +475,64 @@ function submitTemplateWithWeight(weight) {
     .expandKeywordsFromSidebar(cachedWeightKeyword, weight); 
 }
 
-// 3. Final Submission: Corrected to send 4 parameters
+// 3. Final Submission
 function submitMedicationWithPrefix(prefixKey) {
-    if (cachedButtonElement) {
-        cachedButtonElement.innerText = "Inserting...";
-        cachedButtonElement.disabled = true;
-    }
+  if (cachedButtonElement) {
+    cachedButtonElement.innerText = "Inserting...";
+    cachedButtonElement.disabled = true;
+  }
 
-    const prefixButtons = document.querySelectorAll('#prefixView .template-button');
-    prefixButtons.forEach(b => b.disabled = true);
+  const prefixButtons = document.querySelectorAll('#prefixView .template-button');
+  prefixButtons.forEach(b => b.disabled = true);
 
-    google.script.run
-        .withSuccessHandler(() => {
-            prefixButtons.forEach(b => b.disabled = false);
-            if (cachedButtonElement) {
-                cachedButtonElement.innerText = cachedMedLabel;
-                cachedButtonElement.disabled = false;
-            }
-            closeAllMenus();
-        })
-        .withFailureHandler(err => {
-            prefixButtons.forEach(b => b.disabled = false);
-            alert('Error: ' + err.message);
-            closeAllMenus();
-        })
-        .insertMedicineFromSidebar(cachedMedKey, prefixKey, cachedUnit, cachedDose);
+  google.script.run
+    .withSuccessHandler(() => {
+      prefixButtons.forEach(b => b.disabled = false);
+      if (cachedButtonElement) {
+        cachedButtonElement.innerText = cachedMedLabel;
+        cachedButtonElement.disabled = false;
+      }
+      closeAllMenus();
+    })
+    .withFailureHandler(err => {
+      prefixButtons.forEach(b => b.disabled = false);
+      if (cachedButtonElement) {
+        cachedButtonElement.innerText = cachedMedLabel;
+        cachedButtonElement.disabled = false;
+      }
+      alert('Error inserting medication: ' + err.message);
+      closeAllMenus();
+    })
+    .insertMedicineFromSidebar(cachedMedKey, prefixKey, cachedUnit, cachedDose);
 }
 
 // --- MENU HELPERS ---
 function closeDoseMenu() {
-    document.getElementById('doseView').style.display = 'none';
-    document.getElementById('mainView').style.display = 'block';
+  document.getElementById('doseView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
 }
 
 function closePrefixMenu() {
-    document.getElementById('prefixView').style.display = 'none';
-    document.getElementById('mainView').style.display = 'block';
+  document.getElementById('prefixView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+  cachedMedKey = null;
+  cachedMedLabel = null;
+  cachedButtonElement = null;
+  cachedMedHasWeight = false;
+  cachedMedSelectedWeight = 'UNKNOWN';
 }
 
 function closeWeightMenu() {
-    document.getElementById('weightView').style.display = 'none';
-    document.getElementById('mainView').style.display = 'block';
+  document.getElementById('weightView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
 }
 
 function closeAllMenus() {
-    document.getElementById('prefixView').style.display = 'none';
-    document.getElementById('doseView').style.display = 'none';
-    document.getElementById('weightView').style.display = 'none';
-    document.getElementById('mainView').style.display = 'block';
-  }
+  document.getElementById('prefixView').style.display = 'none';
+  document.getElementById('doseView').style.display = 'none';
+  document.getElementById('weightView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+}
 
 // --- STANDARD KEYWORD WORKFLOWS ---
 function expandKeywords() {
@@ -544,7 +554,6 @@ function expandKeywords() {
     .expandKeywords();
 }
 
-// Helper to expand/collapse sidebar categories
 function toggleCategory(header) {
   const content = header.nextElementSibling;
   content.style.display = content.style.display === 'block' ? 'none' : 'block';
@@ -555,9 +564,9 @@ function insertTemplate(keyword) {
   const originalText = btn.innerText;
 
   if (keyword === '/cReset' || keyword === '/fReset') {
-      btn.innerText = "Resetting...";
+    btn.innerText = "Resetting...";
   } else {
-      btn.innerText = "Inserting...";
+    btn.innerText = "Inserting...";
   }
 
   btn.disabled = true;
@@ -616,74 +625,10 @@ function renderMedicationButtons(registryList) {
     const btn = document.createElement('button');
     btn.className = 'template-button';
     btn.innerText = med.label; 
-    // Passes the key, the element context, and the new dynamic weight boolean flag
     btn.onclick = function() { handleMedClick(med.key, this, med.hasDynamicWeight); };
     container.appendChild(btn);
   });
 }
-
-// STEP 1: Handle initial medication click
-function handleMedClick(medKey, btn, hasDynamicWeight) {
-    cachedMedKey = medKey;
-    cachedMedLabel = btn.innerText;
-    cachedButtonElement = btn;
-    cachedMedHasWeight = hasDynamicWeight;
-    cachedMedSelectedWeight = 'UNKNOWN';
-
-    // Set the title
-    document.getElementById('doseTitle').innerText = "Select Dose for " + cachedMedLabel;
-    
-    // Hide main, show ONLY the Dose View
-    document.getElementById('mainView').style.display = 'none';
-    document.getElementById('doseView').style.display = 'block';
-    
-  }
-
-// Helper to escape back to template grid view and wipe variable states
-function closePrefixMenu() {
-  document.getElementById('prefixView').style.display = 'none';
-  document.getElementById('mainView').style.display = 'block';
-  cachedMedKey = null;
-  cachedMedLabel = null;
-  cachedButtonElement = null;
-  cachedMedHasWeight = false;
-  cachedMedSelectedWeight = 'UNKNOWN';
-}
-
-// STEP 2: Process selection with requested prefix parameter string
-function submitMedicationWithPrefix(prefixKey) {
-  if (cachedButtonElement) {
-    cachedButtonElement.innerText = "Inserting...";
-    cachedButtonElement.disabled = true;
-  }
-
-  // Freeze prefix selectors during ongoing injection processing
-  const prefixButtons = document.querySelectorAll('#prefixView .template-button');
-  prefixButtons.forEach(b => b.disabled = true);
-
-  google.script.run
-    .withSuccessHandler(() => {
-      // Re-enable interactive elements
-      prefixButtons.forEach(b => b.disabled = false);
-      if (cachedButtonElement) {
-        cachedButtonElement.innerText = cachedMedLabel;
-        cachedButtonElement.disabled = false;
-      }
-      // Return UI view back to main selection state
-      closePrefixMenu();
-    })
-    .withFailureHandler(err => {
-      prefixButtons.forEach(b => b.disabled = false);
-      if (cachedButtonElement) {
-        cachedButtonElement.innerText = cachedMedLabel;
-        cachedButtonElement.disabled = false;
-      }
-      alert('Error inserting medication: ' + err.message);
-      closePrefixMenu();
-    })
-    // Forwards the medicine key, variant layout modifier, and resolved weight target
-  .insertMedicineFromSidebar(cachedMedKey, prefixKey, cachedUnit, cachedDose);
-  }
 
 // --- SEARCH FILTER LOADER ---
 document.addEventListener("DOMContentLoaded", function(){
