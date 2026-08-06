@@ -15,8 +15,8 @@
   // Pronoun Helper
     function getPronoun(sex) {
     return sex === 'female'
-    ? { he: 'she', He: 'She', him: 'her', Him: 'Her', his: 'her', His: 'Her' }
-    : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His' };
+    ? { he: 'she', He: 'She', him: 'her', Him: 'Her', his: 'her', His: 'Her', neuter: 'spay', Neuter: 'Spay' }
+    : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His', neuter: 'neuter', Neuter: 'Neuter'};
     }
 
 
@@ -45,16 +45,7 @@
 
   // Grammar Dictionary
     const GRAMMAR_DICTIONARY = {
-    eyes: {
-      singular: {
-        a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it"
-      },
-      plural:   {
-        a_cataract: "complete cataracts", a_corneal_ulcer: "Corneal ulcers", cataract: "cataracts", cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", it: "them", its: "their", make: "make", this: "these", This: "These", ulcer: "ulcers", was: "were", pro: "they"
-      }
-      },
-
-
+    
     anal_glands: {
       singular: {
         ruptured_anal_gland: "a ruptured anal gland", ruptured_gland_header: "Ruptured anal gland",
@@ -64,12 +55,30 @@
       }
       },
 
+      eyes: {
+      singular: {
+        a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it"
+      },
+      plural:   {
+        a_cataract: "complete cataracts", a_corneal_ulcer: "Corneal ulcers", cataract: "cataracts", cherry_eye: "cherry eyes", eye: "eyes", gland: "glands", is: "are", it: "them", its: "their", make: "make", this: "these", This: "These", ulcer: "ulcers", was: "were", pro: "they"
+      }
+      },
+
     patella: {
       singular: {
         sub: "a luxating patella", bone: "kneecap", v: "slides", is: "is", pos: "its"
       },
       plural:   {
         sub: "luxating patellae", bone: "kneecaps", v: "slide", is: "are", pos: "their"
+      }
+      },
+
+      retained_tooth: {
+      singular: {
+        a_retained_baby_tooth: "a retained baby tooth", isnt: "isn’t", that: "that", tooth: "tooth",
+      },
+      plural:   {
+        a_retained_baby_tooth: "retained baby teeth", isnt: "aren't", that: "those", tooth: "teeth",
       }
       },
 
@@ -97,11 +106,11 @@
       // 2. Generate the pronouns
       let pronouns = {};
       if (isPlural) {
-      pronouns = { he: 'they', He: 'They', him: 'them', Him: 'Them', his: 'their', His: 'Their' };
+      pronouns = { he: 'they', He: 'They', him: 'them', Him: 'Them', his: 'their', His: 'Their', neuter: 'sterilization procedure', Neuter: 'Sterilization procedure' };
       } else {
       pronouns = (sex === 'female') 
-      ? { he: 'she', He: 'She', him: 'her', Him: 'Her', his: 'her', His: 'Her' }
-      : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His' };
+      ? { he: 'she', He: 'She', him: 'her', Him: 'Her', his: 'her', His: 'Her', neuter: 'spay', Neuter: 'Spay' }
+      : { he: 'he', He: 'He', him: 'him', Him: 'Him', his: 'his', His: 'His', neuter: 'neuter', Neuter: 'Neuter' };
       }
 
       // 3. Merge words and pronouns into one "g" object
@@ -130,54 +139,55 @@
   
 /* ------------------ MEDICINE CABINET ------------------ */
   // Medications
-      const DOSE_MAP = {
-      '025': '¼',
-      '033': '⅓',
-      '050': '½',
-      '066': '⅔',
-      '075': '¾',
-      '100': '1',
-      '125': '1 ¼',
-      '133': '1 ⅓',
-      '150': '1 ½',
-      '166': '1 ⅔',
-      '175': '1 ¾',
-      '200': '2',
-      '225': '2 ¼',
-      '233': '2 ⅓',
-      '250': '2 ½',
-      '266': '2 ⅔',
-      '275': '2 ¾',
-      '300': '3',
-      '325': '3 ¼',
-      '333': '3 ⅓',
-      '350': '3 ½',
-      '366': '3 ⅔',
-      '375': '3 ¾',
-      '400': '4',
-      };
+      // Dose Map, Unit Map, & Dynmaic Configuration
+        const DOSE_MAP = {
+        '025': '¼',
+        '033': '⅓',
+        '050': '½',
+        '066': '⅔',
+        '075': '¾',
+        '100': '1',
+        '125': '1 ¼',
+        '133': '1 ⅓',
+        '150': '1 ½',
+        '166': '1 ⅔',
+        '175': '1 ¾',
+        '200': '2',
+        '225': '2 ¼',
+        '233': '2 ⅓',
+        '250': '2 ½',
+        '266': '2 ⅔',
+        '275': '2 ¾',
+        '300': '3',
+        '325': '3 ¼',
+        '333': '3 ⅓',
+        '350': '3 ½',
+        '366': '3 ⅔',
+        '375': '3 ¾',
+        '400': '4',
+        };
 
-      const UNIT_MAP = {
-      'tab': { singular: 'tablet', plural: 'tablets' },
-      'cap': { singular: 'capsule', plural: 'capsules' },
-      'ml':  { singular: 'mL',     plural: 'mL' },      // mL remains mL
-      'can': { singular: 'can',    plural: 'cans' },
-      'cup': { singular: 'cup',    plural: 'cups' }
-      };
+        const UNIT_MAP = {
+        'tab': { singular: 'tablet', plural: 'tablets' },
+        'cap': { singular: 'capsule', plural: 'capsules' },
+        'ml':  { singular: 'mL',     plural: 'mL' },      // mL remains mL
+        'can': { singular: 'can',    plural: 'cans' },
+        'cup': { singular: 'cup',    plural: 'cups' }
+        };
 
-    // Compiles a clean list of labels, keys, and dynamic-weight configurations for the sidebar
-      function getMedicineRegistryKeys() {
-      return Object.keys(MEDICINE_REGISTRY).map(key => {
-      return {
-      key: key,
-      label: MEDICINE_REGISTRY[key].label,
-      hasDynamicWeight: typeof MEDICINE_REGISTRY[key].instructions === 'function'
-      };
-      });
-      }
+        // Compiles a clean list of labels, keys, and dynamic-weight configurations for the sidebar
+        function getMedicineRegistryKeys() {
+        return Object.keys(MEDICINE_REGISTRY).map(key => {
+        return {
+        key: key,
+        label: MEDICINE_REGISTRY[key].label,
+        hasDynamicWeight: typeof MEDICINE_REGISTRY[key].instructions === 'function'
+        };
+        });
+        }
 
-      let TABLE_ROW_BUFFER = [];
-      var MEDICINE_REGISTRY = {
+        let TABLE_ROW_BUFFER = [];
+        var MEDICINE_REGISTRY = {
 
     ADEQUANINJECTION: {
       label: "Adequan",
@@ -248,13 +258,13 @@
       },
 
     CARPROFEN75: {
-    label: "Carprofen 75mg",
-    instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation. Give to completion.",
-    class: "Non-steroidal anti-inflammatory drug (NSAID)",
-    sideEffects: "Vomiting, diarrhea, decreased appetite (less common if given with a meal).",
-    defaultUnit: "tab",
-    defaultDose: "100"
-    },
+      label: "Carprofen 75mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation. Give to completion.",
+      class: "Non-steroidal anti-inflammatory drug (NSAID)",
+      sideEffects: "Vomiting, diarrhea, decreased appetite (less common if given with a meal).",
+      defaultUnit: "tab",
+      defaultDose: "100"
+      },
 
     CARPROFEN100: {
       label: "Carprofen 100mg",
@@ -1221,126 +1231,126 @@
     generateMedicineTableFromBuffer();
     }
 
-  // Medication Prefixes & Registry Logic
-    const MED_PREFIX = {
-    START: "Starting today",
-    CONTINUE: "Continue",
-    WAIT3: "Wait 3 days then start",
-    TOMORROW: "Starting tomorrow",
-    DISCONTINUE: "Discontinue",
-    CLINIC: "Administered in clinic ",
-    NEWDOSE: "New dose",
-    ASNEEDED: "As needed",
-    };
+    // Medication Prefixes & Registry Logic
+      const MED_PREFIX = {
+      START: "Starting today",
+      CONTINUE: "Continue",
+      WAIT3: "Wait 3 days then start",
+      TOMORROW: "Starting tomorrow",
+      CEASE: "Discontinue",
+      CLINIC: "Administered in clinic ",
+      NEWDOSE: "New dose",
+      ASNEEDED: "As needed",
+      };
 
-    const PREFIX_ROW_COLOR = {
-    CONTINUE: "#B6D7A8",    // green
-    DISCONTINUE: "#EA9999",  // red
-    ASNEEDED: "#FFE599",    // yellow
-    NEWDOSE: "#B4A7D6",      // purple
-    CLINIC: "#A4C2F4"        // blue
-    };
+      const PREFIX_ROW_COLOR = {
+      CONTINUE: "#B6D7A8",    // green
+      CEASE: "#EA9999",  // red
+      ASNEEDED: "#FFE599",    // yellow
+      NEWDOSE: "#B4A7D6",      // purple
+      CLINIC: "#A4C2F4"        // blue
+      };
 
-    // Helper for the Reverse Generator to clean up scraped text
-    function stripMedPrefix(text) {
-    if (!text) return "";
-    let cleanText = text.trim();
+      // Helper for the Reverse Generator to clean up scraped text
+      function stripMedPrefix(text) {
+      if (!text) return "";
+      let cleanText = text.trim();
 
-    for (let key in MED_PREFIX) {
-    let prefixText = MED_PREFIX[key];
-    // Check if the instruction starts with the prefix text
-    if (cleanText.startsWith(prefixText)) {
-    // Remove prefix and any immediate newlines/spaces that follow it
-    cleanText = cleanText.substring(prefixText.length).replace(/^[\n\r\s]+/, "");
-    break; 
-    }
-    }
-    return cleanText;
-    }
-
-    function processMedicationCommand(keyword) {
-    // 1. Strip the /c, handle the Prefix
-    let cleanInput = keyword.replace(/^\/c/i, "").toUpperCase();
-
-    let matchedPrefixKey = "START";
-    for (let pKey in MED_PREFIX) {
-    if (cleanInput.endsWith(pKey)) {
-    matchedPrefixKey = pKey;
-    cleanInput = cleanInput.substring(0, cleanInput.length - pKey.length);
-    break;
-    }
-    }
-
-    // 2. Extract MedKey, Unit, and DoseCode
-    let regex = /^([A-Z0-9]+)(tab|cap|ml|can|cup)(\d+)/i;
-    let match = cleanInput.match(regex);
-
-    let medKey, amount, unit;
-
-    // Helper logic to format amount & unit based on liquid vs. solid
-    function formatDoseAndUnit(uCode, dCode) {
-      let unitObj = UNIT_MAP[uCode] || { singular: uCode, plural: uCode };
-      let isLiquid = (uCode.toLowerCase() === 'ml');
-      let formattedAmount = '';
-      let numericVal = 0;
-
-      if (isLiquid) {
-        // Liquids (mL) default to decimal notation (e.g., "0.5")
-        numericVal = parseInt(dCode, 10) / 100;
-        formattedAmount = numericVal.toString();
-      } else {
-        // Solids (tab, cap, etc.) use fractions from DOSE_MAP if available
-        if (DOSE_MAP[dCode]) {
-          formattedAmount = DOSE_MAP[dCode]; // e.g., "1/2"
-          numericVal = parseInt(dCode, 10) / 100; // Accurately calculates decimal representation (e.g., 0.5)
-        } else {
-          numericVal = parseInt(dCode, 10) / 100;
-          formattedAmount = numericVal.toString();
-        }
+      for (let key in MED_PREFIX) {
+      let prefixText = MED_PREFIX[key];
+      // Check if the instruction starts with the prefix text
+      if (cleanText.startsWith(prefixText)) {
+      // Remove prefix and any immediate newlines/spaces that follow it
+      cleanText = cleanText.substring(prefixText.length).replace(/^[\n\r\s]+/, "");
+      break; 
+      }
+      }
+      return cleanText;
       }
 
-      return {
-        amount: formattedAmount,
-        // CHANGED: Use singular for anything <= 1 (e.g., 1/2 tablet, 1 tablet), plural only for > 1 (e.g., 2 tablets)
-        unit: (numericVal <= 1) ? unitObj.singular : unitObj.plural
-      };
-    }
+      function processMedicationCommand(keyword) {
+      // 1. Strip the /c, handle the Prefix
+      let cleanInput = keyword.replace(/^\/c/i, "").toUpperCase();
 
-    if (match) {
-      medKey = match[1];
-      let unitCode = match[2].toLowerCase();
-      let doseCode = match[3];
+      let matchedPrefixKey = "START";
+      for (let pKey in MED_PREFIX) {
+      if (cleanInput.endsWith(pKey)) {
+      matchedPrefixKey = pKey;
+      cleanInput = cleanInput.substring(0, cleanInput.length - pKey.length);
+      break;
+      }
+      }
 
-      let formatted = formatDoseAndUnit(unitCode, doseCode);
-      amount = formatted.amount;
-      unit = formatted.unit;
-    } else {
-      // Fallback: No unit/dose provided, use the medicine's specific defaults
-      medKey = cleanInput;
+      // 2. Extract MedKey, Unit, and DoseCode
+      let regex = /^([A-Z0-9]+)(tab|cap|ml|can|cup)(\d+)/i;
+      let match = cleanInput.match(regex);
+
+      let medKey, amount, unit;
+
+      // Helper logic to format amount & unit based on liquid vs. solid
+      function formatDoseAndUnit(uCode, dCode) {
+        let unitObj = UNIT_MAP[uCode] || { singular: uCode, plural: uCode };
+        let isLiquid = (uCode.toLowerCase() === 'ml');
+        let formattedAmount = '';
+        let numericVal = 0;
+
+        if (isLiquid) {
+          // Liquids (mL) default to decimal notation (e.g., "0.5")
+          numericVal = parseInt(dCode, 10) / 100;
+          formattedAmount = numericVal.toString();
+        } else {
+          // Solids (tab, cap, etc.) use fractions from DOSE_MAP if available
+          if (DOSE_MAP[dCode]) {
+            formattedAmount = DOSE_MAP[dCode]; // e.g., "1/2"
+            numericVal = parseInt(dCode, 10) / 100; // Accurately calculates decimal representation (e.g., 0.5)
+          } else {
+            numericVal = parseInt(dCode, 10) / 100;
+            formattedAmount = numericVal.toString();
+          }
+        }
+
+        return {
+          amount: formattedAmount,
+          // CHANGED: Use singular for anything <= 1 (e.g., 1/2 tablet, 1 tablet), plural only for > 1 (e.g., 2 tablets)
+          unit: (numericVal <= 1) ? unitObj.singular : unitObj.plural
+        };
+      }
+
+      if (match) {
+        medKey = match[1];
+        let unitCode = match[2].toLowerCase();
+        let doseCode = match[3];
+
+        let formatted = formatDoseAndUnit(unitCode, doseCode);
+        amount = formatted.amount;
+        unit = formatted.unit;
+      } else {
+        // Fallback: No unit/dose provided, use the medicine's specific defaults
+        medKey = cleanInput;
+        let med = MEDICINE_REGISTRY[medKey];
+        if (!med) return null;
+
+        let formatted = formatDoseAndUnit(med.defaultUnit, med.defaultDose);
+        amount = formatted.amount;
+        unit = formatted.unit;
+      }
+
       let med = MEDICINE_REGISTRY[medKey];
       if (!med) return null;
 
-      let formatted = formatDoseAndUnit(med.defaultUnit, med.defaultDose);
-      amount = formatted.amount;
-      unit = formatted.unit;
-    }
+      // 3. Resolve template
+      let finalInstructions = med.instructions.replace('{amount}', amount).replace('{unit}', unit);
 
-    let med = MEDICINE_REGISTRY[medKey];
-    if (!med) return null;
-
-    // 3. Resolve template
-    let finalInstructions = med.instructions.replace('{amount}', amount).replace('{unit}', unit);
-
-    return {
-      rowData: [
-        med.label,
-        `${MED_PREFIX[matchedPrefixKey]}\n${finalInstructions}`,
-        med.class,
-        med.sideEffects
-      ],
-      color: PREFIX_ROW_COLOR[matchedPrefixKey]
-    };
-    }
+      return {
+        rowData: [
+          med.label,
+          `${MED_PREFIX[matchedPrefixKey]}\n${finalInstructions}`,
+          med.class,
+          med.sideEffects
+        ],
+        color: PREFIX_ROW_COLOR[matchedPrefixKey]
+      };
+      }
 
 /* ------------------ DIAGNOSIS & TEMPLATE BUFFER/RANKING ------------------ */
   // Diagnosis Registry & Rank
@@ -1585,6 +1595,11 @@
     PROGNATHISM: {
     text: "Prognathism",
     rank: 801
+    },
+
+    RETAINED_DECIDUOUS_TOOTH: {
+    text: "Retained deciduous tooth",
+    rank: 705
     },
 
     REVERSE_SNEEZING: {
@@ -1988,6 +2003,11 @@
     BANFIELD2414: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
     url: 'https://www.google.com/search?client=firefox-b-1-d&hs=BE0&sca_esv=bde0b90e1f00e769&sxsrf=APpeQnubBQn74sMBT690jGUEMOHB4nYm4A:1785167688057&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_9xc-5g9PTB0pHPyX36ZAdPGeljmtUUG8-5zaBmxi1zvjlXDAOuyFCZtYBDk8I4kdMH9-tb34bcACETLn2VIBdPZs4-WqGs_0qkIALQl85igWLQUAg%3D%3D&q=Banfield+Pet+Hospital+Reviews&sa=X&ved=2ahUKEwiMz6Tvm_OVAxXGkyYFHTHVAjQQ0bkNegQIPhAH&biw=1366&bih=607&dpr=1#lrd=0x864ea1f4f3cc5d67:0x23ae04781a7d237,3'
+    },
+
+    SANFORDOAKS: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&q=sanfoard+oaks+animal+clinic#lrd=0x864e7c55d09407d9:0x4bebcb1e33c3b7fe,3'
     },
   // Vaccines Registry
     BORDETELLA_VXN:
@@ -2761,6 +2781,10 @@
     url: `https://www.purina.com/dogs/shop/pro-plan-veterinary-diets-ha-chicken-canned-wet-dog-food`
     },
 
+    RETAINED_DECIDUOUS_TOOTH_HEADER: /Retained deciduous (?:tooth|teeth):/i,
+
+    RETAINED_TEETH_REMOVAL: "Any retained teeth still present at the time of ${g.his} ${g.neuter} can be removed at the same time.",
+
     ROYAL_CANIN_FOOD_SENSITIVITY: {
     text: "Royal Canin",
     url: `https://www.royalcanin.com/us/dogs/products/retail-products?specific_needs=digestive_support`
@@ -2776,6 +2800,10 @@
     RUPTURED_ANAL_GLAND_HEADER: /Ruptured anal gland(s)?:/i,
 
     RUPTURED_ANAL_GLAND_TREATMENT: "The hair surrounding the anal gland and on the tail was clipped to prevent fecal matter from accumulating and causing further infection. The gland was also cleaned with a dilute surgical antimicrobial called chlorhexidine.",
+
+    STRESS_COLITIS_HEADER: "Stress colitis:",
+
+    STRESS_COLITIS_CAUSE: "long term treatment requires identifying the source of stress & removing it.",
 
     VOMITING_POST_MAROPITANT:
     "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
@@ -2928,6 +2956,13 @@
 
     E_COLLAR_MONITOR:
     "but you must monitor your dog all throughout & replace the e collar immediately.",
+
+    HOW_WILL_I_KNOW_ARTICLE: {
+    text: "How Will I Know article",
+    url: `https://vmc.vet.osu.edu/sites/default/files/documents/how-will-i-know_rev_mar2024ms_0.pdf`
+    },
+
+    QUALITY_OF_LIFE_HEADER: "Quality of life:",
 
     RECHECK_ADVISE_1_WEEK:
     "Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).",
@@ -3180,17 +3215,38 @@
     Object.values(MEDICINE_REGISTRY).some(m => m.label.toLowerCase() === label.toLowerCase());
 
     if (!alreadyExists) {
-    let cleanInstructions = stripMedPrefix(rowData[1] || "");
-    const newEntry = {
-    label: label, 
-    instructions: cleanInstructions,
-    class: rowData[2] || "Unknown", 
-    sideEffects: rowData[3] || "Unknown"
-    };
+      let rawInstructions = stripMedPrefix(rowData[1] || "");
+      
+      // Auto-detect unit based on label or text, default to "tab"
+      let defaultUnit = "tab";
+      const lowerLabel = label.toLowerCase();
+      const lowerInst = rawInstructions.toLowerCase();
 
-    // Track locally so it prints at the end, and update main registry for this session
-    MEDICINE_REGISTRY[drugName] = newEntry;
-    NEW_MEDS_FOUND[drugName] = newEntry;
+      if (lowerLabel.includes("liquid") || lowerLabel.includes("susp") || lowerInst.includes("ml")) {
+        defaultUnit = "ml";
+      } else if (lowerLabel.includes("capsule") || lowerInst.includes("capsule")) {
+        defaultUnit = "cap";
+      } else if (lowerLabel.includes(" can ") || lowerInst.includes("can")) {
+        defaultUnit = "can";
+      } else if (lowerLabel.includes(" cup ") || lowerInst.includes("cup")) {
+        defaultUnit = "cup";
+      }
+
+      // Convert recognized amounts/units into {amount} and {unit} placeholders
+      let cleanInstructions = formatDynamicInstructions(rawInstructions);
+
+      const newEntry = {
+        label: label, 
+        instructions: cleanInstructions,
+        class: rowData[2] || "Unknown", 
+        sideEffects: rowData[3] || "Unknown",
+        defaultUnit: defaultUnit,
+        defaultDose: "100"
+      };
+
+      // Track locally so it prints at the end, and update main registry for this session
+      MEDICINE_REGISTRY[drugName] = newEntry;
+      NEW_MEDS_FOUND[drugName] = newEntry;
     }
     }
     }
@@ -3237,11 +3293,11 @@
     // Append ONLY NEW Medicine Registry entries
     const newMedKeys = Object.keys(NEW_MEDS_FOUND);
     if (newMedKeys.length > 0) {
-    outputCode += "\n/* --- NEW MEDICINE REGISTRY ENTRIES --- */\n";
-    newMedKeys.sort().forEach(key => {
-    const med = NEW_MEDS_FOUND[key];
-    outputCode += `  ${key}: {\n    label: "${med.label.replace(/"/g, '\\"')}",\n    instructions: "${med.instructions.replace(/"/g, '\\"')}",\n    class: "${med.class}",\n    sideEffects: "${med.sideEffects}"\n  },\n`;
-    });
+      outputCode += "\n/* --- NEW MEDICINE REGISTRY ENTRIES --- */\n";
+      newMedKeys.sort().forEach(key => {
+        const med = NEW_MEDS_FOUND[key];
+        outputCode += `  ${key}: {\n    label: "${med.label.replace(/"/g, '\\"')}",\n    instructions: "${med.instructions.replace(/"/g, '\\"')}",\n    class: "${med.class}",\n    sideEffects: "${med.sideEffects}",\n    defaultUnit: "${med.defaultUnit}",\n    defaultDose: "${med.defaultDose}"\n  },\n`;
+      });
     }
 
     body.appendPageBreak();
@@ -3287,8 +3343,11 @@
     linkUrl = textElement.getLinkUrl(start);
 
     let end = start;
-    while (end < text.length && textElement.isBold(end) === isBold && textElement.isUnderline(end) === isUnderline &&
-    textElement.isItalic(end) === isItalic && textElement.getForegroundColor(end) === color && 
+    while (end < text.length && 
+    textElement.isBold(end) === isBold && 
+    textElement.isUnderline(end) === isUnderline &&
+    textElement.isItalic(end) === isItalic && 
+    textElement.getForegroundColor(end) === color && 
     textElement.getLinkUrl(end) === linkUrl) {
     end++;
     }
@@ -3302,8 +3361,10 @@
     if (linkUrl) {
     let linkKey = existingKey;
     if (!linkKey) {
-    linkKey = spanClean.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
-    newLinksRegistry[linkKey] = { text: spanClean, url: linkUrl };
+    // Convert pronouns for link registry text
+    let dynamicSpan = convertToGPronouns(spanClean);
+    linkKey = dynamicSpan.replace(/[^A-Za-z0-9]/g, "_").toUpperCase() + "_ARTICLE";
+    newLinksRegistry[linkKey] = { text: dynamicSpan, url: linkUrl };
     }
     keys.linkKeys.add(linkKey);
     } else {
@@ -3319,7 +3380,10 @@
     globalNewFormatEntries[identifier] = spanClean;
     }
 
-    if (!identifier) identifier = spanClean;
+    // CRITICAL FIX: Convert pronouns to ${g...} for string-based keys
+    if (!identifier) {
+    identifier = convertToGPronouns(spanClean);
+    }
 
     if (isGreen) {
     keys.greenKeys.add(identifier);
@@ -3352,23 +3416,28 @@
     }
 
     function convertToGPronouns(text) {
-    if (!text) return "";
-    const pronouns = { 
-    " he ": " ${g.he} ", " she ": " ${g.he} ", 
-    " him ": " ${g.him} ", " her ": " ${g.him} ", 
-    " his ": " ${g.his} ", " hers ": " ${g.his} ", 
-    " He ": " ${g.he} ", " She ": " ${g.he} ",
-    " His ": " ${g.his} ", " Her ": " ${g.his} "
-    };
-    let newText = text;
-    for (const [key, val] of Object.entries(pronouns)) { 
-    newText = newText.replace(new RegExp(key, "g"), val); 
-    }
-    return newText;
+      if (!text) return "";
+
+      return text
+        .replace(/\b(He|She)\b/g, "${g.he}")
+        .replace(/\b(he|she)\b/g, "${g.he}")
+        .replace(/\b(Him)\b/g, "${g.him}")
+        .replace(/\b(him)\b/g, "${g.him}")
+        .replace(/\b(His|Her|Hers)\b/g, "${g.his}")
+        .replace(/\b(his|her|hers)\b/g, "${g.his}");
     }
 
     function escapeBackticks(text) { 
     return String(text || "").replace(/`/g, "\\`").replace(/\$/g, "\$"); 
+    }
+
+    function formatDynamicInstructions(text) {
+    if (!text) return "";
+    
+    // Regex matches common doses: integers, decimals, fractions + tablet(s), capsule(s), mL, can(s), cup(s)
+    const doseRegex = /\b(\d+(?:\.\d+)?|\d+\/\d+)\s+(tablets?|capsules?|ml|cans?|cups?)\b/gi;
+    
+    return text.replace(doseRegex, "{amount} {unit}");
     }
 
 /* ------------------ REVIEWS & GENERIC DYNAMIC TEMPLATE ------------------ */
@@ -3517,6 +3586,23 @@
     boldKeys: [],
     boldUnderlineKeys: [],
     linkKeys: ["BANFIELD2414"],
+    };
+    }
+
+  // Sanford Oaks Animal Clinic
+    function generateSanfordOaksAnimalClinicTemplate(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["SANFORDOAKS"],
     };
     }
 
@@ -4183,6 +4269,27 @@
     'RABIES_IN_ANIMALS_LINK',
     'TEXAS_RABIES_LINK',
     ]
+    };
+    }
+
+  // Quality of Life
+    function generateCanineQualityofLifeTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [""],
+    text: [
+    `Quality of life: Your dog shows concerning signs of disease and illness that may be life threatening. It’s never easy to make end of life decisions for our pets but I’ve found that the Ohio State University has a How Will I Know article that makes it easier to assess your pet’s quality of life. If you’d like to discuss end of life appointments, contact the clinic at your earliest convenience. `
+    ].join('\n'),
+
+    boldKeys: [
+      "QUALITY_OF_LIFE_HEADER"
+    ],
+
+    linkKeys: [
+      "HOW_WILL_I_KNOW_ARTICLE"
+    ],
     };
     }
 
@@ -6464,6 +6571,51 @@
     };
     }
 
+  // Retained Deciduous Teeth
+    function generateCanineRetainedDeciduousTeethTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('retained_tooth', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["RETAINED_DECIDUOUS_TOOTH"],
+    text: [
+    `Retained deciduous ${g.tooth}: Your dog has ${g.a_retained_baby_tooth}. In dogs these usually fall out by the time they’re 12 weeks old. Any retained teeth still present at the time of the ${g.neuter} can be removed at the same time. If the ${g.tooth} ${g.isnt} removed, it can cause damage to the adult ${g.tooth} which would require extracting ${g.that} as well.`
+    ].join('\n'),
+
+    boldKeys: [
+      "RETAINED_DECIDUOUS_TOOTH_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RETAINED_TEETH_REMOVAL"
+    ],
+    };
+    }
+
+  // Stress Colitis
+    function generateCanineStressColitisTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["STRESS_COLITIS"],
+    text: [
+    `Stress colitis: Your dog shows signs of stress colitis. Whenever dogs get stressed or anxious they occasionally begin having soft or even bloody stool. Probiotics and antidiarrheals such as Proviable can be used to firm up the stool & decrease bleeding, but long term treatment requires identifying the source of stress & removing it. This includes keeping dogs away from other pets that stress them, reducing noise level and air pollution (smoke, incense, perfumes) as best as possible, & offering a quiet, dark place for your dog to hide when stressed. You can also leave one of your unwashed shirts with your dog so your smell helps bring calmness. If you believe your dog has anxiety which can’t be controlled by lifestyle changes, anxiety-reducing medication may be prescribed.`,
+    `Feed the prescription gastrointestinal diet as prescribed. This is the dog version of chicken noodle soup: it’s easy to digest and gentle on the intestines. Anti-diarrheal medicine has been sent home for the next two weeks. Give as directed below. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "STRESS_COLITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_1_WEEK",
+      "STRESS_COLITIS_CAUSE"
+    ],
+    };
+    }
+
+
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
     function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
@@ -7730,6 +7882,7 @@
     '/B1282': () => generateBanfieldFlowerMound1282Template(),
     '/B1728': () => generateBanfieldEuless1728Template(),
     '/B2414': () => generateBanfieldLakewood2414Template(),
+    '/SanfordOaks': () => generateSanfordOaksAnimalClinicTemplate(),
 
   // Puppy Wellness Definitions
     '/cReset': () => generateCanineResetTemplate(),
@@ -7754,6 +7907,7 @@
     '/cOverweight1st': (sex, plurality, weight) => generateCanineOverweightTemplate(sex, plurality, weight),
     '/cOverweight2nd': (sex, plurality, weight) => generateCanineOverweight2Template(sex, plurality, weight),
     '/cHealthyWeight': (sex, plurality) => generateCanineHealthyWeightTemplate(sex, plurality),
+    '/cQualityofLife': (sex, plurality, weight) => generateCanineQualityofLifeTemplate(sex, plurality, weight),
     '/cUnderweight': (sex, plurality, weight) => generateCanineUnderweightTemplate(sex, plurality, weight),
 
   // Canine Ophthalmology Definitions
@@ -7840,6 +7994,9 @@
     '/cMarijuanaIngestionNonToxic': (sex, plurality) => generateCanineMJIngestionNontoxicTemplate(sex, plurality),
     '/cOakToxicosis': (sex, plurality, weight) => generateCanineOakToxicosisTemplate(sex, plurality, weight),
     '/cPrognathism': (sex, plurality) => generateCaninePrognathismTemplate(sex, plurality),
+    '/cRetainedDeciduousTooth': (sex, plurality) => generateCanineRetainedDeciduousTeethTemplate(sex, "singular"),
+    '/cRetainedDeciduousTeeth': (sex, plurality) => generateCanineRetainedDeciduousTeethTemplate(sex, "plural"),
+    '/cStressColitis': (sex, plurality) => generateCanineStressColitisTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
