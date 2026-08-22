@@ -1,4 +1,4 @@
-/* ------------------ UI, PRONOUN HELPER, GRAMMAR DICTIONARY, & GENERAL REGISTRY ------------------ */
+/* ------------------ UI, PRONOUN HELPER, GRAMMAR DICTIONARY, GENERAL REGISTRY, & SITE MAP ------------------ */
   // Medical Template UI 
     function onOpen() {
     const ui = DocumentApp.getUi();
@@ -135,6 +135,18 @@
     green: '#B6D7A8',
     blue: '#A4C2F4',
     purple: '#B4A7D6',
+    };
+
+  // Site Map
+    const SITE_MAP = {
+    RF: "in the right forelimb",
+    LF: "in the left forelimb",
+    RH: "in the right hindlimb",
+    LH: "in the left hindlimb",
+    IN: "intranasally",
+    PO: "orally",
+    SQ: "subcutaneously",
+    SB: "between the shoulder blades"
     };
   
 /* ------------------ MEDICINE CABINET ------------------ */
@@ -840,6 +852,24 @@
       defaultDose: "100",
       },
 
+    PRAZIQUANTEL227: {
+    label: "Drontal 22.7mg (praziquantel)",
+    instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
+    class: "Antiparasitic",
+    sideEffects: "Well tolerated",
+    defaultUnit: "tab",
+    defaultDose: "100",
+    },
+
+    PRAZIQUANTEL68: {
+    label: "Drontal 68mg (praziquantel)",
+    instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
+    class: "Antiparasitic",
+    sideEffects: "Well tolerated",
+    defaultUnit: "tab",
+    defaultDose: "100",
+    },
+
     PREDNISOLONE5: {
       label: "Prednisolone 5mg",
       instructions: "Give 1 tablet by mouth every 12 hours for 7 days, then 1 tablet every 24 hours for 7 days, then 1 every 48 hours for a total of 8 times, then discontinue.",
@@ -1203,33 +1233,33 @@
       };
 
     function insertMedicineFromSidebar(medKey, prefixKey, unit, dose) {
-    if (!MEDICINE_REGISTRY[medKey]) {
-        throw new Error("Medication key '" + medKey + "' was not found.");
-    }
-    
-    if (!prefixKey) prefixKey = "START";
+      if (!MEDICINE_REGISTRY[medKey]) {
+          throw new Error("Medication key '" + medKey + "' was not found.");
+      }
+      
+      if (!prefixKey) prefixKey = "START";
 
-    // Build the command: only include unit/dose if they aren't null/undefined
-    let fullCommand = `/c${medKey}`;
-    
-    // If unit/dose are provided, append them; otherwise skip
-    if (unit && dose) {
-        fullCommand += `${unit}${dose}`;
-    }
-    
-    fullCommand += `${prefixKey}`;
+      // Build the command: only include unit/dose if they aren't null/undefined
+      let fullCommand = `/c${medKey}`;
+      
+      // If unit/dose are provided, append them; otherwise skip
+      if (unit && dose) {
+          fullCommand += `${unit}${dose}`;
+      }
+      
+      fullCommand += `${prefixKey}`;
 
-    console.log("Constructed Command:", fullCommand); // Check this in your logs
+      console.log("Constructed Command:", fullCommand); // Check this in your logs
 
-    const commandData = processMedicationCommand(fullCommand);
+      const commandData = processMedicationCommand(fullCommand);
 
-    if (!commandData) {
-        throw new Error("Could not generate configuration data for: " + fullCommand);
-    }
+      if (!commandData) {
+          throw new Error("Could not generate configuration data for: " + fullCommand);
+      }
 
-    TABLE_ROW_BUFFER.push(commandData);
-    generateMedicineTableFromBuffer();
-    }
+      TABLE_ROW_BUFFER.push(commandData);
+      generateMedicineTableFromBuffer();
+      }
 
     // Medication Prefixes & Registry Logic
       const MED_PREFIX = {
@@ -1289,31 +1319,34 @@
 
       // Helper logic to format amount & unit based on liquid vs. solid
       function formatDoseAndUnit(uCode, dCode) {
-        let unitObj = UNIT_MAP[uCode] || { singular: uCode, plural: uCode };
-        let isLiquid = (uCode.toLowerCase() === 'ml');
-        let formattedAmount = '';
-        let numericVal = 0;
+      // SAFEGUARD: Default to empty string if uCode or dCode is missing/undefined
+      uCode = uCode ? String(uCode) : "";
+      dCode = dCode ? String(dCode) : "100";
 
-        if (isLiquid) {
-          // Liquids (mL) default to decimal notation (e.g., "0.5")
+      let unitObj = UNIT_MAP[uCode] || { singular: uCode, plural: uCode };
+      let isLiquid = (uCode.toLowerCase() === 'ml');
+      let formattedAmount = '';
+      let numericVal = 0;
+
+      if (isLiquid) {
+        // Liquids (mL) default to decimal notation (e.g., "0.5")
+        numericVal = parseInt(dCode, 10) / 100;
+        formattedAmount = numericVal.toString();
+      } else {
+        // Solids (tab, cap, etc.) use fractions from DOSE_MAP if available
+        if (DOSE_MAP[dCode]) {
+          formattedAmount = DOSE_MAP[dCode]; 
+          numericVal = parseInt(dCode, 10) / 100;
+        } else {
           numericVal = parseInt(dCode, 10) / 100;
           formattedAmount = numericVal.toString();
-        } else {
-          // Solids (tab, cap, etc.) use fractions from DOSE_MAP if available
-          if (DOSE_MAP[dCode]) {
-            formattedAmount = DOSE_MAP[dCode]; // e.g., "1/2"
-            numericVal = parseInt(dCode, 10) / 100; // Accurately calculates decimal representation (e.g., 0.5)
-          } else {
-            numericVal = parseInt(dCode, 10) / 100;
-            formattedAmount = numericVal.toString();
-          }
         }
+      }
 
-        return {
-          amount: formattedAmount,
-          // CHANGED: Use singular for anything <= 1 (e.g., 1/2 tablet, 1 tablet), plural only for > 1 (e.g., 2 tablets)
-          unit: (numericVal <= 1) ? unitObj.singular : unitObj.plural
-        };
+      return {
+        amount: formattedAmount,
+        unit: (numericVal <= 1) ? unitObj.singular : unitObj.plural
+      };
       }
 
       if (match) {
@@ -1368,265 +1401,280 @@
       // 900 - 999: Non-vital, incidental findings, no treatment necessary (nuclear sclerosis)
 
     ACUTE_GASTROENTERITIS_DIARRHEA_ONLY: {
-    text: "Acute gastroenteritis (diarrhea)",
-    rank: 500
-    },
+      text: "Acute gastroenteritis (diarrhea)",
+      rank: 500
+      },
 
     ACUTE_GASTROENTERITIS_VOMITING_ONLY: {
-    text: "Acute gastroenteritis (vomiting)",
-    rank: 500
-    },
+      text: "Acute gastroenteritis (vomiting)",
+      rank: 500
+      },
 
     ACUTE_GASTROENTERITIS_VOMITING_DIARRHEA: {
-    text: "Acute gastroenteritis (vomiting & diarrhea)",
-    rank: 500
-    },
+      text: "Acute gastroenteritis (vomiting & diarrhea)",
+      rank: 500
+      },
 
     ATOPIC_DERMATITIS: {
-    text: "Atopic dermatitis (allergies)",
-    rank: 401 //402 reserved for diet trial information
-    },
+      text: "Atopic dermatitis (allergies)",
+      rank: 401 //402 reserved for diet trial information
+      },
 
     BLIND: {
-    text: "Blind",
-    rank: 710
-    },
+      text: "Blind",
+      rank: 710
+      },
     
     BORDETELLOSIS_PRESUMED: {
-    text: "Bordetellosis (presumed)",
-    rank: 510
-    },
+      text: "Bordetellosis (presumed)",
+      rank: 510
+      },
 
     BRACHYCEPHALIC_OBSTRUCTIVE_AIRWAY_SYNDROME: {
-    text: "Brachycephalic obstructive airway syndrome (BOAS)",
-    rank: 400
-    },
+      text: "Brachycephalic obstructive airway syndrome (BOAS)",
+      rank: 400
+      },
 
     CATARACTS: {
-    text: "Cataracts",
-    rank: 710
-    },
+      text: "Cataracts",
+      rank: 710
+      },
 
     CHERRY_EYE: {
-    text: "Cherry eye",
-    rank: 321
-    },
+      text: "Cherry eye",
+      rank: 321
+      },
 
     CHRONIC_BRONCHITIS_PRESUMED: {
-    text: "Chronic bronchitis (presumed)",
-    rank: 430
-    },
+      text: "Chronic bronchitis (presumed)",
+      rank: 430
+      },
 
     COLLAPSING_TRACHEA: {
-    text: "Collapsing trachea",
-    rank: 701
-    },
+      text: "Collapsing trachea",
+      rank: 701
+      },
 
     CONJUNCTIVITIS_DIAGNOSED: {
-    text: "Conjunctivitis",
-    rank: 580
-    },
+      text: "Conjunctivitis",
+      rank: 580
+      },
 
     CONJUNCTIVITIS_PRESUMED: {
-    text: "Conjunctivitis (presumed)",
-    rank: 780
-    },
+      text: "Conjunctivitis (presumed)",
+      rank: 780
+      },
 
     CORNEAL_ULCER: {
-    text: "Corneal ulcer",
-    rank: 220
-    },
+      text: "Corneal ulcer",
+      rank: 220
+      },
 
     DIABETES_MELLITUS: {
-    text: "Diabetes mellitus",
-    rank: 4
-    },
+      text: "Diabetes mellitus",
+      rank: 4
+      },
 
     ENTROPION: {
-    text: "Entropion",
-    rank: 502
-    },
+      text: "Entropion",
+      rank: 502
+      },
+
+    ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_PRESUMED: {
+      text: "Estrogen responsive urinary incontinence (presumed)",
+      rank: 404
+      },
 
     FULL_ANAL_GLANDS: {
-    text: "Full anal glands",
-    rank: 702
-    },
+      text: "Full anal glands",
+      rank: 702
+      },
 
     GASTROESOPHAGEAL_REFLUX_DISEASE: {
-    text: "Gastroesophageal reflux disease (presumed)",
-    rank: 703
-    },
+      text: "Gastroesophageal reflux disease (presumed)",
+      rank: 703
+      },
 
     GLAUCOMA: {
-    text: "Glaucoma",
-    rank: 200
-    },
+      text: "Glaucoma",
+      rank: 200
+      },
 
     HEART_MURMUR: {
-    text: "Heart murmur",
-    rank: 3
-    },
+      text: "Heart murmur",
+      rank: 3
+      },
 
     HEARTWORMS: {
-    text: "Heartworms",
-    rank: 2
-    },
+      text: "Heartworms",
+      rank: 2
+      },
 
     HOOKWORMS: {
-    text: "Hookworms",
-    rank: 501
-    },
+      text: "Hookworms",
+      rank: 501
+      },
     
     HYPERTENSION: {
-    text: "Hypertension (high blood pressure)",
-    rank: 230
-    },
+      text: "Hypertension (high blood pressure)",
+      rank: 230
+      },
 
     HYPERADRENOCORTICISM_PRESUMED: {
-    text: "Hyperadrenocorticism (presumed)",
-    rank: 201
-    },
+      text: "Hyperadrenocorticism (presumed)",
+      rank: 201
+      },
 
     HYPERADRENOCORTICISM: {
-    text: "Hyperadrenocorticism",
-    rank: 201
-    },
+      text: "Hyperadrenocorticism",
+      rank: 201
+      },
 
     HYPOTHYROIDISM: {
-    text: "Hypothyroidism",
-    rank: 202
-    },
+      text: "Hypothyroidism",
+      rank: 202
+      },
 
     INFECTED_ANAL_GLANDS: {
-    text: "Infected anal glands",
-    rank: 204
-    },
+      text: "Infected anal glands",
+      rank: 204
+      },
 
     KERATOCONJUNCTIVITIS_SICCA: {
-    text: "Keratoconjunctivitis sicca (dry eye)",
-    rank: 240
-    },
+      text: "Keratoconjunctivitis sicca (dry eye)",
+      rank: 240
+      },
 
     LEFT_SIDED_CONGESTIVE_HEART_FAILURE: {
-    text: "Left sided congestive heart failure",
-    rank: 1
-    },
+      text: "Left sided congestive heart failure",
+      rank: 1
+      },
 
     LARYNGEAL_PARALYSIS: {
-    text: "Laryngeal paralysis",
-    rank: 403
-    },
+      text: "Laryngeal paralysis",
+      rank: 403
+      },
 
     MARIJUANA_INGESTION: {
-    text: "Marijuana Ingestion",
-    rank: 205
-    },
+      text: "Marijuana Ingestion",
+      rank: 205
+      },
 
     MEIBOMIAN_GLAND_ADENOMA_PRESUMED: {
-    text: "Meibomian gland adenoma (presumed)",
-    rank: 310
-    },
+      text: "Meibomian gland adenoma (presumed)",
+      rank: 310
+      },
 
     MILD_PERIODONTAL_DISEASE: {
-    text: "Mild periodontal disease",
-    rank: 300
-    },
+      text: "Mild periodontal disease",
+      rank: 300
+      },
 
     MODERATE_PERIODONTAL_DISEASE: {
-    text: "Moderate periodontal disease",
-    rank: 300
-    },
+      text: "Moderate periodontal disease",
+      rank: 300
+      },
 
     MYXOMATOUS_MITRAL_VALVE_DISEASE: {
-    text: "Myxomatous mitral valve disease",
-    rank: 40
-    },
+      text: "Myxomatous mitral valve disease",
+      rank: 40
+      },
 
     NUCLEAR_SCLEROSIS: {
-    text: "Nuclear sclerosis",
-    rank: 970
-    },
+      text: "Nuclear sclerosis",
+      rank: 970
+      },
 
     OAK_TOXICOSIS: {
-    text: "Oak toxicosis",
-    rank: 206
-    },
+      text: "Oak toxicosis",
+      rank: 206
+      },
 
     OSTEOARTHRITIS: {
-    text: "Osteoarthritis (arthritis)",
-    rank: 100
-    },
+      text: "Osteoarthritis (arthritis)",
+      rank: 100
+      },
 
     OSTEOARTHRITIS: {
-    text: "Osteoarthritis (arthritis)",
-    rank: 100
-    },
+      text: "Osteoarthritis (arthritis)",
+      rank: 100
+      },
 
     OTITIS: {
-    text: "Otitis externa (ear infection)",
-    rank: 310
-    },
+      text: "Otitis externa (ear infection)",
+      rank: 310
+      },
 
     OVERWEIGHT: {
-    text: "Overweight",
-    rank: 700
-    },
+      text: "Overweight",
+      rank: 700
+      },
 
     PANCREATITIS: {
-    text: "Pancreatitis",
-    rank: 203
-    },
+      text: "Pancreatitis",
+      rank: 203
+      },
     
     PARTIALLY_BLIND: {
-    text: "Partially blind",
-    rank: 900
-    },
+      text: "Partially blind",
+      rank: 900
+      },
 
     PARTIALLY_VACCINATED: {
-    text: "Partially vaccinated",
-    rank: 980
-    },
+      text: "Partially vaccinated",
+      rank: 980
+      },
 
     PERIODONTAL_DISEASE: {
-    text: "Periodontal disease",
-    rank: 300
-    },
+      text: "Periodontal disease",
+      rank: 300
+      },
 
     PROGNATHISM: {
-    text: "Prognathism",
-    rank: 801
-    },
+      text: "Prognathism",
+      rank: 801
+      },
 
     RETAINED_DECIDUOUS_TOOTH: {
-    text: "Retained deciduous tooth",
-    rank: 705
-    },
+      text: "Retained deciduous tooth",
+      rank: 705
+      },
 
     REVERSE_SNEEZING: {
-    text: "Reverse sneezing",
-    rank: 800
-    },
+      text: "Reverse sneezing",
+      rank: 800
+      },
 
     RUPTURED_ANAL_GLAND: {
-    text: "Ruptured anal gland",
-    rank: 204
-    },
+      text: "Ruptured anal gland",
+      rank: 204
+      },
 
     SECOND_DEGREE_AV: {
-    text: "2nd Degree Atrioventricular Block",
-    rank: 610
-    },
+      text: "2nd Degree Atrioventricular Block",
+      rank: 610
+      },
 
     SEVERE_PERIODONTAL_DISEASE: {
-    text: "Severe periodontal disease",
-    rank: 300
-    },
+      text: "Severe periodontal disease",
+      rank: 300
+      },
+
+    STRESS_COLITIS: {
+      text: "Stress colitis",
+      rank: 503
+      },
+
+    TAPEWORMS: {
+      text: "Tapeworms",
+      rank: 706
+      },
 
     UNDERWEIGHT: {
-    text: "Underweight",
-    rank: 704
-    },
-    };
+      text: "Underweight",
+      rank: 704
+      },
+      };
 
   // Shared: Insert With Format Break
     let diagnosisBuffer = [];
@@ -2005,6 +2053,16 @@
     url: 'https://www.google.com/search?client=firefox-b-1-d&hs=BE0&sca_esv=bde0b90e1f00e769&sxsrf=APpeQnubBQn74sMBT690jGUEMOHB4nYm4A:1785167688057&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-_9xc-5g9PTB0pHPyX36ZAdPGeljmtUUG8-5zaBmxi1zvjlXDAOuyFCZtYBDk8I4kdMH9-tb34bcACETLn2VIBdPZs4-WqGs_0qkIALQl85igWLQUAg%3D%3D&q=Banfield+Pet+Hospital+Reviews&sa=X&ved=2ahUKEwiMz6Tvm_OVAxXGkyYFHTHVAjQQ0bkNegQIPhAH&biw=1366&bih=607&dpr=1#lrd=0x864ea1f4f3cc5d67:0x23ae04781a7d237,3'
     },
 
+    BANFIELD4035: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?q=Banfield+Pet+Hospital+Town+East+Galloway#lrd=0x864ea5402f1e50f3:0xdd06c5d607774c63,3,'
+    },
+
+    PRSETONWOODPETCLINIC: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&q=prestonwood+pet+clinic#lrd=0x864c219fc466bb05:0x38d061752c696790,3'
+    },
+    
     SANFORDOAKS: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
     url: 'https://www.google.com/search?client=firefox-b-1-d&q=sanfoard+oaks+animal+clinic#lrd=0x864e7c55d09407d9:0x4bebcb1e33c3b7fe,3'
@@ -2805,8 +2863,18 @@
 
     STRESS_COLITIS_CAUSE: "long term treatment requires identifying the source of stress & removing it.",
 
+    TAPEWORMS_FLEAS_HEADER: "Tapeworms & fleas:",
+
+    VACUUM_FOR_TAPEWORM_FLEAS: "You will also need to vacuum the carpet daily for 14 days to remove the eggs & juvenile fleas from the environment.",
+
     VOMITING_POST_MAROPITANT:
     "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
+
+  // Urinary & Renal Registry
+    ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_HEADER: "Estrogen responsive urinary incontinence:",
+    
+    LOWEST_EFFECTIVE_ESTROGEN_DOSE: "Ideally we would give the lowest effective dose to minimize side effects.",
+    
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -2962,6 +3030,8 @@
     url: `https://vmc.vet.osu.edu/sites/default/files/documents/how-will-i-know_rev_mar2024ms_0.pdf`
     },
 
+    LIFELONG_MEDICATION: "Medication must be given lifelong.",
+
     QUALITY_OF_LIFE_HEADER: "Quality of life:",
 
     RECHECK_ADVISE_1_WEEK:
@@ -2969,6 +3039,8 @@
 
     RECHECK_ADVISE_3_DAYS:
     "Bring your dog back in 3 days for a recheck appointment if no improvement is seen (return immediately if worsening).",
+    
+    SEE_CALENDAR: "See the calendar below.",
     
     SYMPTOMS:
     /Symptoms/i,
@@ -3504,8 +3576,76 @@
     };
     }
 
+  // Banfield Euless #1728
+    function generateBanfieldEuless1728Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1282"],
+    };
+    }
+
+  // Banfield Flower Mound #1282
+    function generateBanfieldFlowerMound1282Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1282"],
+    };
+    }
+
+  // Banfield Lakewood #2414
+    function generateBanfieldLakewood2414Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD2414"],
+    };
+    }
+
   // Banfield Southlake #0620
     function generateBanfieldSouthlake0620Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD0620"],
+    };
+    }
+
+  // Banfield Town East Galloway #4035
+    function generateBanfieldTownEastGalloway4035Template(sex, plurality) {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -3538,25 +3678,9 @@
     };
     }
 
-  // Banfield Flower Mound #1282
-    function generateBanfieldFlowerMound1282Template(sex, plurality) {
-    const g = getGrammar('wellness', plurality, sex);
-    return {
-    sex,
-    plurality,
-    diagnoses: [],
-    rank: 1,
-    text: [
-    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
-    ].join('\n'),
-    boldKeys: [],
-    boldUnderlineKeys: [],
-    linkKeys: ["BANFIELD1282"],
-    };
-    }
 
-  // Banfield Euless #1728
-    function generateBanfieldEuless1728Template(sex, plurality) {
+  // Prestonwood Pet Clinic
+    function generatePrestonwoodPetClinicTemplate(sex, plurality) {
     const g = getGrammar('wellness', plurality, sex);
     return {
     sex,
@@ -3568,24 +3692,7 @@
     ].join('\n'),
     boldKeys: [],
     boldUnderlineKeys: [],
-    linkKeys: ["BANFIELD1282"],
-    };
-    }
-
-  // Banfield Lakewood #2414
-    function generateBanfieldLakewood2414Template(sex, plurality) {
-    const g = getGrammar('wellness', plurality, sex);
-    return {
-    sex,
-    plurality,
-    diagnoses: [],
-    rank: 1,
-    text: [
-    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
-    ].join('\n'),
-    boldKeys: [],
-    boldUnderlineKeys: [],
-    linkKeys: ["BANFIELD2414"],
+    linkKeys: ["PRSETONWOODPETCLINIC"],
     };
     }
 
@@ -6615,6 +6722,51 @@
     };
     }
 
+  // Tapeworm Infestation
+    function generateCanineTapewormInfestationTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["TAPEWORMS"],
+    text: [
+    `Tapeworms & fleas: Your dog has tapeworms. These are transmitted by fleas whenever dogs eat them as they clean themselves. Treatment requires using medicine to remove both the tapeworms & the fleas. You will also need to vacuum the carpet daily for 14 days to remove the eggs & juvenile fleas from the environment. Keeping fleas off your pets can be done by keeping your dog on flea preventative medication.`
+    ].join('\n'),
+
+    boldKeys: [
+      "TAPEWORMS_FLEAS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "VACUUM_FOR_TAPEWORM_FLEAS"
+    ],
+    };
+    }
+
+/* ------------------ CANINE URINARY & RENAL ------------------ */
+    // Estrogen Responsive Urinary Incontinence (Presumed)
+        function generateCanineEstrogenResponsiveUrinaryIncontinenceTemplate(sex, plurality = 'singular') {
+        const g = getGrammar('wellness', plurality, sex);
+        return {
+        sex,
+        plurality,
+        diagnoses: ["ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_PRESUMED"],
+        text: [
+        `Estrogen responsive urinary incontinence: It’s possible your dog’s urinary incontinence is caused by a weak bladder sphincter. Giving estrogen can help increase the strength of the sphincter, thereby allowing the urine to be retained better. Ideally we would give the lowest effective dose to minimize side effects. Start your dog at the dose prescribed below. See the calendar below. Once you’re giving ½ tablet every 24 hours, you can start giving it once every other day for a week, then once every third day for a week, etc. until you’re only giving ½ tablet once a week. Medication must be given lifelong.`
+        ].join('\n'),
+
+        boldKeys: [
+          "ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_HEADER"
+        ],
+
+        boldUnderlineKeys: [
+          "LOWEST_EFFECTIVE_ESTROGEN_DOSE",
+          "LIFELONG_MEDICATION",
+          "SEE_CALENDAR"
+        ],
+      };
+      }
+
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
@@ -7882,6 +8034,8 @@
     '/B1282': () => generateBanfieldFlowerMound1282Template(),
     '/B1728': () => generateBanfieldEuless1728Template(),
     '/B2414': () => generateBanfieldLakewood2414Template(),
+    '/B4035': () => generateBanfieldTownEastGalloway4035Template(),
+    '/PWPC': () => generatePrestonwoodPetClinicTemplate(),
     '/SanfordOaks': () => generateSanfordOaksAnimalClinicTemplate(),
 
   // Puppy Wellness Definitions
@@ -7997,6 +8151,10 @@
     '/cRetainedDeciduousTooth': (sex, plurality) => generateCanineRetainedDeciduousTeethTemplate(sex, "singular"),
     '/cRetainedDeciduousTeeth': (sex, plurality) => generateCanineRetainedDeciduousTeethTemplate(sex, "plural"),
     '/cStressColitis': (sex, plurality) => generateCanineStressColitisTemplate(sex, plurality),
+    '/cTapeworms': (sex, plurality) => generateCanineTapewormInfestationTemplate(sex, plurality),
+
+  // Canine Urinary & Renal Definitions
+    '/cEstrogenResponsiveUrinaryIncontence0thPresumed': (sex, plurality) => generateCanineEstrogenResponsiveUrinaryIncontinenceTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
