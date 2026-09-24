@@ -90,6 +90,20 @@
   </div>
 
   <div class="category">
+  <div class="category-header" onclick="toggleCategory(this)">🐶 Vaccines 💉</div>
+  <div class="category-content">
+    <button class="template-button" onclick="openVaccineTypeMenu('Rabies')">Rabies</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('DAPP')">DAPP</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('DAPPLepto')">DAPP + Lepto (Combo)</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('Lepto')">Lepto</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('Bordetella')">Bordetella</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('Influenza')">Influenza</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('Proheart6')">Proheart 6</button>
+    <button class="template-button" onclick="openVaccineTypeMenu('Proheart12')">Proheart 12</button>
+    </div>
+    </div>
+
+  <div class="category">
     <div class="category-header" onclick="toggleCategory(this)">🐶 General Wellness 🐕</div>
     <div class="category-content">
       <button class="template-button" onclick="insertTemplate('/c8wksSmallMale')">8 Weeks – Small Male</button>
@@ -120,15 +134,9 @@
       <button class="template-button" onclick="insertTemplate('/c2yearMale')">2nd Annual  ♂</button>
       <button class="template-button" onclick="insertTemplate('/c2yearFemale')">2nd Annual ♀</button>
       <button class="template-button" onclick="insertTemplate('/c2yearFemales')">2nd Annual (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/c2yearLeptoMale')">2nd Annual Lepto ♂</button>
-      <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemale')">2nd Annual Lepto ♀</button>
-      <button class="template-button" onclick="insertTemplate('/c2yearLeptoFemales')">2nd Annual Lepto (Multiple Pets)</button>
       <button class="template-button" onclick="insertTemplate('/c7yearMale')">7th Annual ♂</button>
       <button class="template-button" onclick="insertTemplate('/c7yearFemale')">7th Annual ♀</button>
       <button class="template-button" onclick="insertTemplate('/c7yearFemales')">7th Annual (Multiple Pets)</button>
-      <button class="template-button" onclick="insertTemplate('/c7yearLeptoMale')">7th Annual Lepto ♂</button>
-      <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemale')">7th Annual Lepto ♀</button>
-      <button class="template-button" onclick="insertTemplate('/c7yearLeptoFemales')">7th Annual Lepto (Multiple Pets)</button>
       <button class="template-button" onclick="openWeightMenu('/cOverweight1stMale', this)">Overweight ♂</button>
       <button class="template-button" onclick="openWeightMenu('/cOverweight1stFemale', this)">Overweight ♀</button>
       <button class="template-button" onclick="openWeightMenu('/cOverweight1stMales', this)">Overweight (Multiple Pets)</button>
@@ -271,12 +279,35 @@
     <div class="category-header" onclick="toggleCategory(this)">🐶 Urinary &amp; Renal 🐕</div>
     <div class="category-content">
       <button class="template-button" onclick="insertTemplate('/cEstrogenResponsiveUrinaryIncontence0thPresumed')">Estrogen Responsive Urinary Incontinence (Presumed)</button>
+      <button class="template-button" onclick="insertTemplate('/cProteinLosingNephropathy1stDiagnosed')">Protein Losing Nephropathy | 1st, Diagnosed</button>
+      <button class="template-button" onclick="insertTemplate('/cProteinLosingNephropathy2ndUncontrolled')">Protein Losing Nephropathy | 2nd, Uncontrolled</button>
+      <button class="template-button" onclick="insertTemplate('/cProteinLosingNephropathy3rdControlled')">Protein Losing Nephropathy | 3rd, Controlled</button>
+      <button class="template-button" onclick="insertTemplate('/cProteinuriaTestsDeclined')">Proteinuria | Tests Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cSterileCystitis')">Sterile Cystitis</button>
+      <button class="template-button" onclick="insertTemplate('/cTransitionalCellCarcinomaPalliativeCare')">Transitional Cell Carcinoma | Palliative Care</button>
+      <button class="template-button" onclick="insertTemplate('/cUrinaryIncontinence1stDiagnosed')">Urinary Incontinence | 1st, Diagnosed, Start PPA</button>
+      <button class="template-button" onclick="insertTemplate('/cUrinaryTractInfectionAbxUrinalysisPending')">Urinary Tract Infection | Abx, Urinalysis Pending</button>
+      <button class="template-button" onclick="insertTemplate('/cUrinaryTractInfectionCocci')">Urinary Tract Infection | Cocci</button>
+      <button class="template-button" onclick="insertTemplate('/cUrinaryTractInfectionAbxUrinalysisDeclined')">Urinary Tract Infection | Abx, Urinalysis Declined</button>
+      <button class="template-button" onclick="insertTemplate('/cUrinaryTractInfectionRods')">Urinary Tract Infection | Rods</button>
+      <button class="template-button" onclick="insertTemplate('/cUrineCollection')">Urine Collection</button>
+      <button class="template-button" onclick="insertTemplate('/cUrineScaldingNoUrinalysis')">Urine Scalding | No Urinalysis</button>
+      <button class="template-button" onclick="insertTemplate('/cUrineScaldingUrinalysisPending')">Urine Scalding | Urinalysis Pending</button>
     </div>
   </div>
 
   <div class="category">
     <div class="category-header" onclick="toggleCategory(this)">🐶 Reproductive 🐕</div>
-    <div class="category-content"></div>
+    <div class="category-content">
+      <button class="template-button" onclick="insertTemplate('/cBenignProstaticHyperplasia')">Benign Prostatic Hyperplasia</button>
+      <button class="template-button" onclick="insertTemplate('/cCryptorchidUnder16Weeks')">Cryptorchid Under 16 Weeks</button>
+      <button class="template-button" onclick="insertTemplate('/cCryptorchidOver16Weeks')">Cryptorchid Over 16 Weeks</button>
+      <button class="template-button" onclick="insertTemplate('/cNeuterAdvisedSmallDog')">Neuter Advised | Small Dog</button>
+      <button class="template-button" onclick="insertTemplate('/cNeuterAdvisedLargeDog')">Neuter Advised | Large Dog</button>
+      <button class="template-button" onclick="insertTemplate('/cRecessedVulva')">Recessed Vulva</button>
+      <button class="template-button" onclick="insertTemplate('/cPregnantUltrasound')">Pregnant | Ultrasound</button>
+      <button class="template-button" onclick="insertTemplate('/cSpayAdvised')">Spay Advised</button>
+    </div>
   </div>
 
   <div class="category">
@@ -405,6 +436,35 @@
   <button class="template-button" onclick="submitMedicationWithPrefix('ASNEEDED')">8 - As needed</button>
 </div>
 
+<div id="vaccineYearView" style="display: none;">
+  <div id="vaccineYearTitle" class="prefix-title">Select Year</div>
+  <button class="template-button cancel-button" onclick="closeVaccineMenus()">← Back / Cancel</button>
+  <button class="template-button" onclick="submitVaccineYear1('0')">Initial</button>
+  <button class="template-button" onclick="submitVaccineYear1('1')">1 Year</button>
+  <button class="template-button" onclick="submitVaccineYear1('3')">3 Year</button>
+  <button class="template-button" id="vaccineYearNoneBtn" onclick="submitVaccineYear1('')">No Year (skip)</button>
+</div>
+
+<div id="vaccineYear2View" style="display: none;">
+  <div id="vaccineYear2Title" class="prefix-title">Select Year (Lepto portion)</div>
+  <button class="template-button cancel-button" onclick="closeVaccineMenus()">← Back / Cancel</button>
+  <button class="template-button" onclick="submitVaccineYear2('0')">Initial</button>
+  <button class="template-button" onclick="submitVaccineYear2('1')">1 Year</button>
+</div>
+
+<div id="vaccineSiteView" style="display: none;">
+  <div class="prefix-title">Select Injection Site</div>
+  <button class="template-button cancel-button" onclick="closeVaccineMenus()">← Back / Cancel</button>
+  <button class="template-button" onclick="submitVaccineSite('RH')">Right Hindlimb</button>
+  <button class="template-button" onclick="submitVaccineSite('LH')">Left Hindlimb</button>
+  <button class="template-button" onclick="submitVaccineSite('RF')">Right Forelimb</button>
+  <button class="template-button" onclick="submitVaccineSite('LF')">Left Forelimb</button>
+  <button class="template-button" onclick="submitVaccineSite('IN')">Intranasal</button>
+  <button class="template-button" onclick="submitVaccineSite('PO')">Oral</button>
+  <button class="template-button" onclick="submitVaccineSite('SB')">Between Shoulder Blades</button>
+  <button class="template-button" onclick="submitVaccineSite('SQ')">Subcutaneous</button>
+</div>
+
 <script>
 // --- STATE TRACKING ---
 let cachedMedKey = null;
@@ -418,6 +478,75 @@ let cachedMedSelectedWeight = 'UNKNOWN';
 let cachedWeightKeyword = null;
 let cachedWeightButtonElement = null;
 let cachedWeightButtonLabel = null;
+let cachedVaccineType = null;
+let cachedVaccineYear1 = null;
+let cachedVaccineYear2 = null;
+let cachedVaccineSite = null;
+
+function openVaccineTypeMenu(type) {
+  cachedVaccineType = type;
+  cachedVaccineYear1 = null;
+  cachedVaccineYear2 = null;
+
+  document.getElementById('vaccineYearNoneBtn').style.display = (type === 'Bordetella') ? 'block' : 'none';
+  document.getElementById('vaccineYearTitle').innerText =
+    'Select Year' + (type === 'DAPPLepto' ? ' (DAPP portion)' : ' for ' + type);
+
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('vaccineYearView').style.display = 'block';
+}
+
+function submitVaccineYear1(year) {
+  cachedVaccineYear1 = year;
+  document.getElementById('vaccineYearView').style.display = 'none';
+
+  if (cachedVaccineType === 'DAPPLepto') {
+    document.getElementById('vaccineYear2View').style.display = 'block';
+  } else {
+    document.getElementById('vaccineSiteView').style.display = 'block';
+  }
+}
+
+function submitVaccineYear2(year) {
+  cachedVaccineYear2 = year;
+  document.getElementById('vaccineYear2View').style.display = 'none';
+  document.getElementById('vaccineSiteView').style.display = 'block';
+}
+
+function submitVaccineSite(site) {
+  cachedVaccineSite = site;
+  const keyword = buildVaccineKeyword();
+  document.getElementById('vaccineSiteView').style.display = 'none';
+
+  google.script.run
+    .withSuccessHandler(() => { closeVaccineMenus(); })
+    .withFailureHandler(err => {
+      alert('Error inserting vaccine: ' + err.message);
+      closeVaccineMenus();
+    })
+    .expandKeywordsFromSidebar(keyword);
+}
+
+function buildVaccineKeyword() {
+  const site = cachedVaccineSite;
+  const yr1 = cachedVaccineYear1 ? cachedVaccineYear1 + 'yr' : '';
+
+  switch (cachedVaccineType) {
+    case 'Rabies':     return '/cRabiesVxn' + yr1 + site;
+    case 'DAPP':       return '/cDAPPVxn' + yr1 + site;
+    case 'Lepto':      return '/cLeptoVxn' + yr1 + site;
+    case 'Bordetella': return '/cBordetellaVxn' + yr1 + site;
+    case 'DAPPLepto':  return '/cDAPP' + cachedVaccineYear1 + 'yrLepto' + cachedVaccineYear2 + 'yrVxn' + site;
+    default:           return '';
+  }
+}
+
+function closeVaccineMenus() {
+  document.getElementById('vaccineYearView').style.display = 'none';
+  document.getElementById('vaccineYear2View').style.display = 'none';
+  document.getElementById('vaccineSiteView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+}
 
 // --- WORKFLOW ROUTERS ---
 
