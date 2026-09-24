@@ -1,4 +1,4 @@
-/* ------------------ UI, PRONOUN HELPER, GRAMMAR DICTIONARY, GENERAL REGISTRY, & SITE MAP ------------------ */
+/* ------------------ UI, PRONOUN HELPER, GRAMMAR DICTIONARY, GENERAL REGISTRY, & VACCINE HELPER   ------------------ */
   // Medical Template UI 
     function onOpen() {
     const ui = DocumentApp.getUi();
@@ -137,7 +137,7 @@
     purple: '#B4A7D6',
     };
 
-  // Site Map
+  // Vaccine Helper
     const SITE_MAP = {
     RF: "in the right forelimb",
     LF: "in the left forelimb",
@@ -145,9 +145,160 @@
     LH: "in the left hindlimb",
     IN: "intranasally",
     PO: "orally",
+    SB: "between the shoulder blades",
     SQ: "subcutaneously",
-    SB: "between the shoulder blades"
     };
+
+    const formatYr = (yr) => (yr === "0" ? "initial " : yr ? `${yr} year ` : "");
+
+    const VAX_REGISTRY = {
+    Rabies: {
+    order: 1,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}rabies vaccine was given ${SITE_MAP[site] || "in the right hindlimb"}.`
+    },
+    DAPP: {
+    order: 2,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given ${SITE_MAP[site] || "in the left hindlimb"}.`
+    },
+    DAPPLepto: {
+    order: 3,
+    fn: (dappYr, leptoYr, site, g) =>
+    `The ${formatYr(dappYr)}distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo ${g.shot} with the ${formatYr(leptoYr)}lepto vaccine ${SITE_MAP[site] || "in the left hindlimb"}.`
+    },
+    Lepto: {
+    order: 4,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}lepto vaccine was given ${SITE_MAP[site] || "in the left hindlimb"}.`
+    },
+    Bordetella: {
+    order: 5,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}bordetella vaccine was given ${SITE_MAP[site] || "orally"}.`
+    },
+    Influenza: {
+    order: 6,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}influenza vaccine was given ${SITE_MAP[site] || "right shoulder"}.`
+    },
+    Proheart6: {
+    order: 7,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}Proheart 6 injection was given ${SITE_MAP[site] || "between the shoulder blades"}.`
+    },
+    Proheart12: {
+    order: 8,
+    fn: (yr, site) =>
+    `The ${formatYr(yr)}Proheart 12 injection was given ${SITE_MAP[site] || "between the shoulder blades"}.`
+    },
+    };
+
+    function getVaccineMeta(keyword, g) {
+    // Matches combo specific years (e.g., /cDAPP0yrLepto1yrVxnLH) OR single duration
+    const comboMatch = keyword.match(/\/cDAPP(?:(\d+)yr)?Lepto(?:(\d+)yr)?vxn([a-z]{2})?/i);
+
+    if (comboMatch) {
+    const dappYr = comboMatch[1] !== undefined ? comboMatch[1] : "";
+    const leptoYr = comboMatch[2] !== undefined ? comboMatch[2] : "";
+    const siteCode = (comboMatch[3] || "").toUpperCase();
+    const entry = VAX_REGISTRY.DAPPLepto;
+
+    return {
+    order: entry.order,
+    text: entry.fn(dappYr, leptoYr, siteCode, g)
+    };
+    }
+
+    // Standard fallback for non-combo vaccine keywords
+    const standardMatch = keyword.match(/\/c([a-z]+)vxn(?:(\d+)yr)?([a-z]{2})?/i);
+    if (!standardMatch) return null;
+
+    const rawType = standardMatch[1]; 
+    const duration = standardMatch[2] !== undefined ? standardMatch[2] : ""; 
+    const siteCode = (standardMatch[3] || "").toUpperCase();
+
+    const actualKey = Object.keys(VAX_REGISTRY).find(
+    k => k.toLowerCase() === rawType.toLowerCase()
+    );
+
+    if (actualKey && VAX_REGISTRY[actualKey]) {
+    const entry = VAX_REGISTRY[actualKey];
+    return {
+    order: entry.order,
+    text: entry.fn(duration, siteCode, g)
+    };
+    }
+
+    return null;
+    }
+
+    function parseVaccineKeyword(keyword, g) {
+    const meta = getVaccineMeta(keyword, g);
+    return meta ? meta.text : "";
+    }
+
+    function detectVaccineSentenceOrder(sentenceText) {
+    const lower = sentenceText.toLowerCase();
+    if (lower.includes('rabies vaccine')) return 1;
+    if (lower.includes('combo') && lower.includes('lepto')) return 3;
+    if (lower.includes('distemper')) return 2;
+    if (lower.includes('lepto vaccine')) return 4;
+    if (lower.includes('bordetella vaccine')) return 5;
+    return 99; // unrecognized text — push to the end rather than guess
+    }
+
+    function insertVaccineIntoWellnessParagraph(vaxMeta) {
+    const body = DocumentApp.getActiveDocument().getBody();
+    const anchorPhrase = 'You may notice that after vaccination';
+    const found = body.findText(escapeForRegex(anchorPhrase));
+    if (!found) return false;
+
+    const element = found.getElement();
+    const parent = element.getParent();
+    if (parent.getType() !== DocumentApp.ElementType.PARAGRAPH) return false;
+
+    const paragraph = parent.asParagraph();
+    const textObj = paragraph.editAsText();
+    const fullText = textObj.getText();
+
+    const anchorIdx = fullText.indexOf(anchorPhrase);
+    if (anchorIdx === -1) return false;
+
+    const beforeAnchor = fullText.substring(0, anchorIdx).trim();
+    const fromAnchor = fullText.substring(anchorIdx);
+
+    const existingSentences = beforeAnchor.length
+    ? beforeAnchor.split(/(?<=\.)\s+/).filter(s => s.trim().length)
+    : [];
+
+    const withOrders = existingSentences.map(s => ({
+    text: s.trim(),
+    order: detectVaccineSentenceOrder(s)
+    }));
+
+    let inserted = false;
+    const combined = [];
+    for (const entry of withOrders) {
+    if (!inserted && vaxMeta.order < entry.order) {
+    combined.push(vaxMeta.text);
+    inserted = true;
+    }
+    combined.push(entry.text);
+    }
+    if (!inserted) combined.push(vaxMeta.text);
+
+    const newFullText = combined.join(' ') + ' ' + fromAnchor;
+    textObj.setText(newFullText);
+
+    // setText wipes character-level formatting on this paragraph, so re-bold
+    // whichever vaccine sentence types are actually present.
+    [FORMAT_REGISTRY.RABIES_VXN, FORMAT_REGISTRY.DAPP_VXN, FORMAT_REGISTRY.LEPTO_VXN, FORMAT_REGISTRY.BORDETELLA_VXN]
+    .filter(Boolean)
+    .forEach(pattern => applyFormattingOnce(textObj, pattern, STYLE_REGISTRY.bold));
+
+    return true;
+    }
   
 /* ------------------ MEDICINE CABINET ------------------ */
   // Medications
@@ -723,7 +874,7 @@
       label: "Meloxicam 7.5mg",
       instructions: "Give your dog {amount} {unit} by mouth every 24 hours for pain and inflammation. Give until gone.",
       class: "Non-steroidal anti-inflammatory drug (NSAID)",
-      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITH OTHER NSAIDs OR STEROIDS.",
+      sideEffects: "Vomiting, diarrhea, or decreased appetite. DO NOT USE WITHIN 3 DAYS OF OTHER NSAIDs OR STEROIDS..",
       defaultUnit: "tab",
       defaultDose: "100",
       },
@@ -853,22 +1004,22 @@
       },
 
     PRAZIQUANTEL227: {
-    label: "Drontal 22.7mg (praziquantel)",
-    instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
-    class: "Antiparasitic",
-    sideEffects: "Well tolerated",
-    defaultUnit: "tab",
-    defaultDose: "100",
-    },
+      label: "Drontal 22.7mg (praziquantel)",
+      instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
+      class: "Antiparasitic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PRAZIQUANTEL68: {
-    label: "Drontal 68mg (praziquantel)",
-    instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
-    class: "Antiparasitic",
-    sideEffects: "Well tolerated",
-    defaultUnit: "tab",
-    defaultDose: "100",
-    },
+      label: "Drontal 68mg (praziquantel)",
+      instructions: "Give your dog {amount} {unit} by mouth for treatment of tapeworms.",
+      class: "Antiparasitic",
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
 
     PREDNISOLONE5: {
       label: "Prednisolone 5mg",
@@ -940,7 +1091,7 @@
       instructions: "Give your dog {amount} {unit} by mouth every 8 hours. Give for a minimum of 7 days or until diarrhea stops, whichever occurs first.",
       class: "Antidiarrheal",
       sideEffects: "Well tolerated",
-      defaultUnit: "tab",
+      defaultUnit: "mL",
       defaultDose: "100",
       },
 
@@ -1105,6 +1256,15 @@
       instructions: "Apply 1 - 2 drops in your dog’s affected eye every 12 hours for management of dry eye. Apply 5 minutes BEFORE other eye drop medicine.",
       class: "Immunosuppressant",
       sideEffects: "Well tolerated"
+      },
+
+    TELMISARTAN10: {
+      label: "Telmisartan 10mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for management of protein losing nephropathy.",
+      class: "Vasodilator",
+      sideEffects: "Rarely causes vomiting, diarrhea, weight loss, or lethargy.",
+      defaultUnit: "cap",
+      defaultDose: "100"
       },
 
     TRAZODONE50: {
@@ -1389,8 +1549,8 @@
   // Diagnosis Registry & Rank
     const DIAGNOSIS_REGISTRY = {
       // Examples
-      // 0 - 99: Top priority, emergency, disregard all else (heart murmur, heart failure, etc.)
-      // 100 - 199: Quality of life (arthritis)
+      // 0 - 99: Top priority, emergency, disregard all else (heart murmur, heart failure, palliative care cancer, etc.)
+      // 100 - 199: Quality of life (arthritis, )
       // 200 - 299: High priority, recheck & preventative care (corneal ulcer, glaucoma, hypertension)
       // 300 - 399: Medium-high priority, treatment advised (periodontal disease, otitis externa, etc.)
       // 400 - 499: Medium priority, lifelong management (atopic dermatitis, BOAS, bronchitis)
@@ -1418,6 +1578,11 @@
     ATOPIC_DERMATITIS: {
       text: "Atopic dermatitis (allergies)",
       rank: 401 //402 reserved for diet trial information
+      },
+
+    BENIGN_PROSTATIC_HYPERPLASIA: {
+      text: "Benign prostatic hyperplasia",
+      rank: 600
       },
 
     BLIND: {
@@ -1468,6 +1633,11 @@
     CORNEAL_ULCER: {
       text: "Corneal ulcer",
       rank: 220
+      },
+
+    CRYPTORCHID: {
+      text: "Cryptorchid",
+      rank: 303
       },
 
     DIABETES_MELLITUS: {
@@ -1630,9 +1800,29 @@
       rank: 300
       },
 
+    PREGNANT: {
+      text: "Pregnant",
+      rank: 208
+      },
+
     PROGNATHISM: {
       text: "Prognathism",
       rank: 801
+      },
+
+    PROTEIN_LOSING_NEPHROPATHY : {
+      text: "Protein losing nephropathy",
+      rank: 405
+      },
+
+    PROTEINURIA : {
+      text: "Proteinuria",
+      rank: 301
+      },
+
+    RECESSED_VULVA : {
+      text: "Recessed vulva",
+      rank: 304
       },
 
     RETAINED_DECIDUOUS_TOOTH: {
@@ -1660,6 +1850,11 @@
       rank: 300
       },
 
+    STERILE_CYSTITIS: {
+      text: "Sterile cystitis",
+      rank: 504
+      },
+
     STRESS_COLITIS: {
       text: "Stress colitis",
       rank: 503
@@ -1670,9 +1865,29 @@
       rank: 706
       },
 
+    TRANSITIONAL_CELL_CARCINOMA_PRESUMED: {
+      text: "Transitional cell carcinoma (presumed)",
+      rank: 5
+      },
+
     UNDERWEIGHT: {
       text: "Underweight",
       rank: 704
+      },
+
+    URINARY_TRACT_INFECTION_PRESUMED: {
+      text: "Urinary tract infection (presumed)",
+      rank: 207
+      },
+
+    URINARY_TRACT_INFECTION_DIAGNOSED: {
+      text: "Urinary tract infection",
+      rank: 207
+      },
+
+    URINE_SCALDING: {
+      text: "Urine scalding",
+      rank: 302
       },
       };
 
@@ -2033,6 +2248,11 @@
     url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+southlake#lrd=0x864dd4ed4186ea27:0x75f2978a14b85b2d,3'
     },
 
+    BANFIELD1109: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?q=Banfield+5401+N+Garland+Ave%2C+Garland%2C+TX+75040&client=firefox-b-1-d&hs=jvFB&sca_esv=e359e9a73c7375ff&channel=entpr&sxsrf=APpeQnsBZOqB-dsaDKsodVrvj387PnLY1A%3A1788789247313&ei=_8GeapGzEuqtmtkP78vK0AU&biw=1920&bih=947&uact=5&oq=Banfield+5401+N+Garland+Ave%2C+Garland%2C+TX+75040&gs_lp=Egxnd3Mtd2l6LXNlcnAiLkJhbmZpZWxkIDU0MDEgTiBHYXJsYW5kIEF2ZSwgR2FybGFuZCwgVFggNzUwNDAyAhAmMggQABiABBiiBDIIEAAYgAQYogQyCBAAGIAEGKIEMgUQABjvBUirEVCtBVjND3ABeAGQAQCYAUOgAaADqgECMTC4AQPIAQD4AQH4AQKYAgugAvADwgIKEAAYRxjWBBiwA8ICDRAAGEcY1gQYyQMYsAPCAg4QABiABBiKBRiSAxiwA8ICFxAuGNwGGLgGGNoGGNgCGMgDGLAD2AEBwgIQEC4YQxjHARjRAxiABBiKBcICChAAGIAEGIoFGEPCAhMQLhiABBiKBRhDGLEDGMcBGNEDwgIOEC4YgAQYsQMYxwEY0QPCAgoQLhiABBiKBRhDwgIOEC4YgwEYsQMYgAQYigXCAgsQLhiABBixAxiDAcICHxAuGEMYxwEY0QMYgAQYigUYlwUY3AQY3gQY4ATYAQLCAggQABiABBixA8ICExAuGEMYxwEYyQMY0QMYgAQYigXCAgsQABiABBiKBRiSA8ICBRAAGIAEwgILEAAYgAQYsQMYgwHCAiIQLhhDGMcBGMkDGNEDGIAEGIoFGJcFGNwEGN4EGOAE2AECwgIWEC4YQxjHARixAxjJAxjRAxiABBiKBcICCBAAGIAEGJIDwgIOEC4YgAQYxwEYrwEYjgXCAg0QABiABBiKBRhDGLEDwgIlEC4YQxjHARixAxjJAxjRAxiABBiKBRiXBRjcBBjeBBjgBNgBAsICEBAAGIAEGIoFGEMYsQMYyQPCAh0QLhiABBixAxjHARjRAxiXBRjcBBjeBBjgBNgBApgDAIgGAZAGC7oGBAgBGBm6BgYIAhABGBSSBwIxMaAH5m-yBwIxMLgH5wPCBwUyLTkuMsgHPoAIAQ&sclient=gws-wiz-serp#lrd=0x864c1c3f5a936815:0xa74f326c8e07d6d6,3,'
+    },
+    
     BANFIELD1122: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
     url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+watauga#lrd=0x864dd7f743c05f0f:0x21e5558511c540a4,3'
@@ -2040,7 +2260,7 @@
 
     BANFIELD1282: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
-    url: 'https://www.google.com/search?client=firefox-b-1-d&channel=entpr&q=banfield+watauga#lrd=0x864dd7f743c05f0f:0x21e5558511c540a4,3'
+    url: 'https://www.google.com/search?q=Banfield+Flower+Mound+6060+Long+Prairie+Rd+Ste+200%2C+Flower+Mound%2C+TX+75028&client=firefox-b-1-d&hs=qZuV&sca_esv=db3a156b681938a9&channel=entpr&biw=1920&bih=919&sxsrf=APpeQns3NOpQ9E5j0Thd2BrKPVO9Rl4IIg%3A1788631067580&ei=G1icap38IpK5mtkP-sWMiQY&uact=5&oq=Banfield+Flower+Mound+6060+Long+Prairie+Rd+Ste+200%2C+Flower+Mound%2C+TX+75028&gs_lp=Egxnd3Mtd2l6LXNlcnAiSkJhbmZpZWxkIEZsb3dlciBNb3VuZCA2MDYwIExvbmcgUHJhaXJpZSBSZCBTdGUgMjAwLCBGbG93ZXIgTW91bmQsIFRYIDc1MDI4SJQIUMYCWJ4EcAF4AZABAJgBa6ABpgGqAQMxLjG4AQPIAQD4AQH4AQKYAgKgAnfCAgoQABhHGNYEGLADwgINEAAYRxjWBBjJAxiwA8ICDhAAGIAEGIoFGJIDGLADwgIOEAAY5AIY1gQYsAPYAQHCAhcQLhjcBhi4BhjaBhjYAhjIAxiwA9gBAcICDhAuGK8BGMcBGIAEGI4FwgIFEAAYgATCAg4QLhiABBjHARivARiOBcICBhAAGBYYHsICAhAmmAMAiAYBkAYOugYGCAEQARgJkgcDMS4xoAeuC7IHAzAuMbgHb8IHBTAuMS4xyAcIgAgB&sclient=gws-wiz-serp#lrd=0x864c32bac9eb1f3f:0xdfe04ccb35919ebc,3,'
     },
 
     BANFIELD1728: {
@@ -2058,6 +2278,11 @@
     url: 'https://www.google.com/search?q=Banfield+Pet+Hospital+Town+East+Galloway#lrd=0x864ea5402f1e50f3:0xdd06c5d607774c63,3,'
     },
 
+    CREEKSIDEPETCARECENTER: {
+    text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
+    url: 'https://www.google.com/search?client=firefox-b-1-d&q=Creekside+Pet+Care+Center#lrd=0x864dd435a824ea2f:0x63410675016fba4e,3,'
+    },
+
     PRSETONWOODPETCLINIC: {
     text: "please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye)",
     url: 'https://www.google.com/search?client=firefox-b-1-d&q=prestonwood+pet+clinic#lrd=0x864c219fc466bb05:0x38d061752c696790,3'
@@ -2069,28 +2294,19 @@
     },
   // Vaccines Registry
     BORDETELLA_VXN:
-    'The 1 year bordetella vaccine',
+    /The (?:initial |\d+ year )?bordetella vaccine/i,
 
-    DAPP_INITIAL:
-    'The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine',
-
-    DAPP_BOOSTER:
-    'The distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine',
-
-    DAPP_1YR:
-    'The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine',
-
-    DAPP_3YR:
-    'The 3 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine',
+    DAPP_VXN:
+    /The (?:initial |\d+ year )?distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine/i,
 
     IMMEDIATELY: g =>
     `bring your ${g.dog} back immediately for treatment`,
 
-    LEPTO_INITIAL:
-    'the initial lepto vaccine',
-
     LEPTO_VXN:
-    /the 1 year lepto vaccine/i,
+    /The (?:initial |\d+ year )?lepto vaccine/i,
+
+    FLU_VXN:
+    /The (?:initial |\d+ year )?influenza vaccine/i,
 
     NEXT_APPOINTMENT_HEADER: 'Next appointment:',
 
@@ -2103,11 +2319,8 @@
     Quarantine_16WK: g =>
     `During this time, keep ${g.him} away from dog parks & other dogs that aren’t part of your household.`,
 
-    RABIES_1YR:
-    'The 1 year rabies vaccine',
-
-    RABIES_3YR:
-    'The 3 year rabies vaccine',
+    RABIES_VXN:
+    /The (?:initial |\d+ year )?rabies vaccine/i,
 
     RARE_RXN: g =>
     `These reactions are rare & not expected to occur in your ${g.dog}.`,
@@ -2871,10 +3084,130 @@
     "If you still see vomiting within 24 hours of the injection, your dog needs to go to your nearest veterinary emergency hospital immediately.",
 
   // Urinary & Renal Registry
+    URINALYSIS_CONTACT_IN_3_DAYS: "You will be contacted in 3 - 4 business days with the urinalysis results.",
+
+    CYSTITIS_HEADER: "Cystitis:",
+    
     ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_HEADER: "Estrogen responsive urinary incontinence:",
+
+    GLOMERULONEPHRITIS_IN_DOGS_AND_CATS_ARTICLE: {
+    text: "Glomerulonephritis in Dogs and Cats",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951842`
+    },
+
+    IF_YOU_CANT_COLLECT_URINE: "If you cannot collect urine, an ultrasound guided cystocentesis can be performed.",
     
     LOWEST_EFFECTIVE_ESTROGEN_DOSE: "Ideally we would give the lowest effective dose to minimize side effects.",
+
+    PROTEIN_LOSING_NEPHROPATHY_HEADER: "Protein losing nephropathy:",
+
+    PROTEINURIA_HEADER: "Proteinuria:",
+
+    RECHECK_URINALYSIS: "It is vital you come back for a recheck urinalysis once your dog has completed all the antibiotics to ensure infection has completely resolved. Failure to do so may allow for resistant bacteria to grow.",
     
+    ROD_SHAPED_INFECTION: "Your dog has an infection with rod shaped bacteria.",
+
+    STERILE_CYSTITIS: "Your dog has been diagnosed with sterile cystitis.",
+
+    TRANSITIONAL_CELL_CARCINOMA_HEADER: "Transitional cell carcinoma:",
+
+    TRANSITIONAL_CELL_CARCINOMA_IN_DOGS_CATS_ARTICLE: {
+    text: "Transitional Cell Carcinoma in Dogs & Cats",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951982`
+    },
+
+    UPC_SYMPTOMS_TEST_ADVISED: "If you see signs of increased urination, straining to urinate, or discomfort when urinating, bring your dog in for a repeat urinalysis and the UPC ratio test.",
+    
+    URINALYSIS_NO_INFECTION: "A urinalysis was performed which shows no signs of bacterial infection at this time.",
+
+    URINALYSIS_TCC_ADVISED: "Urinalysis to check for concurrent infection (common with this cancer) is recommended.:",
+    
+    URINARY_INCONTINENCE_HEADER: "Urinary incontinence:",
+
+    URINARY_INCONTINENCE_NO_IMPROVEMENT: "If we don’t see improvement in a month we can try switching to the other urinary incontinence medicine.:",
+
+    URINARY_TRACT_INFECTION_HEADER: "Urinary tract infection:",
+
+    URINE_COLLECTION_KIT: "You have been sent home with a urine collection kit.",
+    
+    URINE_PROTEIN_ARTICLE: {
+    text: "Urine Protein",
+    url: `https://vcahospitals.com/know-your-pet/urine-protein`
+    },
+
+    URINE_SAMPLE_HEADER: "Urine sample:",
+
+    URINE_SCALDING_HEADER: "Urine scalding:",
+
+    UTI_HEADER: "UTI:",  
+
+  // Reproductive Registry
+    ABNORMAL_STAGE_TWO_DISCHARGE: "Abnormal discharge is yellow or mostly blood filled.",
+    
+    ABNORMAL_STAGE_THREE_DISCHARGE: "Abnormal discharge is yellow, green, red, or smelly and constitutes an emergency.",
+
+    BENIGN_PROSTATIC_HYPERPLASIA_HEADER: "Benign prostatic hyperplasia:",
+
+    BIRTHING_PUPPIES_ARTICLE: {
+    text: "Birthing Puppies",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951546`
+    },
+
+    CANT_FIND_TESTICLES: "On physical exam I was unable to confirm both of your dog’s testicles in his scrotum.",
+
+    CRYPTORCHID_HEADER: "Cryptorchid:",
+
+    CRYPTORCHID_NEUTER: "The best course of action would be to neuter him when he’s 6 months of age.",
+
+    DONT_HELP_BIRTHING_PROCESS: "Do not try to help your dog give birth or move her once she has started. She will delay or stop giving birth for up to 3 days until she is left alone.",
+
+    EATING_PLACENTA: "Your dog might eat this which is normal.",
+
+    INATTENTIVE_MOTHER: "If your dog does not show interest in the newborns within 60 seconds or if she has contractions for 60 minutes without passing a puppy, you will need to contact your nearest emergency clinic and take your dog and her puppies in immediately.",
+
+    MONITORING_PREGNANCY_ADVISE: "There is no risk to the puppies if x-rays are taken. If you are not confident in caring for your dog while ${g.he} is whelping, you can take ${g.his} to a clinic that has overnight hospitalization to facilitate safe passage.",
+
+    NEUTER_RECOMMENDED: "It is recommended you have him neutered if you don’t intend to breed him.",
+
+    PREGNANCY_FOOD_HEADER: "Pregnancy food:",
+
+    PREGNANCY_HEADER: "Pregnancy:",
+
+    PREGNANT_DOG_CARE_ARTICLE: {
+    text: "Pregnant Dog Care",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4951916`
+    },
+
+    PUPPY_DIET_FOR_PREGNANT_DOG: "A puppy diet is strongly recommended since it’ll increase the amount of calories ${g.he} gets in a smaller amount of food.",
+
+    PUSHING_BUT_NO_PUPPIES: "If your dog is actively pushing for more than 30 minutes or takes more than a 4 hour break between puppies, take ${g.his} to the nearest emergency room.",
+
+    RECESSED_VULVA_HEADER: "Recessed vulva:",
+
+    RECESSED_VULVA_HYPOALLERGENIC_WIPES: "use hypoallergenic wet wipes after she urinates to help keep the skin free of excess moisture and urine.",
+
+    RECESSED_VULVA_SYMPTOMS: "Signs of perivulvar infection include redness, excessive licking of the vulva, scooting behaviour, or a foul odour.",
+
+    SPAY_SECOND_HEAT_CYCLE: "Even if she has already had her second heat cycle, spaying is still recommended since many mammary tumors are stimulated by estrogen & pyometra is still a possibility.",
+    
+    SPAY_IF_NO_BREEDING: "It is recommended you have your dog spayed if you do not intend to breed her.",
+
+    STAGE_ONE: "Stage 1",
+  
+    STAGE_TWO: "Stage 2",
+    
+    STAGE_THREE: "Stage 3",
+
+    RECESSED_VULVA_IN_DOGS_ARTICLE: {
+    text: "Recessed Vulva in Dogs",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102899&id=10833678&ind=100&objTypeID=1007`
+    },
+
+    WHAT_TO_FEED_YOUR_PREGNANT_OR_NURSING_DOG_ARTICLE: {
+    text: "What to Feed Your Pregnant or Nursing Dog",
+    url: `https://www.hillspet.com/dog-care/nutrition-feeding/what-to-feed-a-pregnant-dog`
+    },
+
 
   // Musculoskeletal Registry
     ARTHRITIS_DETECTED: g =>
@@ -3001,6 +3334,9 @@
     },
 
   // General Illness Registry
+    COMMON_CAUSE:
+    /Common cause/i,
+    
     COMMON_CAUSES:
     /Common causes/i,
 
@@ -3044,6 +3380,9 @@
     
     SYMPTOMS:
     /Symptoms/i,
+
+    TREAT:
+    /Treat/i,
 
     TREATMENT:
     /Treatment/i,
@@ -3589,7 +3928,7 @@
     ].join('\n'),
     boldKeys: [],
     boldUnderlineKeys: [],
-    linkKeys: ["BANFIELD1282"],
+    linkKeys: ["BANFIELD1728"],
     };
     }
 
@@ -3607,6 +3946,23 @@
     boldKeys: [],
     boldUnderlineKeys: [],
     linkKeys: ["BANFIELD1282"],
+    };
+    }
+
+  // Banfield Garland #1109
+    function generateBanfieldGarland1109Template(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["BANFIELD1109"],
     };
     }
 
@@ -3657,7 +4013,7 @@
     ].join('\n'),
     boldKeys: [],
     boldUnderlineKeys: [],
-    linkKeys: ["BANFIELD0620"],
+    linkKeys: ["BANFIELD4035"],
     };
     }
 
@@ -3675,6 +4031,23 @@
     boldKeys: [],
     boldUnderlineKeys: [],
     linkKeys: ["BANFIELD1122"],
+    };
+    }
+
+  // Creekside Pet Care Center
+    function generateCreeksidePetCareCenteremplate(sex, plurality) {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [],
+    rank: 1,
+    text: [
+    `If you find this email helpful, please consider clicking this link & leaving a one sentence Google review mentioning my name (Dr. Osadiaye). It encourages the clinic to bring me back more often.`
+    ].join('\n'),
+    boldKeys: [],
+    boldUnderlineKeys: [],
+    linkKeys: ["CREEKSIDEPETCARECENTER"],
     };
     }
 
@@ -3764,7 +4137,8 @@
     'DIET_HEADER',
     'DENTAL_HEADER',
     'NEXT_APPOINTMENT_HEADER',
-    'DAPP_INITIAL',
+    'DAPP_VXN',
+    'LEPTO_VXN',
     'BORDETELLA_VXN',
     ],
 
@@ -3828,12 +4202,6 @@
     );
 
     // 6. Update Keys
-    template.boldKeys = [
-        ...(template.boldKeys || []),
-        'DAPP_BOOSTER',
-        'LEPTO_INITIAL',
-    ];
-
     template.boldUnderlineKeys = [
         ...(template.boldUnderlineKeys || []),
         'Quarantine_12WK',
@@ -3876,8 +4244,8 @@
     // 6. Update Keys
     template.boldKeys = [
         ...(template.boldKeys || []),
-        'RABIES_1YR',
-        'DAPP_1YR',
+        'RABIES_VXN',
+        'DAPP_VXN',
         'LEPTO_VXN',
     ];
 
@@ -3923,8 +4291,8 @@
     'DIET_HEADER',
     'DENTAL_HEADER',
     'NEXT_APPOINTMENT_HEADER',
-    'RABIES_1YR',
-    'DAPP_INITIAL',
+    'RABIES_VXN',
+    'DAPP_VXN',
     'LEPTO_INITIAL',
     'BORDETELLA_VXN',
     'LABWORK',
@@ -3959,23 +4327,35 @@
     }
 
   // 1-Year Adult Vaccine Template
-    function generate1YearAdultTemplate(sex, plurality = 'singular', size) {
-    // 1. Initialize the Grammar Helper
+    function generate1YearAdultTemplate(sex, plurality = 'singular', size, vaxCodes = []) {
     const g = getGrammar('wellness', plurality, sex);
 
+    // 1. Sort vaccine codes according to VAX_REGISTRY order (1 to 5)
+    const vaxSentences = vaxCodes
+    .map(code => getVaccineMeta(code, g))
+    .filter(Boolean)
+    .sort((a, b) => a.order - b.order)
+    .map(item => item.text)
+    .join(" ");
+
+    // 2. Assemble main text with vaccines preceding the notice phrase
+    const vaxParagraph = vaxSentences 
+    ? `${vaxSentences} You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal.`
+    : `You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal.`;
+
     // 3. Main Template Text
-      const text = [ 
-      `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. Because you have kept to ${g.his} vaccination schedule, ${g.his} immune system will not need another booster until next year.`,
-      `The 1 year rabies vaccine was given in the right hindlimb. The 1 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo ${g.shot} with the 1 year lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal.`,
-      `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
-      `Heartworms prevention: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
-      `Early detection labwork: Samples were drawn from your ${g.dog}. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your ${g.dogs} overall health is closely monitored.`,
-      `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
-      `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
-      `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-      `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
-      `Next appointment: Bring your ${g.dog} back one year from today for ${g.his} next annual vaccines.`
-      ].join('\n');
+    const text = [ 
+    `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. Because you have kept to ${g.his} vaccination schedule, ${g.his} immune system will not need another booster until next year.`,
+    `${vaxSentences} You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal.`,
+    `Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
+    `Heartworms prevention: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
+    `Early detection labwork: Samples were drawn from your ${g.dog}. You will receive a call in 3 - 4 business days with the results. Yearly blood work is recommended for dogs the same as it is in humans for the sake of monitoring for abnormalities that aren’t visible from the outside. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. If no abnormalities are found, the results can be used as a baseline so that your ${g.dogs} overall health is closely monitored.`,
+    `Food: A high quality diet is the best way to keep your ${g.dog} healthy. If you haven’t already, you can transition ${g.him} from ${g.his} ${g.puppy} diet to ${g.his} adult diet. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+    `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
+    `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+    `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
+    `Next appointment: Bring your ${g.dog} back one year from today for ${g.his} next annual vaccines.`
+    ].join('\n');
 
     return {
     sex,
@@ -3984,166 +4364,89 @@
     diagnoses: [""],
     rank: 999,
     boldKeys: [
-    'VACCINES_HEADER',
-    'HEARTWORMS_PREVENTION_HEADER',
-    'DIET_HEADER',
-    'DENTAL_HEADER',
-    'NEXT_APPOINTMENT_HEADER',
-    'RABIES_1YR',
-    'DAPP_1YR',
-    'LEPTO_VXN',
-    'BORDETELLA_VXN',
-    'LABWORK',
+      'VACCINES_HEADER',
+      'HEARTWORMS_PREVENTION_HEADER',
+      'DIET_HEADER',
+      'DENTAL_HEADER',
+      'NEXT_APPOINTMENT_HEADER',
+      'RABIES_VXN',
+      'DAPP_VXN',
+      'LEPTO_VXN',
+      'FLU_VXN',
+      'BORDETELLA_VXN',
+      'LABWORK',
     ],
-
     boldUnderlineKeys: [
-    'VXN_RXN',
-    'IMMEDIATELY',
-    'RARE_RXN',
-    'HEARTWORM_TEST',
-    'LAB_RESULTS',
-    'GRAIN_FREE',
-    'DENTAL_BRUSHING',
-    'DENTAL_BRUSHING_CORE',
-    'XYLITOL',
+      'VXN_RXN',
+      'IMMEDIATELY',
+      'RARE_RXN',
+      'HEARTWORM_TEST',
+      'LAB_RESULTS',
+      'GRAIN_FREE',
+      'DENTAL_BRUSHING',
+      'DENTAL_BRUSHING_CORE',
+      'XYLITOL',
     ],
-
     linkKeys: [
-    'VOHC_DOG_LINK',
-    'SMALL_DOG_TOOTHBRUSH_LINK',
-    'LARGE_TOOTHBRUSH_LINK',
-    'TOOTHPASTE_LINK',
-    'HILLS_DOG_DRY_LINK',
-    'HILLS_DOG_WET_LINK',
-    'PURINA_DOG_DRY_LINK',
-    'PURINA_DOG_WET_LINK',
-    'ROYAL_CANIN_DOG_DRY_LINK',
-    'ROYAL_CANIN_DOG_WET_LINK',
-    ],
-    };
-    }
+      'VOHC_DOG_LINK',
+      'SMALL_DOG_TOOTHBRUSH_LINK',
+      'LARGE_TOOTHBRUSH_LINK',
+      'TOOTHPASTE_LINK',
+      'HILLS_DOG_DRY_LINK',
+      'HILLS_DOG_WET_LINK',
+      'PURINA_DOG_DRY_LINK',
+      'PURINA_DOG_WET_LINK',
+      'ROYAL_CANIN_DOG_DRY_LINK',
+      'ROYAL_CANIN_DOG_WET_LINK',
+      ],
+      };
+      }
 
   // 2-Year Adult Vaccine Template
-    function generate2YearAdultTemplate(sex, plurality = 'singular',size) {
-    // 1. Initialize Grammar
+    function generate2YearAdultTemplate(sex, plurality = 'singular', size, vaxCodes = []) {
+
+    const template = generate1YearAdultTemplate(sex, plurality, size, vaxCodes);
     const g = getGrammar('wellness', plurality, sex);
-    
-    // 2. Start from the upgraded 1-year template
-    const template = generate1YearAdultTemplate(sex, plurality, size);
 
-    // 3. Update Bold Keys to include 3-year versions
-    template.boldKeys = [
-        ...(template.boldKeys || []),
-        'RABIES_3YR',
-        'DAPP_3YR',
-    ];
-
-    // 4. Replace the 1-year text with 3-year text
-    // We use flexible regex (.*? or [g.is]) to account for singular/plural differences
     template.text = template.text.replace(
-        /Your .*? (has|have) received .*? first .*? of adult vaccinations\./,
-        `Your ${g.dog} ${g.has} received ${g.his} annual adult vaccinations.`
+    /Your .*? (has|have) received .*? first .*? of adult vaccinations\./,
+    `Your ${g.dog} ${g.has} received ${g.his} annual adult vaccinations.`
     );
 
-    template.text = template.text
-        .replace(
-            /The 1 year rabies vaccine was given in the right hindlimb\./,
-            'The 3 year rabies vaccine was given in the right hindlimb.'
-        )
-        .replace(
-            /The 1 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine/,
-            'The 3 year distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine'
-        );
-
-    // 5. Remove puppy food transition (using flexible regex for him/her/them)
+    // Remove puppy food transition
     template.text = template.text.replace(
-        /If you haven’t already, you can transition .*? from .*? puppy diet to .*? adult diet\.\s*/i,
-        ''
+    /If you haven’t already, you can transition .*? from .*? puppy diet to .*? adult diet\.\s*/i,
+    ''
     );
 
     return template;
     }
 
-  // 2-Year Lepto Vaccine Template
-    function generate2YearLeptoTemplate(sex, plurality = 'singular', size = 'small') {
-    // 1. Pass parameters in the correct Sex-First order
-    const template = generate2YearAdultTemplate(sex, plurality, size);
-
-    // 2. Replace the vaccine listing paragraph ONLY
-    template.text = template.text.replace(
-        /The 3 year rabies vaccine was given in the right hindlimb\. The 3 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine was given as a combo .*? with the 1 year lepto vaccine in the left hindlimb\. The 1 year bordetella vaccine was given orally\./,
-        'The 1 year lepto vaccine was given in the left hindlimb. The 1 year bordetella vaccine was given orally.'
-    );
-
-    // 3. Update Bold Keys
-    template.boldKeys = template.boldKeys.filter(key => 
-        key !== 'RABIES_3YR' && key !== 'DAPP_3YR'
-    );
-
-    return template;
-    }
-
-  // 7-Year Adult Vaccine Template                                                             
-    function generate7YearAdultTemplate(sex, plurality = 'singular',size) {
-    // 1. Pass parameters to the 2-year base (which handles the 3-yr vaccines)
-    const template = generate2YearAdultTemplate(sex, plurality, size);
+  // 7-Year Adult Vaccine Template
+    function generate7YearAdultTemplate(sex, plurality = 'singular', size = 'medium', vaxCodes = []) {
+    const template = generate1YearAdultTemplate(sex, plurality, size, vaxCodes);
     const g = getGrammar('wellness', plurality, sex);
 
-    // 2. Adjust senior diet wording
-    // The regex is widened to handle "dog" vs "dogs" and "his/her" vs "their"
+    // 2. Adjust senior wording
     template.text = template.text.replace(
-        /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
+    /Your .*? (has|have) received .*? first .*? of adult vaccinations\./,
+    `Your ${g.dog} ${g.has} received ${g.his} annual adult vaccinations.`
+    );
+
+    template.text = template.text.replace(
+    /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
+    `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
     );
 
     // 3. Add senior dog links to the existing link keys
     template.linkKeys = [
-        ...(template.linkKeys || []),
-        'HILLS_SR_DOG_DRY_LINK',
-        'HILLS_SR_DOG_WET_LINK',
-        'PURINA_SR_DOG_DRY_LINK',
-        'PURINA_SR_DOG_WET_LINK',
-        'ROYAL_CANIN_SR_DOG_DRY_LINK',
-        'ROYAL_CANIN_SR_DOG_WET_LINK',
-    ];
-
-    return template;
-    }
-
-  // 7-Year Lepto Vaccine Template
-    function generate7YearLeptoTemplate(sex, plurality = 'singular', size = 'small') {
-    // 1. Pass parameters in the established Sex-First order
-    const template = generate2YearAdultTemplate(sex, plurality, size);
-    const g = getGrammar('wellness', plurality, sex);
-
-    // 2. Replace the vaccine listing paragraph ONLY
-    template.text = template.text.replace(
-        /The 3 year rabies vaccine was given in the right hindlimb\. The 3 year distemper, adenovirus, parvovirus, & parainfluenza \(DAPP\) vaccine was given as a combo .*? with the 1 year lepto vaccine in the left hindlimb\. The 1 year bordetella vaccine was given orally\./,
-        'The 1 year lepto vaccine was given in the left hindlimb. The 1 year bordetella vaccine was given orally.'
-    );
-
-    // 3. Adjust senior diet wording
-    // Fixed the very last instance of "dog" to use ${g.dog}
-    template.text = template.text.replace(
-        /Food: A high quality diet is the best way to keep your .*? healthy\.[\s\S]*?can for a .*? of .*? weight\./,
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Dogs that are older than 7 years are advised to be on a senior diet. Food from Hill’s Science Diet (Hill's senior dog dry food or Hill's senior dog wet food), Purina Pro Plan (Purina senior dog dry food or Purina senior dog wet food), or Royal Canin (RC senior dog dry food or RC senior dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in dogs, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`
-    );
-
-    // 4. Update Keys
-    // Clean up bold keys since Rabies/DAPP were removed
-    template.boldKeys = template.boldKeys.filter(key => 
-        key !== 'RABIES_3YR' && key !== 'DAPP_3YR'
-    );
-
-    // Add senior dog links
-    template.linkKeys = [
-        ...(template.linkKeys || []),
-        'HILLS_SR_DOG_DRY_LINK',
-        'HILLS_SR_DOG_WET_LINK',
-        'PURINA_SR_DOG_DRY_LINK',
-        'PURINA_SR_DOG_WET_LINK',
-        'ROYAL_CANIN_SR_DOG_DRY_LINK',
-        'ROYAL_CANIN_SR_DOG_WET_LINK',
+    ...(template.linkKeys || []),
+    'HILLS_SR_DOG_DRY_LINK',
+    'HILLS_SR_DOG_WET_LINK',
+    'PURINA_SR_DOG_DRY_LINK',
+    'PURINA_SR_DOG_WET_LINK',
+    'ROYAL_CANIN_SR_DOG_DRY_LINK',
+    'ROYAL_CANIN_SR_DOG_WET_LINK',
     ];
 
     return template;
@@ -4237,15 +4540,61 @@
     }
 
   // Canine Overweight | 2nd, Continue
-    function generateCanineOverweight2Template(sex, plurality = 'singular') {
+    function generateCanineOverweight2Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
 
+    // 1. Set up a default dosage statement
+    let weightLossAmount = "1 - 2% of the current body weight";
+    
+    // 2. Adjust the text dynamically based on the forwarded parameter string
+    switch (weight) {
+    case '1-10':
+      weightLossAmount = "0.05 - 0.1 lbs (0.023 - 0.045 kgs)";
+      break;
+    case '11-20':
+      weightLossAmount = "0.1 - 0.2 lbs (0.045 - 0.09 kgs)";
+      break;
+    case '21-30':
+      weightLossAmount = "0.2 - 0.3 lbs (0.091 -  0.14 kgs)";
+      break;
+    case '31-40':
+      weightLossAmount = "0.3 - 0.4 lbs (0.14 - 0.18 kgs)";
+      break;
+    case '41-50':
+      weightLossAmount = "0.4 - 0.5 lbs (0.18 - 0.23 kgs)";
+      break;
+    case '51-60':
+      weightLossAmount = "0.5 - 0.6 lbs (0.23 - 0.27 kgs)";
+      break;
+    case '61-70':
+      weightLossAmount = "0.6 - 0.7 lbs (0.27 - 0.32 kgs)";
+      break;
+    case '71-80':
+      weightLossAmount = "0.7 - 0.8 lbs (0.32 - 0.36 kgs)";
+      break;
+    case '81-90':
+      weightLossAmount = "0.8 - 0.9 lbs (0.36 - 0.41 kgs)";
+      break;
+    case '91-100':
+      weightLossAmount = "0.9 - 1.0 lbs (0.41 -  0.45 kgs)";
+      break;
+      case '101-110':
+      weightLossAmount = "1.0 - 1.1 lbs (0.45 - 0.5 kgs)";
+      break;
+      case '111-120':
+      weightLossAmount = "1.1 - 1.2 lbs (0.5 - 0.55 kgs)";
+      break;
+    case 'OVER120':
+      weightLossAmount = "1.2 - 1.3 lbs (0.55 - 0.59 kgs)";
+      break;
+    // 'Unknown Weight' or any fallback uses the original text defined above
+    }
     const text = [
         `Weight: Congrats on helping your ${g.dog} lose weight! Continuing to help ${g.him} lose weight can extend ${g.his} life span by as much as 1 ½ years.`,
         
         `As a reminder, food from Hill’s Prescription Diet (Hill’s weight loss dry food or Hill’s weight loss wet food), Purina Pro Plan (Purina weight loss dry food or Purina weight loss wet food), or Royal Canin (RC weight loss dry food or RC weight loss wet food) can be used as needed. Otherwise, continue measuring how much ${g.he} ${g.eats} using a measuring cup and feeding on a twice daily schedule rather than leaving food down at all times. Separate ${g.him} from siblings at meal time if necessary.`,
         
-        `We’re aiming to have ${g.him} lose 1 - 2% of ${g.his} body weight per week. If ${g.he} ${g.begins} losing more than that per week, increase the amount of food ${g.he} ${g.gets}. Another way you can help ${g.him} lose weight is by converting ${g.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
+        `We’re aiming to have ${g.him} lose ${weightLossAmount} per week. If ${g.he} ${g.begins} losing more than that per week, increase the amount of food ${g.he} ${g.gets}. Another way you can help ${g.him} lose weight is by converting ${g.his} treats into healthy alternatives such as slices of apples, carrots, ice cubes, cucumbers, or green beans.`
     ].join('\n');
 
     return {
@@ -6744,28 +7093,563 @@
     }
 
 /* ------------------ CANINE URINARY & RENAL ------------------ */
-    // Estrogen Responsive Urinary Incontinence (Presumed)
-        function generateCanineEstrogenResponsiveUrinaryIncontinenceTemplate(sex, plurality = 'singular') {
-        const g = getGrammar('wellness', plurality, sex);
-        return {
-        sex,
-        plurality,
-        diagnoses: ["ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_PRESUMED"],
-        text: [
-        `Estrogen responsive urinary incontinence: It’s possible your dog’s urinary incontinence is caused by a weak bladder sphincter. Giving estrogen can help increase the strength of the sphincter, thereby allowing the urine to be retained better. Ideally we would give the lowest effective dose to minimize side effects. Start your dog at the dose prescribed below. See the calendar below. Once you’re giving ½ tablet every 24 hours, you can start giving it once every other day for a week, then once every third day for a week, etc. until you’re only giving ½ tablet once a week. Medication must be given lifelong.`
-        ].join('\n'),
+  // Estrogen Responsive Urinary Incontinence | 1st, Presume
+      function generateCanineEstrogenResponsiveUrinaryIncontinence1stPresumedTemplate(sex, plurality = 'singular') {
+      const g = getGrammar('wellness', plurality, sex);
+      return {
+      sex,
+      plurality,
+      diagnoses: ["ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_PRESUMED"],
+      text: [
+      `Estrogen responsive urinary incontinence: It’s possible your dog’s urinary incontinence is caused by a weak bladder sphincter. Giving estrogen can help increase the strength of the sphincter, thereby allowing the urine to be retained better. Ideally we would give the lowest effective dose to minimize side effects. Start your dog at the dose prescribed below. See the calendar below. Once you’re giving ½ tablet every 24 hours, you can start giving it once every other day for a week, then once every third day for a week, etc. until you’re only giving ½ tablet once a week. Medication must be given lifelong.`
+      ].join('\n'),
 
-        boldKeys: [
-          "ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_HEADER"
-        ],
+      boldKeys: [
+        "ESTROGEN_RESPONSIVE_URINARY_INCONTINENCE_HEADER"
+      ],
 
-        boldUnderlineKeys: [
-          "LOWEST_EFFECTIVE_ESTROGEN_DOSE",
-          "LIFELONG_MEDICATION",
-          "SEE_CALENDAR"
-        ],
-      };
-      }
+      boldUnderlineKeys: [
+        "LOWEST_EFFECTIVE_ESTROGEN_DOSE",
+        "LIFELONG_MEDICATION",
+        "SEE_CALENDAR"
+      ],
+    };
+    }
+
+  // Protein Losing Nephropathy | 1st, Diagnosed
+    function generateCanineProteinLosingNephropathy1stDiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PROTEIN_LOSING_NEPHROPATHY"],
+    text: [
+    `Protein losing nephropathy: Your dog has been diagnosed with protein losing nephropathy. Chronic inflammation from infections (skin, bladder, ear, etc.), dental disease, or other diseases can result in damage to the kidney's filtration system. This impairs the ability of the kidneys to retain protein. `,
+      `Regardless of the cause, we are aiming to slow down destruction of the kidney through the use of medicine, supplements, and diets. Use the medicine prescribed below and bring your dog back in 2 - 3 weeks for a recheck of the urine protein creatinine ratio. We’re aiming for a 50% improvement from the most recent test results. You can also give your dog cold water fish oil pills high in DHA & EPA to assist in improving kidney function. You can learn more from the Glomerulonephritis in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PROTEIN_LOSING_NEPHROPATHY_HEADER"
+    ],
+
+    linkKeys: [
+      "GLOMERULONEPHRITIS_IN_DOGS_AND_CATS_ARTICLE"
+    ],
+    };
+    }
+
+  // Protein Losing Nephropathy | 2nd, Uncontrolled
+    function generateCanineProteinLosingNephropathy2ndUncontrolledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PROTEIN_LOSING_NEPHROPATHY"],
+    text: [
+    `Protein losing nephropathy: Your dog is known to have protein losing nephropathy. The urine protein creatinine (UPC) ratio shows that the disease is not well controlled on the current amount of medication. We will be making adjustments as indicated below and will need to see your dog back in 2 -3 weeks for a recheck. We’re aiming for a 50% improvement from the most recent test results. You can also give your dog cold water fish oil pills high in DHA & EPA to assist in improving kidney function. You can learn more from the Glomerulonephritis in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PROTEIN_LOSING_NEPHROPATHY_HEADER"
+    ],
+
+    linkKeys: [
+      "GLOMERULONEPHRITIS_IN_DOGS_AND_CATS_ARTICLE"
+    ],
+
+    };
+    }
+
+  // Protein Losing Nephropathy | 3rd, Controlled
+    function generateCanineProteinLosingNephropathy3rdControlledTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PROTEIN_LOSING_NEPHROPATHY"],
+    text: [
+    `Protein losing nephropathy: A urine protein creatinine (UPC) ratio was performed which shows that your dog’s protein losing nephropathy is well controlled with the current meditation. Keep your dog on the current medication and repeat the UPC ratio once a year with the recommended annual labwork. You can also give your dog cold water fish oil pills high in DHA & EPA to assist in improving kidney function. You can learn more from the Glomerulonephritis in Dogs and Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PROTEIN_LOSING_NEPHROPATHY_HEADER"
+    ],
+
+    linkKeys: [
+      "GLOMERULONEPHRITIS_IN_DOGS_AND_CATS_ARTICLE"
+    ],
+
+    };
+    }
+
+  // Proteinuria | Tests Declined
+    function generateCanineProteinuriaTestsDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PROTEINURIA"],
+    text: [
+    `Proteinuria: A urinalysis shows signs of protein in your dog’s urine. Protein is normally reabsorbed by the kidneys and does not appear in the urine. Common causes of proteinuria include eating protein sources, bacterial infection, or kidney damage. A urinalysis was performed which shows no signs of bacterial infection at this time. A urine-protein-creatinine ratio (UPC ratio) test can be performed to evaluate if the protein in your dog’s urine is significant (indicating early signs of chronic kidney disease) or not a concern at this time. At this time you’ve declined the test. Continue to monitor your dog’s urine habits. If you see signs of increased urination, straining to urinate, or discomfort when urinating, bring your dog in for a repeat urinalysis and the UPC ratio test. You can learn more from the Urine Protein article by VCA hospitals.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PROTEINURIA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "UPC_SYMPTOMS_TEST_ADVISED",
+      "URINALYSIS_NO_INFECTION",
+    ],
+
+    linkKeys: [
+      "URINE_PROTEIN_ARTICLE"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+    ]
+    };
+    }
+
+  // Sterile Cystitis | Diagnosed
+    function generateCanineSterileCystitisDiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["STERILE_CYSTITIS"],
+    text: [
+    `Cystitis: Your dog has been diagnosed with sterile cystitis. This means that the bladder wall is inflamed but there are no signs of current infection. It’s possible a recent UTI was cleared out or the inflammation occurred due to some other disease, but at this time there is no clear sign what caused this. Give the medication as prescribed. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "CYSTITIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_1_WEEK",
+      "STERILE_CYSTITIS"
+    ],
+    };
+    }
+
+  // Transitional Cell Carcinoma | Ultrasound, Palliative Care
+    function generateCanineTransitionalCellCarcinomaPalliativeCareTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["TRANSITIONAL_CELL_CARCINOMA_PRESUMED"],
+    text: [
+    `Transitional cell carcinoma: Your dog had an ultrasound which revealed what appears to be a tumour in the bladder. Given its location, this is likely transitional cell carcinoma. This is often an aggressive cancer that spreads throughout the body quickly. In dogs this tends to occur closer to the exit of the bladder which may cause straining to urinate or bloody urine. Urinalysis to check for concurrent infection (common with this cancer) is recommended. Referral to an oncologist for further work up and proper treatment can also be performed, but at this time you’ve elected to keep your dog comfortable instead of doing testing. You can learn more from the Transitional Cell Carcinoma in Dogs & Cats article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "TRANSITIONAL_CELL_CARCINOMA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "URINALYSIS_TCC_ADVISED"
+    ],
+
+    linkKeys: [
+      "TRANSITIONAL_CELL_CARCINOMA_IN_DOGS_CATS_ARTICLE"
+    ],
+    };
+    }
+
+  // Urinary Incontinence | 1st, Diagnosed, Start PPA
+    function generateCanineUrinaryIncontinence1stDiagnosedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINARY_INCONTINENCE"],
+    text: [
+    `Urinary incontinence: Common causes of unintentionally leaking urine is urinary tract infection due to inflammation and pain making it difficult to retain urine. However, your dog’s urinalysis came back negative. As such, the likely cause is true urinary incontinence. Your dog’s urinary sphincter is weaker than it should be, so we’ll treat using medicine to strengthen this. Give as prescribed. If we don’t see improvement in a month we can try switching to the other urinary incontinence medicine.`
+    ].join('\n'),
+
+    boldKeys: [
+      "URINARY_INCONTINENCE_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      ""
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+      "TREAT"
+    ],
+    };
+    }
+
+  // Urinary Tract Infection | Abx, Urinalysis Pending
+    function generateCanineUrinaryTractInfectionAbxUrinalysisPendingTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINARY_TRACT_INFECTION_PRESUMED"],
+    text: [
+    `UTI: Based on history & physical exam, your dog most likely has a urinary tract infection. Medication has been prescribed to treat the most common causes of urinary tract infection while a urinalysis is pending. You will be contacted in 3 - 4 business days with the urinalysis results. Give the medication as prescribed below. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "UTI_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_1_WEEK",
+      "URINALYSIS_CONTACT_IN_3_DAYS"
+    ],
+    };
+    }
+
+  // Urinary Tract Infection | Cocci
+    function generateCanineUrinaryTractInfectionCocciTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINARY_TRACT_INFECTION_DIAGNOSED"],
+    text: [
+    `Urinary tract infection: A urinalysis was performed which shows that your dog has a urinary tract infection (UTI). There are a variety of common causes for urinary tract infection including being female, allergies, and stress to name a few. Regardless of the cause, antibiotics have been prescribed to treat the infection. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening).`
+    ].join('\n'),
+
+    boldKeys: [
+      "URINARY_TRACT_INFECTION_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_1_WEEK"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSES",
+    ],
+    };
+    }
+
+  // Urinary Tract Infection | Abx, Urinalysis Declined
+    function generateCanineUrinaryTractInfectionAbxUrinalysisDeclinedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINARY_TRACT_INFECTION_PRESUMED"],
+    text: [
+    `UTI: Based on history & physical exam, your dog most likely has a urinary tract infection. A urinalysis is advised to check for infection and help monitor improvement, but you've declined that in favour of attempting antibiotics first. Give the medication as prescribed. Bring your dog back in 1 week for a recheck appointment if no improvement is seen (return immediately if worsening). At that time the urine will be drawn & tested with urinalysis. A brief ultrasound of the bladder will also be performed.`
+    ].join('\n'),
+
+    boldKeys: [
+      "UTI_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_ADVISE_1_WEEK"
+    ],
+    };
+    }
+
+  // Urinary Tract Infection | Rods
+    function generateCanineUrinaryTractInfectionRodsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINARY_TRACT_INFECTION_DIAGNOSED"],
+    text: [
+    `UTI: Your dog has an infection with rod shaped bacteria. These bacteria tend to be more resistant to normal antibiotics. Antibiotics have been prescribed to treat infection. It is vital you come back for a recheck urinalysis once your dog has completed all the antibiotics to ensure infection has completely resolved. Failure to do so may allow for resistant bacteria to grow.`
+    ].join('\n'),
+
+    boldKeys: [
+      "UTI_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECHECK_URINALYSIS",
+      "ROD_SHAPED_INFECTION"
+    ],
+    };
+    }
+
+  // Urine Collection
+    function generateCanineUrineCollectionTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    text: [
+    `Urine sample: You have been sent home with a urine collection kit. If possible, get the first urine in the morning as this is best for testing purposes. Urine can be stored in the fridge for up to 12 hours if need be but the fresher the sample, the more accurate it'll be. If you cannot collect urine, an ultrasound guided cystocentesis can be performed.`
+    ].join('\n'),
+
+    boldKeys: [
+      "URINE_SAMPLE_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "IF_YOU_CANT_COLLECT_URINE",
+      "URINE_COLLECTION_KIT"
+    ],
+    };
+    }
+
+  // Urine Scalding | No Urinalysis
+    function generateCanineUrineScaldingNoUrinalysisTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINE_SCALDING"],
+    text: [
+    `Urine scalding: The hair loss, inflammation, & itchiness you see on your dog is caused by urine soaking into the fur & not being washed out. The best way to treat this is to give your dog a bath & prevent your pet from laying in urine puddles. If your dog is urinating on the bed without meaning to, a urinalysis can be performed to check for UTI. Otherwise, medicine for urinary incontinence may be necessary.`
+    ].join('\n'),
+
+    boldKeys: [
+      "URINE_SCALDING_HEADER"
+    ],
+    };
+    }
+
+  // Urine Scalding | Urinalysis Pending
+    function generateCanineUrineScaldingUrinalysisPendingTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["URINE_SCALDING"],
+    text: [
+    `Urine scalding: The hair loss, inflammation, & itchiness you see on your dog is caused by urine soaking into the fur & not being washed out. The best way to treat this is to give your dog a bath & prevent your pet from laying in urine puddles. A urinalysis is being run to determine if a UTI is present. If no infection is seen, medication for urinary incontinence may be necessary.`
+    ].join('\n'),
+
+    boldKeys: [
+      "URINE_SCALDING_HEADER"
+    ],
+    };
+    }
+
+/* ------------------ CANINE REPRODUCTIVE ------------------ */
+  // Benign Prostatic Hyperplasia
+    function generateCanineBenignProstaticHyperplasiaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["BENIGN_PROSTATIC_HYPERPLASIA"],
+    text: [
+    `Benign prostatic hyperplasia: On rectal exam your dog’s prostate felt enlarged. An ultrasound was performed which shows no signs of inflammation or tumour at this time. The most common cause of enlargement is due to a condition known as benign prostatic hyperplasia. This is an age related change where the prostate becomes larger than it should be. This can cause difficulty urinating or defecating. A stool softener can be given to your dog if you see signs of straining to defecate.`
+    ].join('\n'),
+
+    boldKeys: [
+      "BENIGN_PROSTATIC_HYPERPLASIA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "COMMON_CAUSE"
+    ],
+    };
+    }
+
+  // Cryptorchids | Under 16 Weeks
+    function generateCanineCryptorchidUnder16WeeksTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRYPTORCHID"],
+    text: [
+      `Cryptorchid: On physical exam I was unable to confirm both of your dog’s testicles in ${g.his} scrotum. Testicles are typically present in the dog scrotum by 8 weeks of age. Given ${g.his} age, your dog is considered a cryptorchid meaning that ${g.he} has one or both testicles retained in ${g.his} abdomen.`,
+      `The best course of action would be to neuter ${g.him} when ${g.he}’s 6 months of age. There are two main reasons why it’s highly advised you have your dog neutered; Retained testicles are non-functional (typically produce malformed sperm & don’t produce testosterone) & very quickly become cancerous. They will need to be removed from the body as soon as possible. Retained testicles are an inherited trait. Any offspring your dog has will also be cryptorchids.`
+    ].join('\n'),
+
+    boldKeys: [
+      "CRYPTORCHID_HEADER",
+    ],
+
+    boldUnderlineKeys: [
+      "CANT_FIND_TESTICLES",
+      "CRYPTORCHID_NEUTER"
+    ],
+    };
+    }
+
+  // Cryptorchids | Over 16 Weeks
+    function generateCanineCryptorchidOver16WeeksTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRYPTORCHID"],
+    text: [
+    `Cryptorchid: On physical exam I was unable to confirm both of your dog’s testicles in ${g.his} scrotum. Testicles are typically present in the dog scrotum by 8 weeks of age. Given ${g.his} age, your dog is considered a cryptorchid meaning that ${g.he} has one or both testicles retained in ${g.his} abdomen.`,
+      `The best course of action would be to neuter ${g.him} when ${g.he}’s 6 months of age. There are two main reasons why it’s highly advised you have your dog neutered: Retained testicles are non-functional (typically produce malformed sperm & don’t produce testosterone) & very quickly become cancerous. They will need to be removed from the body as soon as possible. Additionally, retained testicles are an inherited trait. Any offspring your dog has will also be cryptorchids.`
+    ].join('\n'),
+
+    boldKeys: [
+      "CRYPTORCHID_HEADER",
+    ],
+
+    boldUnderlineKeys: [
+      "CANT_FIND_TESTICLES",
+      "CRYPTORCHID_NEUTER"
+    ],
+    };
+    }
+
+  // Neuter Advised | Small Dog
+    function generateCanineNeuterSmallDogTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    text: [
+    `Neuter: On physical exam I was able to identify both of your dog’s testicles in his scrotum. It is recommended you have him neutered if you don’t intend to breed him. By 6 months of age, smaller breed dogs such as him have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep him intact, neutering him reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`
+    ].join('\n'),
+
+    boldKeys: [
+      "NEUTER_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "NEUTER_RECOMMENDED"
+    ],
+    };
+    }
+
+  // Neuter Advised | Large Dog
+    function generateCanineNeuterLargeDogTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: [""],
+    text: [
+    `Neuter: On physical exam I was able to identify both of your dog’s testicles in his scrotum. It is recommended you have him neutered if you don’t intend to breed him. By 10 - 12 months of age, large breed dogs such as him have already received all the testosterone they need in order to grow normally. While it isn’t wrong to keep him intact, neutering him reduces or completely eradicates the risk of certain diseases such as prostatitis, several types of cancer, & hernias to name a few.`
+    ].join('\n'),
+
+    boldKeys: [
+      "NEUTER_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "NEUTER_RECOMMENDED"
+    ],
+    };
+    }
+
+  // Recessed Vulva
+    function generateCanineRecessedVulvaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["RECESSED_VULVA"],
+    text: [
+    `Recessed vulva: Your dog has a recessed vulva meaning she has excess skin surrounding her vulva. This places her at increased risk of infection & inflammation of the skin and bladder. Symptoms of perivulvar infection include redness, excessive licking of the vulva, scooting behaviour, or a foul odour. Signs of a bladder infection typically present as urine accidents in the house, blood in the urine, or painful urination among other symptoms. To avoid future complications, surgery can be performed to correct this abnormality. Until then, use hypoallergenic wet wipes after she urinates to help keep the skin free of excess moisture and urine. You can learn more about this from the Recessed Vulva in Dogs article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "RECESSED_VULVA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "RECESSED_VULVA_SYMPTOMS",
+      "RECESSED_VULVA_HYPOALLERGENIC_WIPES",
+    ],
+
+    linkKeys: [
+      "RECESSED_VULVA_IN_DOGS_ARTICLE",
+    ],
+
+    greenKeys: [
+      "SYMPTOMS",
+    ],
+    };
+    }
+
+  // Pregnancy | Ultrasound
+    function generateCaninePregnancyUltrasoundTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["PREGNANT"],
+    text: [
+      `Pregnancy food: Feed your dog smaller amounts of food more frequently if you notice her vomiting. It’s common for pregnant dogs to eat a normal amount of food, not have space for it, and vomit. This often occurs due to the puppies taking up too much space for the stomach to fill completely. A puppy diet is strongly recommended since it’ll increase the amount of calories she gets in a smaller amount of food. Food from Hill’s Science Diet, Purina Pro Plan (the ones that are for dogs under 1 year of age), or Royal Canin are all wonderful diets as they’re formulated by veterinary scientists. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of your dog’s weight. Feed the puppy food until the puppies have weaned off her. You can learn more about proper nutrition from the What to Feed Your Pregnant or Nursing Dog article by Hill’s.`,
+      `Pregnancy: An ultrasound was performed which confirmed that your dog is pregnant. X-rays can be performed to better determine exactly how far along she is in terms of pregnancy and how many puppies are present. There is no risk to the puppies if x-rays are taken. If you are not confident in caring for your dog while she is whelping, you can take her to a clinic that has overnight hospitalization to facilitate safe passage. Labour is divided into 3 stages for cats and dogs.`,
+      `Stage 1 involves behaviour changes and includes some or all of the following:`,
+      `Anxious or restless behaviour	`,
+      `Decreased or no appetite`,
+      `Vomiting`,
+      `Nesting behaviour (scratching, digging)`,
+      `White to gelatinous mucoid vulvar discharge`,
+      `Rectal temp between 98 - 99°F (36.6 - 37.2°C)`,
+      `Stage 1 typically lasts 6 - 24 hours and only occurs once. If you see this happening, offer your dog a dark, quiet place for her to give birth. Do not try to help your dog give birth or move her once she has started. She will delay or stop giving birth for up to 3 days until she is left alone.`,
+      `Stage 2 is when visible uterine contractions with abdominal effort are seen. Your dog’s body temperature will return to normal and the puppies will be birthed one at a time. Clear, tan, or slightly blood tinged discharge may be seen and is normal. Abnormal discharge is yellow, green, red, or smelly and constitutes an emergency. Your dog will open the sac the puppies are born in and will lick them to stimulate breathing within 30 - 60 seconds. She will also bite off the umbilical cord. If your dog does not show interest in the newborns within 60 seconds or if she has contractions for 60 minutes without passing a puppy, you will need to contact your nearest emergency clinic and take your dog and her puppies in immediately. `,
+      `Puppies are typically born every 45 - 60 minutes with up to 30 minutes of active pushing. Taking breaks between puppies is also normal. If your dog is actively pushing for more than 30 minutes or takes more than a 4 hour break between puppies, take her to the nearest emergency room.`,
+      `Stage 3 is when the green placenta is passed. Your dog might eat this which is normal. You can remove this if you’d like since your dog may also vomit after giving birth. The placenta should be passed within 15 minutes of giving birth. Once it is out, your dog will go back to Stage 2 until all her puppies are birthed. It can take several hours for all the puppies to be born.`,
+      `Normal fluid after a pregnancy is odourless and may be blood tinged, green, or brown. It should decrease over time and completely stop after 3 weeks. Abnormal discharge is yellow or mostly blood filled. Your dog can be spayed a month after her puppies have weaned. You can learn more about canine pregnancy from the Pregnant Dog Care & Birthing Puppies articles on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "PREGNANCY_FOOD_HEADER",
+      "PREGNANCY_HEADER",
+      "STAGE_ONE",
+      "STAGE_TWO",
+      "STAGE_THREE"
+    ],
+
+    boldUnderlineKeys: [
+      "PUPPY_DIET_FOR_PREGNANT_DOG",
+      "ABNORMAL_STAGE_TWO_DISCHARGE",
+      "ABNORMAL_STAGE_THREE_DISCHARGE",
+      "DONT_HELP_BIRTHING_PROCESS",
+      "GRAIN_FREE",
+      "INATTENTIVE_MOTHER",
+      "PUSHING_BUT_NO_PUPPIES",
+      "MONITORING_PREGNANCY_ADVISE",
+      "EATING_PLACENTA"
+    ],
+
+    linkKeys: [
+      "BIRTHING_PUPPIES_ARTICLE",
+      "HILLS_FOOD_SENSITIVITY",
+      "PREGNANT_DOG_CARE_ARTICLE",
+      "PURINA_FOOD_SENSITIVITY",
+      "ROYAL_CANIN_FOOD_SENSITIVITY",
+      "WHAT_TO_FEED_YOUR_PREGNANT_OR_NURSING_DOG_ARTICLE"
+    ],
+    };
+    }
+
+  // Spay Advised
+    function generateCanineSpayTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    rank: 998,
+    text: [
+    `Spay: It is recommended you have your dog spayed if you do not intend to breed her. While it isn’t wrong to keep her intact, intact females are at risk of developing several life threatening diseases such as breast cancer, diabetes, & pyometra. 1 in 4 female dogs will get breast cancer if they are not spayed by their second heat cycle. In dogs there is a 50% chance breast cancer spreads throughout the body.`,
+    `The earliest time to have your dog spayed is when she is 6 months old before her first heat cycle. This will give her body enough time to grow while also reducing the risk of diseases that are associated with spaying too early. Even if she has already had her second heat cycle, spaying is still recommended since many mammary tumors are stimulated by estrogen & pyometra is still a possibility.`
+    ].join('\n'),
+
+    boldKeys: [
+      "SPAY_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "SPAY_SECOND_HEAT_CYCLE",
+      "SPAY_IF_NO_BREEDING",
+      "SPAY2"
+    ],
+
+  };
+}
 
 
 /* ------------------ CANINE DERMATOLOGY ------------------ */
@@ -7353,6 +8237,7 @@
     ],
 
     boldUnderlineKeys: [
+    `ANTIHISTAMINE_ADDITION`,
     `CYTOPOINT_STARTER`,
     ],
     };
@@ -8030,11 +8915,13 @@
     }),
   // Reviews
     '/B0620': () => generateBanfieldSouthlake0620Template(),
+    '/B1109': () => generateBanfieldGarland1109Template(),
     '/B1122': () => generateBanfieldWatauga1122Template(),
     '/B1282': () => generateBanfieldFlowerMound1282Template(),
     '/B1728': () => generateBanfieldEuless1728Template(),
     '/B2414': () => generateBanfieldLakewood2414Template(),
     '/B4035': () => generateBanfieldTownEastGalloway4035Template(),
+    '/CreeksidePetCareCenter': () => generateCreeksidePetCareCenteremplate(),
     '/PWPC': () => generatePrestonwoodPetClinicTemplate(),
     '/SanfordOaks': () => generateSanfordOaksAnimalClinicTemplate(),
 
@@ -8052,11 +8939,9 @@
 
   // Canine Adult Wellness Definitions
     '/cInitialAdult': (sex, plurality) => generateInitialAdultTemplate(sex, plurality),
-    '/c1year': (sex, plurality) => generate1YearAdultTemplate(sex, plurality),
-    '/c2year': (sex, plurality) => generate2YearAdultTemplate(sex, plurality),
-    '/c2yearLepto': (sex, plurality) => generate2YearLeptoTemplate(sex, plurality),
-    '/c7year': (sex, plurality) => generate7YearAdultTemplate(sex, plurality),
-    '/c7yearLepto': (sex, plurality) => generate7YearLeptoTemplate(sex, plurality),
+    '/c1year': (sex, plurality, weight, vaxCodes) => generate1YearAdultTemplate(sex, plurality, weight, vaxCodes),
+    '/c2year': (sex, plurality, weight, vaxCodes) => generate2YearAdultTemplate(sex, plurality, weight, vaxCodes),
+    '/c7year': (sex, plurality, weight, vaxCodes) => generate7YearAdultTemplate(sex, plurality, weight, vaxCodes),
 
     '/cOverweight1st': (sex, plurality, weight) => generateCanineOverweightTemplate(sex, plurality, weight),
     '/cOverweight2nd': (sex, plurality, weight) => generateCanineOverweight2Template(sex, plurality, weight),
@@ -8154,7 +9039,31 @@
     '/cTapeworms': (sex, plurality) => generateCanineTapewormInfestationTemplate(sex, plurality),
 
   // Canine Urinary & Renal Definitions
-    '/cEstrogenResponsiveUrinaryIncontence0thPresumed': (sex, plurality) => generateCanineEstrogenResponsiveUrinaryIncontinenceTemplate(sex, plurality),
+    '/cEstrogenResponsiveUrinaryIncontence0thPresumed': (sex, plurality) => generateCanineEstrogenResponsiveUrinaryIncontinence1stPresumedTemplate(sex, plurality),
+    '/cProteinLosingNephropathy1stDiagnosed': (sex, plurality) => generateCanineProteinLosingNephropathy1stDiagnosedTemplate(sex, plurality),
+    '/cProteinLosingNephropathy2ndUncontrolled': (sex, plurality) => generateCanineProteinLosingNephropathy2ndUncontrolledTemplate(sex, plurality),
+    '/cProteinLosingNephropathy3rdControlled': (sex, plurality) => generateCanineProteinLosingNephropathy3rdControlledTemplate(sex, plurality),
+    '/cProteinuriaTestsDeclined': (sex, plurality) => generateCanineProteinuriaTestsDeclinedTemplate(sex, plurality),
+    '/cSterileCystitis': (sex, plurality) => generateCanineSterileCystitisDiagnosedTemplate(sex, plurality),
+    '/cTransitionalCellCarcinomaPalliativeCare': (sex, plurality) => generateCanineTransitionalCellCarcinomaPalliativeCareTemplate(sex, plurality),
+    '/cUrinaryIncontinence1stDiagnosed': (sex, plurality) => generateCanineUrinaryIncontinence1stDiagnosedTemplate(sex, plurality),
+    '/cUrinaryTractInfectionAbxUrinalysisPending': (sex, plurality) => generateCanineUrinaryTractInfectionAbxUrinalysisPendingTemplate(sex, plurality),
+    '/cUrinaryTractInfectionCocci': (sex, plurality) => generateCanineUrinaryTractInfectionCocciTemplate(sex, plurality),
+    '/cUrinaryTractInfectionAbxUrinalysisDeclined': (sex, plurality) => generateCanineUrinaryTractInfectionAbxUrinalysisDeclinedTemplate(sex, plurality),
+    '/cUrinaryTractInfectionRods': (sex, plurality) => generateCanineUrinaryTractInfectionRodsTemplate(sex, plurality),
+    '/cUrineCollection': (sex, plurality) => generateCanineUrineCollectionTemplate(sex, plurality),
+    '/cUrineScaldingNoUrinalysis': (sex, plurality) => generateCanineUrineScaldingNoUrinalysisTemplate(sex, plurality),
+    '/cUrineScaldingUrinalysisPending': (sex, plurality) => generateCanineUrineScaldingUrinalysisPendingTemplate(sex, plurality),
+  
+  // Canine Reproductive Definitions
+    '/cBenignProstaticHyperplasia': (sex, plurality) => generateCanineBenignProstaticHyperplasiaTemplate(sex, plurality),
+    '/cCryptorchidUnder16Weeks': (sex, plurality) => generateCanineCryptorchidUnder16WeeksTemplate(sex, plurality),
+    '/cCryptorchidOver16Weeks': (sex, plurality) => generateCanineCryptorchidOver16WeeksTemplate(sex, plurality),
+    '/cNeuterAdvisedSmallDog': (sex, plurality) => generateCanineNeuterSmallDogTemplate(sex, plurality),
+    '/cNeuterAdvisedLargeDog': (sex, plurality) => generateCanineNeuterLargeDogTemplate(sex, plurality),
+    '/cRecessedVulva': (sex, plurality) => generateCanineRecessedVulvaTemplate(sex, plurality),
+    '/cPregnantUltrasound': (sex, plurality) => generateCaninePregnancyUltrasoundTemplate(sex, plurality),
+    '/cSpayAdvised': (sex, plurality) => generateCanineSpayTemplate(sex, plurality),
 
   // Musculoskeletal Definitions
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
@@ -8237,7 +9146,20 @@
     }
     }
 
-    // 2. SECOND PASS: Process medications and buffer standard templates
+    // 2. EXTRACT BATCH VACCINE CODES
+    // Extract vaccine keywords directly from m.normalized and force exact '/c' formatting
+    const extractedVaxCodes = matches
+    .filter(m => m.normalized.includes('vxn'))
+    .map(m => {
+    let code = m.normalized.trim();
+    if (!code.startsWith('/')) code = '/' + code;
+    if (!code.toLowerCase().startsWith('/c')) {
+    code = '/c' + code.substring(1);
+    }
+    return code;
+    });
+
+    // 3. SECOND PASS: Process templates & medications
     matches.forEach(m => {
     if (m.normalized.endsWith('reset')) return; 
 
@@ -8245,15 +9167,12 @@
 
     // --- DYNAMIC WEIGHT SUFFIX SHORTCUT LOGIC ---
     let activeWeight = weight;
-
-    // Looks for 'w' or 'W' followed by numbers at the very end of the command
     const suffixMatch = base.match(/w(\d+)$/i); 
-
-    let rawNumericWeight = null; // Track the precise weight typed
+    let rawNumericWeight = null; 
 
     if (suffixMatch) {
     const suffixNum = suffixMatch[1];
-    rawNumericWeight = suffixNum; // Save the precise number (e.g., "18")
+    rawNumericWeight = suffixNum; 
     const calculatedWeight = getWeightClassFromSuffix(suffixNum);
     if (calculatedWeight) {
     activeWeight = calculatedWeight;
@@ -8261,7 +9180,7 @@
     }
     }
 
-    // NEW: If stripping the number revealed a hidden gender/plurality suffix, process it now
+    // Handle hidden gender/plurality modifiers
     let hiddenModifierMatch;
     while ((hiddenModifierMatch = base.match(/(male|female|plural|singular)$/i))) {
     const modifier = hiddenModifierMatch[1].toLowerCase();
@@ -8270,21 +9189,21 @@
     } else if (modifier === 'plural' || modifier === 'singular') {
     plurality = modifier;
     }
-    // Strip the modifier out of the base command so it matches the registry
     base = base.substring(0, base.length - modifier.length);
     }
 
-    // Case-insensitive registry key matching fallback
+    // Case-insensitive registry key matching
     let templateFn = TEMPLATE_DEFINITIONS[base];
     if (!templateFn) {
     const targetKey = base.toLowerCase();
     const actualKey = Object.keys(TEMPLATE_DEFINITIONS).find(k => k.toLowerCase() === targetKey);
     if (actualKey) templateFn = TEMPLATE_DEFINITIONS[actualKey];
     }
-    // ---------------------------------------------
 
+    // A) If match is a primary Template (e.g., /c1yearMale)
     if (templateFn) {
-    const template = templateFn(sex, plurality, activeWeight); // Passes the calculated weight string
+    // Pass the batch's extracted vaccine codes into the template function
+    const template = templateFn(sex, plurality, activeWeight, extractedVaxCodes); 
 
     if (template.cleanupKeys && template.cleanupKeys.length > 0) {
     cleanupQueue.push(...template.cleanupKeys);
@@ -8300,24 +9219,54 @@
 
     bufferTemplate(template, rank);
     if (template.customAction) template.customAction();
+    return;
     }
 
+        // B) If match is a Standalone Vaccine Code (and NO main template was triggered in the batch)
+    if (base.toLowerCase().includes("vxn")) {
+      const hasMainTemplate = matches.some(mat => {
+        let { base: b } = parseKeywordMetadata(mat.normalized);
+        return TEMPLATE_DEFINITIONS[b] || Object.keys(TEMPLATE_DEFINITIONS).some(k => k.toLowerCase() === b.toLowerCase());
+      });
+
+      if (!hasMainTemplate) {
+        const g = getGrammar('wellness', plurality, sex);
+        let fullKeyword = base.startsWith('/') ? base : '/' + base;
+        if (!fullKeyword.toLowerCase().startsWith('/c')) {
+          fullKeyword = '/c' + fullKeyword.substring(1);
+        }
+        const vaxMeta = getVaccineMeta(fullKeyword, g);
+
+        if (vaxMeta) {
+          const insertedIntoExisting = insertVaccineIntoWellnessParagraph(vaxMeta);
+          if (!insertedIntoExisting) {
+            // No wellness paragraph found — fall back to old bottom-of-doc behavior
+            bufferTemplate({
+              text: vaxMeta.text,
+              sex: sex,
+              plurality: plurality,
+              rank: 999
+            }, 999);
+          }
+        }
+      }
+      return;
+    }
+
+    // C) Medication processing
     if (m.normalized.startsWith("/c") && !templateFn) {
     const cleanCommand = base.startsWith('/') ? base : '/' + base;
-    
-    // Pass raw numeric weight if typed, otherwise pass the sidebar string group
     const weightToPass = rawNumericWeight || activeWeight; 
-    
     const medRow = processMedicationCommand(cleanCommand, weightToPass);
     if (medRow) TABLE_ROW_BUFFER.push(medRow);
     }
     });
 
-    // 3. FINAL FLUSH
+    // 4. FINAL FLUSH
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument(); 
 
-    // 4. GLOBAL CLEANUP PASS
+    // 5. GLOBAL CLEANUP PASS
     if (cleanupQueue.length > 0) {
     const uniqueKeys = [...new Set(cleanupQueue)];
     uniqueKeys.forEach(key => {
@@ -8363,15 +9312,25 @@
     if (matches.length > 0) runExpansionEngine(matches);
     }
 
-    function expandKeywordsFromSidebar(keyword, weight) {
-    const normalized = keyword.toLowerCase().trim();
+    function expandKeywordsFromSidebar(keywords, weight) {
+    // Convert single string into array if needed
+    const list = Array.isArray(keywords) ? keywords : [keywords];
+    const matches = [];
+
+    for (let kw of list) {
+    const normalized = kw.toLowerCase().trim();
     if (normalized === "/generatemedicinetable") {
     insertDiagnosesIntoDocument();
     insertTemplatesIntoDocument();
     if (TABLE_ROW_BUFFER.length > 0) generateMedicineTableFromBuffer();
     return;
     }
-    runExpansionEngine([{ text: keyword, normalized: normalized }], weight);
+    matches.push({ text: kw.trim(), normalized: normalized });
+    }
+
+    if (matches.length > 0) {
+    runExpansionEngine(matches, weight);
+    }
     }
 
     function escapeForRegex(str) {
