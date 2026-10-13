@@ -55,7 +55,16 @@
       }
       },
 
-      eyes: {
+    ccl_tear: {
+      singular: {
+        a_torn_cranial_cruciate_ligament: "a torn cranial cruciate ligament", ccl_may_occur_in_other_leg: "Because CCL tear occurs due to genetics rather than acute trauma, dogs with a torn CCL tend to have problems in the other knee within 6 - 12 months of diagnosis. ", leg: "leg", monitor_ccl_leg: "Unlike humans who develop these injuries from trauma, dogs develop this disorder due to genetics and aging changes. As such, dogs with a torn CCL tend to have problems in the other knee within 6 - 12 months of diagnosis.", the_affected_leg: "the affected leg", the_joint: "the joint", torn_ligament: "torn ligament",
+      },
+      plural:   {
+        a_torn_cranial_cruciate_ligament: "torn cranial cruciate ligaments", ccl_may_occur_in_other_leg: "", leg: "legs", monitor_ccl_leg: "", the_affected_leg: "the leg that's worse", the_joint: "the joints", torn_ligament: "torn ligaments",
+      }
+      },
+
+    eyes: {
       singular: {
         a_cataract: "a complete cataract", a_corneal_ulcer: "A corneal ulcer", cataract: "cataract", cherry_eye: "a cherry eye", eye: "eye", gland: "gland", is: "is", it: "it", its: "its", make: "makes", this: "this", This: "This", ulcer: "ulcer", was: "was", pro: "it"
       },
@@ -66,14 +75,15 @@
 
     patella: {
       singular: {
-        sub: "a luxating patella", bone: "kneecap", v: "slides", is: "is", pos: "its"
+      bone: "kneecap", v: "slides", is: "is", medially_luxating_patella_header: "Medially luxating patella:", pos: "its", sub: "a medially luxating patella",
       },
-      plural:   {
-        sub: "luxating patellae", bone: "kneecaps", v: "slide", is: "are", pos: "their"
+
+      plural: {
+      bone: "kneecaps", v: "slide", is: "are", medially_luxating_patella_header: "Medially luxating patellae:", pos: "their", sub: "medially luxating patellae",
       }
       },
 
-      retained_tooth: {
+    retained_tooth: {
       singular: {
         a_retained_baby_tooth: "a retained baby tooth", isnt: "isn’t", that: "that", tooth: "tooth",
       },
@@ -533,6 +543,15 @@
       sideEffects: "Well tolerated"
       },
 
+    DIAZEPAM: {
+      label: "Diazepam 5mg",
+      instructions: "Give your dog {amount} {unit} by mouth every 8 hours for treatment of pain and to relax muscles.",
+      class: "Schedule IV controlled drug (benzodiazepine)",
+      sideEffects: "May cause sedation",
+      defaultUnit: "tab",
+      defaultDose: "100"
+      },
+  
     DORZOLAMIDE: {
       label: "Dorzolamide",
       instructions: "Apply 1 drop in each eye every 8 hours for management of glaucoma. DO NOT DISCONTINUE.",
@@ -1550,7 +1569,7 @@
     const DIAGNOSIS_REGISTRY = {
       // Examples
       // 0 - 99: Top priority, emergency, disregard all else (heart murmur, heart failure, palliative care cancer, etc.)
-      // 100 - 199: Quality of life (arthritis, )
+      // 100 - 199: Quality of life (arthritis, cranial cruciate ligament tear)
       // 200 - 299: High priority, recheck & preventative care (corneal ulcer, glaucoma, hypertension)
       // 300 - 399: Medium-high priority, treatment advised (periodontal disease, otitis externa, etc.)
       // 400 - 499: Medium priority, lifelong management (atopic dermatitis, BOAS, bronchitis)
@@ -1635,6 +1654,16 @@
       rank: 220
       },
 
+    CRANIAL_CRUCIATE_LIGAMENT_TEAR: {
+      text: "Cranial cruciate ligament tear",
+      rank: 100
+      },
+      
+    CRANIAL_CRUCIATE_LIGAMENT_TEAR_HISTORIC: {
+      text: "Cranial cruciate ligament tear (historical)",
+      rank: 100
+      },
+
     CRYPTORCHID: {
       text: "Cryptorchid",
       rank: 303
@@ -1642,7 +1671,7 @@
 
     DIABETES_MELLITUS: {
       text: "Diabetes mellitus",
-      rank: 4
+      rank: 5
       },
 
     ENTROPION: {
@@ -1710,6 +1739,16 @@
       rank: 204
       },
 
+    IRREDUCIBLE_UMBILICAL_HERNIA: {
+      text: "Irreducible umbilical hernia",
+      rank: 305
+      },
+
+    INTERVERTEBRAL_DISC_DISEASE: {
+      text: "Irreducible umbilical hernia",
+      rank: 6
+      },
+
     KERATOCONJUNCTIVITIS_SICCA: {
       text: "Keratoconjunctivitis sicca (dry eye)",
       rank: 240
@@ -1740,6 +1779,11 @@
       rank: 300
       },
 
+    MEDIALLY_LUXATING_PATELLA: {
+      text: "Medially luxating patella",
+      rank: 802
+      },
+
     MODERATE_PERIODONTAL_DISEASE: {
       text: "Moderate periodontal disease",
       rank: 300
@@ -1762,12 +1806,7 @@
 
     OSTEOARTHRITIS: {
       text: "Osteoarthritis (arthritis)",
-      rank: 100
-      },
-
-    OSTEOARTHRITIS: {
-      text: "Osteoarthritis (arthritis)",
-      rank: 100
+      rank: 101
       },
 
     OTITIS: {
@@ -1825,6 +1864,11 @@
       rank: 304
       },
 
+    REDUCIBLE_UMBILICAL_HERNIA : {
+      text: "Reducible umbilical hernia",
+      rank: 305
+      },
+
     RETAINED_DECIDUOUS_TOOTH: {
       text: "Retained deciduous tooth",
       rank: 705
@@ -1867,7 +1911,7 @@
 
     TRANSITIONAL_CELL_CARCINOMA_PRESUMED: {
       text: "Transitional cell carcinoma (presumed)",
-      rank: 5
+      rank: 4
       },
 
     UNDERWEIGHT: {
@@ -3216,11 +3260,44 @@
     ARTHRITIS_WEIGHT_MANAGEMENT: g =>
     `Keeping your ${g.dog} an appropriate weight can also help reduce joint pain.`,
 
+    CCL_OTHER_LEG: "dogs with a torn CCL tend to have problems in the other knee within 6 - 12 months of diagnosis.",
+    
+    CCL_SURGERY_ADVISED: "It is strongly advised that you go forward with surgical repair via the TPLO surgery. However, at this time you’ve elected to go forward with medical management.",
+    
+    CCL_TEAR_CAUSE: "Again, this is NOT caused by inappropriate animal care, excessive exercise, or anything that was or wasn’t done at home.",
+
+    CLOSE_HERNIA_AT_STERILIZATION: "If you intend to sterilize your pet, the hernia can be closed at that time if it is still present.",
+    
+    CRANIAL_CRUCIATE_LIGAMENT_REPAIR_EXTRACAPSULAR_REPAIR_ARTICLE: {
+    text: "Cranial Cruciate Ligament Repair: Extracapsular Repair",
+    url: `https://vcahospitals.com/know-your-pet/cranial-cruciate-ligament-repair-extracapsular-repair-and-tightrope-procedure`
+    },
+
+    CRANIAL_CRUCIATE_LIGAMENT_TEAR_HEADER: "Cranial cruciate ligament tear:",
+    
+    CRANIAL_CRUCIATE_LIGAMENT_TEAR_TIBIAL_PLATEAU_LEVELING_OSTEOTOMY_TPLO_ARTICLE: {
+    text: "Cranial Cruciate Ligament Tear - Tibial Plateau Leveling Osteotomy (TPLO)",
+    url: `https://vcahospitals.com/know-your-pet/cranial-cruciate-ligament-repair-tibial-plateau-leveling-osteotomy-tplo`
+    },
+
     GABAPENTIN_ARTHRITIS_MANAGEMENT: g =>
     `Your ${g.dog} ${g.is} known to have arthritis & ${g.is} currently on gabapentin.`,
 
     GABAPENTIN_DECISION: 
     `You’ve elected to try gabapentin`,
+
+    HERNIA_HEADER: "Hernia:",
+
+    INTERVERTEBRAL_DISC_DISEASE_HEADER: "Intervertebral disc disease:",
+    
+    IVDD_INTERVERTEBRAL_DISC_DISEASE_IN_DOGS_AN_OVERVIEW_ARTICLE: {
+    text: "IVDD (Intervertebral Disc Disease) in Dogs: An Overview",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4953012`
+    },
+    
+    IVDD_REST_REQUIRED: "For the next 2 - 4 weeks prevent your dog from running, jumping, or playing. If your dog loses the ability to walk, this is a medical emergency & requires immediate attention.",
+
+    IRREDUCIBLE_UMBILICAL_HERNIA_HEADER: "Irreducible umbilical hernia:",
 
     JOINT_SUPPLEMENTS_DECISION: 
     `At this time you’ve elected to try joint supplements.`,
@@ -3231,6 +3308,10 @@
     LIBRELA_ADVERSE_RXN: 
     `Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever.`,
 
+    MEDIALLY_LUXATING_PATELLA_HEADER: /Medially luxating patellae?:/i,
+
+    MEDIALLY_LUXATING_PATELLA_DIAGNOSED: /Your dog has (?:an? )?(?:(?:left|right) )?medially luxating patellae?\./i,
+
     NSAID_LABWORK_REQUIREMENT: 
     `You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
 
@@ -3240,38 +3321,15 @@
     OSTEOARTHRITIS_HEADER: 
     `Osteoarthritis:`,
 
-  // Dermatology Registry
-    ALLERGY_EAR_RELATIONSHIP:
-    `In fact, one of the most common causes of chronic ear infections is allergies.`,
-    
-    APOQUEL_STARTER:
-    `Apoquel has been sent home to resolve allergies. Give as prescribed.`,
+    RUPTURED_CRANIAL_CRUCIATE_LIGAMENTS_IN_DOGS_ARTICLE: {
+    text: "Ruptured Cranial Cruciate Ligaments in Dogs article",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952244`
+    },
 
-    ATOPIC_DERMATITIS_HEADER:
-    `Atopic Dermatitis:`,
-
-    ANTIHISTAMINE_DOSAGE1: /You can give.*?every 12 - 24 hours\)\./,
-
-    ANTIHISTAMINE_DOSAGE2:
-    /Continue to give.*?as needed\./,
-
-    ANTIHISTAMINE_ADDITION:
-    /You can still give.*?for additional support\./,
-
-    CYTOPOINT_ADDITIONAL_SUPPORT: g =>
-    `If the allergies return before 4 weeks, your ${g.dog} may need Apoquel or Zenrelia in addition to Cytopoint.`,
-    
-    CYTOPOINT_STARTER:
-    `Cytopoint has been given in clinic to resolve allergies.`,
-
-    SYNERGISTIC_MEDICINE:
-    `These medications improve the effectiveness of the other and are safe to give together.`,
-
-    ZENRELIA_AND_APOQUEL_WARNING:
-    `Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
-
-    ZENRELIA_STARTER:
-    `Zenrelia has been sent home to resolve allergies. Give as prescribed.`,
+    UMBILICAL_HERNIA_IN_DOGS_ARTICLE_ARTICLE: {
+    text: "Umbilical Hernia in Dogs article",
+    url: `https://vcahospitals.com/know-your-pet/hernia-umbilical-in-dogs`
+    },
 
   // Immunology Registry
     ADENOVIRUS_LINK: {
@@ -3332,6 +3390,39 @@
     text: `the Texas government website`,
     url: `https://www.dshs.texas.gov/notifiable-conditions/zoonosis-control/zoonosis-control-diseases-and-conditions/rabies`,
     },
+
+  // Dermatology Registry
+    ALLERGY_EAR_RELATIONSHIP:
+    `In fact, one of the most common causes of chronic ear infections is allergies.`,
+    
+    APOQUEL_STARTER:
+    `Apoquel has been sent home to resolve allergies. Give as prescribed.`,
+
+    ATOPIC_DERMATITIS_HEADER:
+    `Atopic Dermatitis:`,
+
+    ANTIHISTAMINE_DOSAGE1: /You can give.*?every 12 - 24 hours\)\./,
+
+    ANTIHISTAMINE_DOSAGE2:
+    /Continue to give.*?as needed\./,
+
+    ANTIHISTAMINE_ADDITION:
+    /You can still give.*?for additional support\./,
+
+    CYTOPOINT_ADDITIONAL_SUPPORT: g =>
+    `If the allergies return before 4 weeks, your ${g.dog} may need Apoquel or Zenrelia in addition to Cytopoint.`,
+    
+    CYTOPOINT_STARTER:
+    `Cytopoint has been given in clinic to resolve allergies.`,
+
+    SYNERGISTIC_MEDICINE:
+    `These medications improve the effectiveness of the other and are safe to give together.`,
+
+    ZENRELIA_AND_APOQUEL_WARNING:
+    `Give daily for 1 month for best results. Do not give Zenrelia in the same 24 hours as Apoquel.`,
+
+    ZENRELIA_STARTER:
+    `Zenrelia has been sent home to resolve allergies. Give as prescribed.`,
 
   // General Illness Registry
     COMMON_CAUSE:
@@ -7648,10 +7739,463 @@
       "SPAY2"
     ],
 
-  };
-}
+    };
+    }
 
+/* ------------------ CANINE MUSCULOSKELETAL ------------------ */
+  // Cranial Cruciate Ligament Tear | 1st, Medical Management
+    function generateCanineCranialCruciateLigamentTearMedicalManagementTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('ccl_tear', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRANIAL_CRUCIATE_LIGAMENT_TEAR"],
+    text: [
+    `Cranial cruciate ligament tear: Your dog has ${g.a_torn_cranial_cruciate_ligament}, often called an ACL (humans) or CCL (animals). This ligament is found in the knee and, unlike humans, the most common cause is often genetic and due to how the knee is shaped in dogs as opposed to rough play or exercise. Again, this is NOT caused by inappropriate animal care, excessive exercise, or anything that was or wasn’t done at home.`,
+    `Symptoms include limping, toe touching lameness, and refusal to use ${g.the_affected_leg}. This may persist despite pain medication. Diagnosis is through the x-rays that were performed and showed the ${g.torn_ligament}. Treatment is best done through surgery. The gold standard is the tibial plateau leveling osteotomy (TPLO) which currently provides the best repair available. Alternatively, extracapsular repair can be performed as a more affordable option for dogs under 20 lbs though a repeat surgery may be necessary in 2 - 5 years.`,
+    `It is strongly advised that you go forward with surgical repair via the TPLO surgery. However, at this time you’ve elected to go forward with medical management. You will need to exercise restrict your dog and use pain medication for up to 6 weeks. The purpose of this is to allow scarring to occur over ${g.the_joint}. While this doesn’t completely fix the problem, it limits the pain & inflammation.`,
+    `${g.ccl_may_occur_in_other_leg}You can learn more from the Ruptured Cranial Cruciate Ligaments in Dogs article by Veterinary Partner. You can also learn more about surgical repairs from the Cranial Cruciate Ligament Tear - Tibial Plateau Leveling Osteotomy (TPLO) and Cranial Cruciate Ligament Repair: Extracapsular Repair articles by VCA.`
+    ].join('\n'),
 
+    boldKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CCL_OTHER_LEG",
+      "CCL_SURGERY_ADVISED",
+      "CCL_TEAR_CAUSE",      
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSE",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT"
+    ],
+
+    linkKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_REPAIR_EXTRACAPSULAR_REPAIR_ARTICLE",
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_TIBIAL_PLATEAU_LEVELING_OSTEOTOMY_TPLO_ARTICLE",
+      "RUPTURED_CRANIAL_CRUCIATE_LIGAMENTS_IN_DOGS_ARTICLE"
+    ],
+    };
+    }
+
+  // Cranial Cruciate Ligament Tear | 1st, TPLO Advised
+    function generateCanineCranialCruciateLigamentTearTPLOAdvisedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('ccl_tear', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRANIAL_CRUCIATE_LIGAMENT_TEAR"],
+    text: [
+    `Cranial cruciate ligament tear: Your dog has a torn cranial cruciate ligament, often called an ACL (humans) or CCL (animals). This ligament is found in the knee and, unlike humans, the most common cause is often genetic and due to how the knee is shaped in dogs as opposed to rough play or exercise. Again, this is NOT caused by inappropriate animal care, excessive exercise, or anything that was or wasn’t done at home.`,
+    `Symptoms include limping, toe touching lameness, and refusal to use the affected leg that persists longer than 1 - 2 weeks. Diagnosis is through the x-rays that were performed and show the torn ligament. Treatment is best done through surgery. The gold standard is the tibial plateau leveling osteotomy (TPLO) which currently provides the best repair available. Alternatively, extracapsular repair can be performed as a more affordable option for dogs under 20 lbs.`,
+    `It is strongly advised that you go forward with surgical repair via the TPLO surgery. We will start a referral to get this scheduled for you. In the meantime, keep your dog calm and quiet. Limit walks to 5 minutes at a time and use the pain medicine you’ve been prescribed to further control pain until the surgery.`,
+    `Because CCL tear occurs due to genetics rather than acute trauma, dogs with a torn CCL tend to have problems in the other knee within 6 - 12 months of diagnosis. You can learn more from the Ruptured Cranial Cruciate Ligaments in Dogs article by Veterinary Partner. You can also learn more about surgical repairs from the Cranial Cruciate Ligament Tear: Tibial Plateau Leveling Osteotomy (TPLO) and Cranial Cruciate Ligament Repair: Extracapsular Repair articles by VCA.`
+    ].join('\n'),
+
+    boldKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CCL_OTHER_LEG",
+      "CCL_TEAR_CAUSE"
+    ],
+
+    greenKeys: [
+      "COMMON_CAUSE",
+      "DIAGNOSIS",
+      "SYMPTOMS",
+      "TREATMENT"
+    ],
+
+    linkKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_REPAIR_EXTRACAPSULAR_REPAIR_ARTICLE",
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_TIBIAL_PLATEAU_LEVELING_OSTEOTOMY_TPLO_ARTICLE",
+      "RUPTURED_CRANIAL_CRUCIATE_LIGAMENTS_IN_DOGS_ARTICLE"
+    ],
+
+    };
+    }
+
+  // Cranial Cruciate Ligament Tear | 2nd, Surgically Repaired
+    function generateCanineCranialCruciateLigamentTearSurgicallyRepairedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('ccl_tear', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRANIAL_CRUCIATE_LIGAMENT_TEAR_HISTORIC"],
+    text: [
+    `Cranial cruciate ligament tear: Your dog’s ${g.leg} had ${g.a_torn_cranial_cruciate_ligament}, often called an ACL (humans) or CCL (animals), and received the TPLO surgery. ${g.monitor_ccl_leg} Arthritis develops much faster in legs damaged by CCL tears. Continue to monitor your dog’s comfort level and contact the clinic if you've concerns. You can learn more from the Ruptured Cranial Cruciate Ligaments in Dogs article by Veterinary Partner. You can also learn more about surgical repairs from the Cranial Cruciate Ligament Tear - Tibial Plateau Leveling Osteotomy (TPLO) and Cranial Cruciate Ligament Repair: Extracapsular Repair articles by VCA.`
+    ].join('\n'),
+
+    boldKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CCL_OTHER_LEG"
+    ],
+
+    linkKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_REPAIR_EXTRACAPSULAR_REPAIR_ARTICLE",
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_TIBIAL_PLATEAU_LEVELING_OSTEOTOMY_TPLO_ARTICLE",
+      "RUPTURED_CRANIAL_CRUCIATE_LIGAMENTS_IN_DOGS_ARTICLE"
+    ],
+    };
+    }
+
+  // Cranial Cruciate Ligament Tear | 3rd, Medically Repaired
+    function generateCanineCranialCruciateLigamentTearMedicallyRepairedTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["CRANIAL_CRUCIATE_LIGAMENT_TEAR_HISTORIC"],
+    text: [
+    `Cranial cruciate ligament tear: Your dog previously had a cranial cruciate ligament tear, often called an ACL (humans) or CCL (animals). At the time you elected to use medical management (exercise restriction and pain medicine) to help the joint to scar as opposed to surgery. Note that there is always a risk of the scar tearing and the joint causing issues again, so if you notice pain or limping in the leg, contact the clinic. You can learn more from the Ruptured Cranial Cruciate Ligaments in Dogs article by Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "CRANIAL_CRUCIATE_LIGAMENT_TEAR_HEADER"
+    ],
+
+    linkKeys: [
+      "RUPTURED_CRANIAL_CRUCIATE_LIGAMENTS_IN_DOGS_ARTICLE"
+    ],
+    };
+    }
+
+  // Hernia | Irreducible, Umbilical
+    function generateCanineIrreducibleUmbilicalHerniaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["IRREDUCIBLE_UMBILICAL_HERNIA"],
+    text: [
+    `Irreducible umbilical hernia: An irreducible hernia is present in your dog at the umbillicus (the belly button). “Irreducible” means that the contents of the hernia cannot be placed back into the abdomen. On palpation it feels as though the hernia is exclusively fat content. The fat can be surgically removed when your pet is neutered. As the hernia is closed and no intestinal content appears to be inside it, this is considered a cosmetic surgery and is not urgent. You can learn more about umbilical hernias from the Umbilical Hernia in Dogs article by VCA Animal Hospitals.`
+    ].join('\n'),
+
+    boldKeys: [
+      "IRREDUCIBLE_UMBILICAL_HERNIA_HEADER"
+    ],
+
+    linkKeys: [
+      "UMBILICAL_HERNIA_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Hernia | Reducible, Umbilical, <6 months
+    function generateCanineReducibleUmbilicalHerniaUnder6MonthsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["REDUCIBLE_UMBILICAL_HERNIA"],
+    text: [
+    `Hernia: A reducible hernia is present in your dog at the umbilicus (the belly button). “Reducible” means that anything that comes out of the hernia can be pushed back inside. These usually close by the time our pets are 5 months of age. For now continue to monitor the hernia. If you intend to sterilize your pet, the hernia can be closed at that time if it is still present. Otherwise it can be closed at 6 months of age. In the meantime you can learn more about umbilical hernias from the Umbilical Hernia in Dogs article by VCA Animal Hospitals.`
+    ].join('\n'),
+
+    boldKeys: [
+      "HERNIA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "CLOSE_HERNIA_AT_STERILIZATION"
+    ],
+
+    linkKeys: [
+      "UMBILICAL_HERNIA_IN_DOGS_ARTICLE_ARTICLE"
+    ],
+    };
+    }
+
+  // Intervertebral Disc Disease | Medical Management
+    function generateCanineIntervertebralDiscDiseaseTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["INTERVERTEBRAL_DISC_DISEASE"],
+    text: [
+    `Intervertebral disc disease: Your dog has been diagnosed with intervertebral disc disease (IVDD). There are two types of IVDD. Type 1 occurs due to middle aged to older dogs jumping wrong & damaging their spinal cord (more common in Dachshunds). Type 2 is a slow degeneration of the spine that results in a disk herniation. It’s common in German Shepherds. Poodles, Dachshunds, & Beagles may have this occur in their neck as well.`,
+    `Regardless of the cause, there are two options: medical management and surgery. Medical management requires strict cage rest to try & let the body heal while we use pain medication. Your dog will need to take a muscle relaxant, carprofen (anti-inflammatory & pain), & gabapentin (neurologic pain control & sedation). 50% of patients treated medically improve, 25% resolve but have repeat episodes, & 25% do not improve & require surgery. For the next 2 - 4 weeks prevent your dog from running, jumping, or playing. If your dog loses the ability to walk, this is a medical emergency & requires immediate attention. You can learn more about intervertebral disc disease from the IVDD (Intervertebral Disc Disease) in Dogs: An Overview article on Veterinary Partner.`
+    ].join('\n'),
+
+    boldKeys: [
+      "INTERVERTEBRAL_DISC_DISEASE_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "IVDD_REST_REQUIRED",
+    ],
+
+    linkKeys: [
+      "IVDD_INTERVERTEBRAL_DISC_DISEASE_IN_DOGS_AN_OVERVIEW_ARTICLE"
+    ],
+    };
+    }
+
+  // Medially Luxting Patella
+    function generateCanineMediallyLuxatingPatellaTemplate(sex, plurality = 'singular', side = null) {
+    const g = getGrammar('patella', plurality, sex);
+
+    // Only singular can have a side; "both" is plural and needs none
+    const patellaPhrase = (plurality === 'singular' && side)
+    ? `a ${side} medially luxating patella`
+    : g.sub;
+    return {
+    sex,
+    plurality,
+    diagnoses: ["MEDIALLY_LUXATING_PATELLA"],
+    text: [
+    `${g.medially_luxating_patella_header} Your dog has ${patellaPhrase}. Medially luxating patella is a condition dogs are born with which causes the kneecaps to slide towards the inside of the body. Grading is as follows:`,
+    `Grade 1: The kneecap slides out of place but goes back on its own.`,
+    `Grade 2: The kneecap slides out of place & stays out of place.`,
+    `Grade 3: The kneecap is out of place by default but can be pushed back into its correct position.`,
+    `Grade 4: The kneecap is out of place & cannot be put back into its correct position.`,
+    `The most common sign of medially luxating patella would be if your dog shows signs of discomfort in the back end, yelps while running around, or holds up a leg & hops around for a bit. While the majority of dogs don't require treatment, you can pursue surgery with an orthopedic surgeon to correct the abnormality if you're seeing signs of pain or discomfort.`
+    ].join('\n'),
+
+    boldKeys: [
+      "MEDIALLY_LUXATING_PATELLA_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "MEDIALLY_LUXATING_PATELLA_DIAGNOSED"
+    ],
+    };
+    }
+
+  // Osteoarthritis | 1st NSAID, Initial
+    function generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
+    `Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [
+    `OSTEOARTHRITIS_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+    `ARTHRITIS_DETECTED`,
+    `NSAID_LABWORK_REQUIREMENT`,
+    ],
+    };
+    }
+
+  // Osteoarthritis | 2nd NSAID, Maintenance
+    function generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs. Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [
+    `OSTEOARTHRITIS_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+    `NSAID_MONITORING`,
+    ],
+
+    linkKeys: [
+
+    ],
+    };
+    }
+
+  // Osteoarthritis | 3rd NSAID, Switch NSAIDs
+    function generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. We will be switching to a different NSAID to see if better control is provided while still being safe for your pet. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
+    `If we still don’t see the improvement we’d like, we can discuss adding on alternatives such as Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [
+    `OSTEOARTHRITIS_HEADER`,
+    ],
+
+    boldUnderlineKeys: [
+    `NSAID_MONITORING`,
+    ],
+
+    linkKeys: [
+
+    ],
+    };
+    }
+
+  // Osteoarthritis | 1st Gabapentin
+    function generateCanineOsteoarthritis1GabapentinTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
+    `Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen. Instead, immediate relief can be provided via NSAIDs such as carprofen & grapiprant. Bloodwork is recommended every 6 - 12 months while on NSAIDs. `,
+    `You’ve elected to try gabapentin. While less effective than NSAIDs, they do not require bloodwork and still offer excellent pain control. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative that you can add on to improve mobility, but they do not reduce pain on their own. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [
+    'OSTEOARTHRITIS_HEADER'
+    ],
+
+    boldUnderlineKeys: [ 
+    `ARTHRITIS_DETECTED`, 
+    `GABAPENTIN_DECISION`,
+    ],
+    };
+    }
+
+  // Osteoarthritis | 2nd Gabapentin, Continue
+    function generateCanineOsteoarthritis2GabapentinTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & is currently on gabapentin. Alternatives to gabapentin include Librela, an injection that can be given once a month with minimal side effects. However, it may take 2 - 3 months before improvement is seen. Non-steroidal anti-inflammatory drugs such as carprofen & grapiprant can also control arthritis so long as steroids aren’t currently being given. Bloodwork is recommended every 6 - 12 months while on NSAIDs.`,
+    `Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can also be added to any treatment plan to increase mobility but will not control pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [ 
+    `OSTEOARTHRITIS_HEADER`,
+    ],
+
+    boldUnderlineKeys: [ 
+    `ARTHRITIS_WEIGHT_MANAGEMENT`,
+    `GABAPENTIN_ARTHRITIS_MANAGEMENT`,
+    ],
+    };
+    }
+
+  // Osteoarthritis | 1st Joint Supplements
+    function generateCanineOsteoarthritis1JointSupplementsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. Immediate relief can be provided via gabapentin or non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant. NSAIDs are more effective at controlling arthritis than gabapentin & require bloodwork every 6 months. Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen.`,
+    `At this time you’ve elected to try joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [ 
+    "OSTEOARTHRITIS_HEADER" 
+    ],
+
+    boldUnderlineKeys: [ 
+    "ARTHRITIS_DETECTED",
+    "ARTHRITIS_WEIGHT_MANAGEMENT",
+    "JOINT_SUPPLEMENTS_DECISION",
+    ],
+    };
+    }
+
+  // Osteoarthritis | 2nd Joint Supplements, Continue
+    function generateCanineOsteoarthritis2JointSupplementsTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & currently gets joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant provide immediate relief from arthritis so long as steroids aren’t currently being given. Bloodwork is required every 6 months while on NSAIDs. `,
+    `Gabapentin can be used in addition to or instead of NSAIDs with minimal side effects, though it isn’t as effective as NSAIDs. Finally, the Librela injection can be given once a month though it can take 2 - 3 months to see improvement. If you have concerns about your dog’s arthritis, contact the clinic & we can discuss which medicine is best for your dog. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [ 
+    "OSTEOARTHRITIS_HEADER" 
+    ],
+
+    boldUnderlineKeys: [ 
+    "ARTHRITIS_WEIGHT_MANAGEMENT",
+    "JOINT_SUPPLEMENTS_KNOWN",
+    ],
+    };
+    }
+
+  // Osteoarthritis | 1st Librela
+    function generateCanineOsteoarthritis1LibrelaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
+    `Librela, an injection given once a month that controls arthritis, was given today. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. If signs are seen, bring your dog back immediately as these are signs of a reaction. Librela may take 2 - 3 months before full effects are seen, so oral medicine (gabapentin, carprofen, grapiprant, etc.) can be used in the meantime if necessary.`,
+    `You can continue giving joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) to help improve joint mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [ 
+    "OSTEOARTHRITIS_HEADER" 
+    ],
+
+    boldUnderlineKeys: [ 
+    "ARTHRITIS_DETECTED",
+    "ARTHRITIS_WEIGHT_MANAGEMENT" ,
+    "LIBRELA_ADVERSE_RXN",
+    ],
+    };
+    }
+
+  // Osteoarthritis | 2nd Librela
+    function generateCanineOsteoarthritis2LibrelaTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Osteoarthritis: Your dog is known to have arthritis & currently gets Librela injections. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. Bring your dog back immediately if any are seen. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can be added in addition to further improve mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    diagnoses: ["OSTEOARTHRITIS"],
+    boldKeys: [ 
+    "OSTEOARTHRITIS_HEADER" 
+    ],
+
+    boldUnderlineKeys: [ 
+    "ARTHRITIS_WEIGHT_MANAGEMENT",
+    "LIBRELA_ADVERSE_RXN",
+    ],
+    };
+    }  
+    
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
     function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
@@ -8671,231 +9215,6 @@
     };
     }
 
-/* ------------------ CANINE MUSCULOSKELETAL ------------------ */
-  // Osteoarthritis | 1st NSAID, Initial
-    function generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. You’ve elected to try a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
-    `Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [
-    `OSTEOARTHRITIS_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-    `ARTHRITIS_DETECTED`,
-    `NSAID_LABWORK_REQUIREMENT`,
-    ],
-    };
-    }
-
-  // Osteoarthritis | 2nd NSAID, Maintenance
-    function generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. Bloodwork is required every 6 - 12 months while on NSAIDs. Alternatives include Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [
-    `OSTEOARTHRITIS_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-    `NSAID_MONITORING`,
-    ],
-
-    linkKeys: [
-
-    ],
-    };
-    }
-
-  // Osteoarthritis | 3rd NSAID, Switch NSAIDs
-    function generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Your dog is known to have arthritis & is currently on a non-steroidal anti-inflammatory drug (NSAID) to reduce pain & inflammation from arthritis. We will be switching to a different NSAID to see if better control is provided while still being safe for your pet. Bloodwork is required every 6 - 12 months while on NSAIDs.`,
-    `If we still don’t see the improvement we’d like, we can discuss adding on alternatives such as Librela (an injection given in clinic once a month), gabapentin (oral capsules), & joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size). Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [
-    `OSTEOARTHRITIS_HEADER`,
-    ],
-
-    boldUnderlineKeys: [
-    `NSAID_MONITORING`,
-    ],
-
-    linkKeys: [
-
-    ],
-    };
-    }
-
-  // Osteoarthritis | 1st Gabapentin
-    function generateCanineOsteoarthritis1GabapentinTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
-    `Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen. Instead, immediate relief can be provided via NSAIDs such as carprofen & grapiprant. Bloodwork is recommended every 6 - 12 months while on NSAIDs. `,
-    `You’ve elected to try gabapentin. While less effective than NSAIDs, they do not require bloodwork and still offer excellent pain control. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative that you can add on to improve mobility, but they do not reduce pain on their own. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [
-    'OSTEOARTHRITIS_HEADER'
-    ],
-
-    boldUnderlineKeys: [ 
-    `ARTHRITIS_DETECTED`, 
-    `GABAPENTIN_DECISION`,
-    ],
-    };
-    }
-
-  // Osteoarthritis | 2nd Gabapentin, Continue
-    function generateCanineOsteoarthritis2GabapentinTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Your dog is known to have arthritis & is currently on gabapentin. Alternatives to gabapentin include Librela, an injection that can be given once a month with minimal side effects. However, it may take 2 - 3 months before improvement is seen. Non-steroidal anti-inflammatory drugs such as carprofen & grapiprant can also control arthritis so long as steroids aren’t currently being given. Bloodwork is recommended every 6 - 12 months while on NSAIDs.`,
-    `Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can also be added to any treatment plan to increase mobility but will not control pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [ 
-    `OSTEOARTHRITIS_HEADER`,
-    ],
-
-    boldUnderlineKeys: [ 
-    `ARTHRITIS_WEIGHT_MANAGEMENT`,
-    `GABAPENTIN_ARTHRITIS_MANAGEMENT`,
-    ],
-    };
-    }
-
-  // Osteoarthritis | 1st Joint Supplements
-    function generateCanineOsteoarthritis1JointSupplementsTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements. Immediate relief can be provided via gabapentin or non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant. NSAIDs are more effective at controlling arthritis than gabapentin & require bloodwork every 6 months. Librela is an injection given once a month that controls arthritis in most patients. However, it may take 2 - 3 months before improvement is seen.`,
-    `At this time you’ve elected to try joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [ 
-    "OSTEOARTHRITIS_HEADER" 
-    ],
-
-    boldUnderlineKeys: [ 
-    "ARTHRITIS_DETECTED",
-    "ARTHRITIS_WEIGHT_MANAGEMENT",
-    "JOINT_SUPPLEMENTS_DECISION",
-    ],
-    };
-    }
-
-  // Osteoarthritis | 2nd Joint Supplements, Continue
-    function generateCanineOsteoarthritis2JointSupplementsTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Your dog is known to have arthritis & currently gets joint supplements. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) are a more natural alternative to increase mobility but do not reduce pain. Non-steroidal anti-inflammatory drugs (NSAIDs) such as carprofen & grapiprant provide immediate relief from arthritis so long as steroids aren’t currently being given. Bloodwork is required every 6 months while on NSAIDs. `,
-    `Gabapentin can be used in addition to or instead of NSAIDs with minimal side effects, though it isn’t as effective as NSAIDs. Finally, the Librela injection can be given once a month though it can take 2 - 3 months to see improvement. If you have concerns about your dog’s arthritis, contact the clinic & we can discuss which medicine is best for your dog. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [ 
-    "OSTEOARTHRITIS_HEADER" 
-    ],
-
-    boldUnderlineKeys: [ 
-    "ARTHRITIS_WEIGHT_MANAGEMENT",
-    "JOINT_SUPPLEMENTS_KNOWN",
-    ],
-    };
-    }
-
-  // Osteoarthritis | 1st Librela
-    function generateCanineOsteoarthritis1LibrelaTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Arthritis was detected in your dog’s joints. The most common sign of this is being slow after waking up/laying down for a while or being sore after walks. There are three options for treatment: monthly injectable medicine, twice daily oral pain medicine, and joint supplements.`,
-    `Librela, an injection given once a month that controls arthritis, was given today. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. If signs are seen, bring your dog back immediately as these are signs of a reaction. Librela may take 2 - 3 months before full effects are seen, so oral medicine (gabapentin, carprofen, grapiprant, etc.) can be used in the meantime if necessary.`,
-    `You can continue giving joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) to help improve joint mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [ 
-    "OSTEOARTHRITIS_HEADER" 
-    ],
-
-    boldUnderlineKeys: [ 
-    "ARTHRITIS_DETECTED",
-    "ARTHRITIS_WEIGHT_MANAGEMENT" ,
-    "LIBRELA_ADVERSE_RXN",
-    ],
-    };
-    }
-
-  // Osteoarthritis | 2nd Librela
-    function generateCanineOsteoarthritis2LibrelaTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Osteoarthritis: Your dog is known to have arthritis & currently gets Librela injections. Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever. Bring your dog back immediately if any are seen. Joint supplements (aim for those with glucosamine and at least 1,000mg of DHA & EPA per serving size) can be added in addition to further improve mobility. Keeping your dog an appropriate weight can also help reduce joint pain.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    diagnoses: ["OSTEOARTHRITIS"],
-    boldKeys: [ 
-    "OSTEOARTHRITIS_HEADER" 
-    ],
-
-    boldUnderlineKeys: [ 
-    "ARTHRITIS_WEIGHT_MANAGEMENT",
-    "LIBRELA_ADVERSE_RXN",
-    ],
-    };
-    }  
-
 /* ------------------ TEMPLATE DEFINITIONS ------------------ */
   // Main Function
     const RAW_TEMPLATE_DEFINITIONS = {
@@ -9065,7 +9384,19 @@
     '/cPregnantUltrasound': (sex, plurality) => generateCaninePregnancyUltrasoundTemplate(sex, plurality),
     '/cSpayAdvised': (sex, plurality) => generateCanineSpayTemplate(sex, plurality),
 
-  // Musculoskeletal Definitions
+  // Canine Musculoskeletal Definitions
+    '/cCranialCruciateLigamentTear1stMedicalManagement': (sex, plurality) => generateCanineCranialCruciateLigamentTearMedicalManagementTemplate(sex, "singular"),
+    '/cCranialCruciateLigamentTears1stMedicalManagement': (sex, plurality) => generateCanineCranialCruciateLigamentTearMedicalManagementTemplate(sex, "plural"),
+    '/cCranialCruciateLigamentTear1stTPLOAdvised': (sex, plurality) => generateCanineCranialCruciateLigamentTearTPLOAdvisedTemplate(sex, "singular"),
+    '/cCranialCruciateLigamentTears1stTPLOAdvised': (sex, plurality) => generateCanineCranialCruciateLigamentTearTPLOAdvisedTemplate(sex, "plural"),
+    '/cCranialCruciateLigamentTear2ndSurgicallyRepaired': (sex, plurality) => generateCanineCranialCruciateLigamentTearSurgicallyRepairedTemplate(sex, "singular"),
+    '/cCranialCruciateLigamentTears2ndSurgicallyRepaired': (sex, plurality) => generateCanineCranialCruciateLigamentTearSurgicallyRepairedTemplate(sex, "plural"),
+    '/cCranialCruciateLigamnetTear3rdMedicallyManaged': (sex, plurality) => generateCanineCranialCruciateLigamentTearMedicallyRepairedTemplate(sex, plurality),
+    '/cHerniaIrreducibleUmbilical': (sex, plurality) => generateCanineIrreducibleUmbilicalHerniaTemplate(sex, plurality),
+    '/cHerniaReducibleUmbilicalUnder6Months': (sex, plurality) => generateCanineReducibleUmbilicalHerniaUnder6MonthsTemplate(sex, plurality),
+    '/cIntervertebralDiscDisease': (sex, plurality) => generateCanineIntervertebralDiscDiseaseTemplate(sex, plurality),
+    '/cMediallyLuxatingPatella': (sex, plurality, weight, vaxCodes, side) => generateCanineMediallyLuxatingPatellaTemplate(sex, "singular", side),
+    '/cMediallyLuxatingPatellae': (sex, plurality, weight, vaxCodes, side) => generateCanineMediallyLuxatingPatellaTemplate(sex, "plural", side),
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
     '/cOsteoarthritis2ndNSAID': (sex, plurality) => generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality),
     '/cOsteoarthritis3rdNSAID': (sex, plurality) => generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality),
@@ -9180,14 +9511,17 @@
     }
     }
 
-    // Handle hidden gender/plurality modifiers
+    // Handle hidden gender/plurality/side modifiers
+    let side = null;
     let hiddenModifierMatch;
-    while ((hiddenModifierMatch = base.match(/(male|female|plural|singular)$/i))) {
+    while ((hiddenModifierMatch = base.match(/(male|female|plural|singular|left|right)$/i))) {
     const modifier = hiddenModifierMatch[1].toLowerCase();
     if (modifier === 'male' || modifier === 'female') {
     sex = modifier;
     } else if (modifier === 'plural' || modifier === 'singular') {
     plurality = modifier;
+    } else {
+    side = modifier;
     }
     base = base.substring(0, base.length - modifier.length);
     }
@@ -9203,7 +9537,7 @@
     // A) If match is a primary Template (e.g., /c1yearMale)
     if (templateFn) {
     // Pass the batch's extracted vaccine codes into the template function
-    const template = templateFn(sex, plurality, activeWeight, extractedVaxCodes); 
+    const template = templateFn(sex, plurality, activeWeight, extractedVaxCodes, side);
 
     if (template.cleanupKeys && template.cleanupKeys.length > 0) {
     cleanupQueue.push(...template.cleanupKeys);
