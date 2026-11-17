@@ -184,6 +184,8 @@
     LF: "in the left forelimb",
     RH: "in the right hindlimb",
     LH: "in the left hindlimb",
+    RS: "in the right shoulder",
+    LS: "in the left shoulder",
     IN: "intranasally",
     PO: "orally",
     SB: "between the shoulder blades",
@@ -218,20 +220,20 @@
     fn: (yr, site) =>
     `The ${formatYr(yr)}bordetella vaccine was given ${SITE_MAP[site] || "orally"}.`
     },
-    Influenza: {
+        Influenza: {
     order: 6,
     fn: (yr, site) =>
-    `The ${formatYr(yr)}influenza vaccine was given ${SITE_MAP[site] || "right shoulder"}.`
+    `The ${formatYr(yr)}influenza vaccine was given ${SITE_MAP[site] || SITE_MAP.RF}.`
     },
     Proheart6: {
     order: 7,
     fn: (yr, site) =>
-    `The ${formatYr(yr)}Proheart 6 injection was given ${SITE_MAP[site] || "between the shoulder blades"}.`
+    `The Proheart 6 injection was given ${SITE_MAP[site] || SITE_MAP.SB} and lasts 6 months.`
     },
     Proheart12: {
     order: 8,
     fn: (yr, site) =>
-    `The ${formatYr(yr)}Proheart 12 injection was given ${SITE_MAP[site] || "between the shoulder blades"}.`
+    `The Proheart 12 injection was given ${SITE_MAP[site] || SITE_MAP.SB} and lasts 12 months.`
     },
     };
 
@@ -252,7 +254,7 @@
     }
 
     // Standard fallback for non-combo vaccine keywords
-    const standardMatch = keyword.match(/\/c([a-z]+)vxn(?:(\d+)yr)?([a-z]{2})?/i);
+    const standardMatch = keyword.match(/\/c([a-z0-9]+)vxn(?:(\d+)yr)?([a-z]{2})?/i);
     if (!standardMatch) return null;
 
     const rawType = standardMatch[1]; 
@@ -280,13 +282,16 @@
     }
 
     function detectVaccineSentenceOrder(sentenceText) {
-    const lower = sentenceText.toLowerCase();
-    if (lower.includes('rabies vaccine')) return 1;
-    if (lower.includes('combo') && lower.includes('lepto')) return 3;
-    if (lower.includes('distemper')) return 2;
-    if (lower.includes('lepto vaccine')) return 4;
-    if (lower.includes('bordetella vaccine')) return 5;
-    return 99; // unrecognized text — push to the end rather than guess
+    const l = sentenceText.toLowerCase();
+    if (l.includes('rabies vaccine')) return VAX_REGISTRY.Rabies.order;
+    if (l.includes('combo') && l.includes('lepto')) return VAX_REGISTRY.DAPPLepto.order;
+    if (l.includes('distemper')) return VAX_REGISTRY.DAPP.order;
+    if (l.includes('lepto vaccine')) return VAX_REGISTRY.Lepto.order;
+    if (l.includes('bordetella vaccine')) return VAX_REGISTRY.Bordetella.order;
+    if (l.includes('influenza vaccine')) return VAX_REGISTRY.Influenza.order;
+    if (l.includes('proheart 12')) return VAX_REGISTRY.Proheart12.order;
+    if (l.includes('proheart 6')) return VAX_REGISTRY.Proheart6.order;
+    return 99; // unrecognized text goes to the end
     }
 
     function insertVaccineIntoWellnessParagraph(vaxMeta) {
@@ -313,10 +318,16 @@
     ? beforeAnchor.split(/(?<=\.)\s+/).filter(s => s.trim().length)
     : [];
 
-    const withOrders = existingSentences.map(s => ({
+    let withOrders = existingSentences.map(s => ({
     text: s.trim(),
     order: detectVaccineSentenceOrder(s)
     }));
+
+    // Which existing sentences does the new vaccine replace?
+    // Orders: 2 = DAPP, 3 = DAPP/Lepto combo, 4 = Lepto
+    const CONFLICTS = { 2: [2, 3], 3: [2, 3, 4], 4: [3, 4] };
+    const clash = CONFLICTS[vaxMeta.order] || [vaxMeta.order];
+    withOrders = withOrders.filter(e => e.order === 99 || !clash.includes(e.order));
 
     let inserted = false;
     const combined = [];
@@ -332,9 +343,10 @@
     const newFullText = combined.join(' ') + ' ' + fromAnchor;
     textObj.setText(newFullText);
 
-    // setText wipes character-level formatting on this paragraph, so re-bold
-    // whichever vaccine sentence types are actually present.
-    [FORMAT_REGISTRY.RABIES_VXN, FORMAT_REGISTRY.DAPP_VXN, FORMAT_REGISTRY.LEPTO_VXN, FORMAT_REGISTRY.BORDETELLA_VXN]
+    // setText can carry formatting across, so reset then re-bold the vaccine sentences
+    textObj.setBold(false);
+    [FORMAT_REGISTRY.RABIES_VXN, FORMAT_REGISTRY.DAPP_VXN, FORMAT_REGISTRY.LEPTO_VXN,
+     FORMAT_REGISTRY.BORDETELLA_VXN, FORMAT_REGISTRY.FLU_VXN, FORMAT_REGISTRY.PROHEART_VXN]
     .filter(Boolean)
     .forEach(pattern => applyFormattingOnce(textObj, pattern, STYLE_REGISTRY.bold));
 
@@ -382,10 +394,14 @@
         // Compiles a clean list of labels, keys, and dynamic-weight configurations for the sidebar
         function getMedicineRegistryKeys() {
         return Object.keys(MEDICINE_REGISTRY).map(key => {
+        const med = MEDICINE_REGISTRY[key];
+        const needsDose = typeof med.instructions === 'string' && med.instructions.includes('{amount}');
+        const isClinicOnly = key.endsWith('INJECTION') || key === 'SUBCUTANEOUSFLUIDS';
         return {
         key: key,
-        label: MEDICINE_REGISTRY[key].label,
-        hasDynamicWeight: typeof MEDICINE_REGISTRY[key].instructions === 'function'
+        label: med.label,
+        defaultUnit: needsDose ? String(med.defaultUnit || 'tab').toLowerCase() : null,
+        clinicOnly: isClinicOnly
         };
         });
         }
@@ -463,7 +479,7 @@
 
     CARPROFEN75: {
       label: "Carprofen 75mg",
-      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation. Give to completion.",
+      instructions: "Give your dog {amount} {unit} by mouth every 12 hours for pain and inflammation. Give until gone.",
       class: "Non-steroidal anti-inflammatory drug (NSAID)",
       sideEffects: "Vomiting, diarrhea, decreased appetite (less common if given with a meal).",
       defaultUnit: "tab",
@@ -488,7 +504,7 @@
 
     CEFPODOXIME100: {
       label: "Cefpodoxime 100mg",
-      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for infection. Give to until gone.",
+      instructions: "Give your dog {amount} {unit} by mouth every 24 hours for infection. Give until gone.",
       class: "Antibiotic (third generation cephalosporin)",
       sideEffects: "Vomiting, diarrhea, or decreased appetite (less common if given with a meal).",
       defaultUnit: "tab",
@@ -1000,7 +1016,9 @@
       label: "Ondansetron 8mg",
       instructions: "Give your dog {amount} {unit} every 8 - 12 hours for management of pancreatitis.",
       class: "5-HT3 Antagonist, antiemetic",
-      sideEffects: "Well tolerated"
+      sideEffects: "Well tolerated",
+      defaultUnit: "tab",
+      defaultDose: "100",
       },
 
     OPTIMMUNEOINTMENT: {
@@ -1317,7 +1335,7 @@
       defaultDose: "100"
       },
 
-    TRAZODONE50: {
+    TRAZODONECONTINUOUS50: {
       label: "Trazodone 50mg",
       instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
       class: "Anxiolytic",
@@ -1326,7 +1344,25 @@
       defaultDose: "100",
       },
 
-    TRAZODONE100: {
+    TRAZODONEINTERMITTENT50: {
+      label: "Trazodone 50mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
+
+    TRAZODONECONTINUOUS50: {
+      label: "Trazodone 50mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
+
+    TRAZODONEINTERMITTENT100: {
       label: "Trazodone 100mg",
       instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
       class: "Anxiolytic",
@@ -1335,7 +1371,16 @@
       defaultDose: "100",
       },
 
-    TRAZODONE150: {
+    TRAZODONECONTINUOUS150: {
+      label: "Trazodone 150mg",
+      instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
+      class: "Anxiolytic",
+      sideEffects: "May cause sedation or hyperactivity",
+      defaultUnit: "tab",
+      defaultDose: "100",
+      },
+
+    TRAZODONEINTERMITTENT150: {
       label: "Trazodone 150mg",
       instructions: "Give your dog {amount} {unit} the night before and 2 hours prior to an appointment in the morning.",
       class: "Anxiolytic",
@@ -1513,13 +1558,16 @@
       let cleanInput = keyword.replace(/^\/c/i, "").toUpperCase();
 
       let matchedPrefixKey = "START";
+      let prefixFound = false;
       for (let pKey in MED_PREFIX) {
       if (cleanInput.endsWith(pKey)) {
       matchedPrefixKey = pKey;
+      prefixFound = true;
       cleanInput = cleanInput.substring(0, cleanInput.length - pKey.length);
       break;
       }
       }
+      if (!prefixFound && cleanInput.endsWith('INJECTION')) matchedPrefixKey = 'CLINIC';
 
       // 2. Extract MedKey, Unit, and DoseCode
       let regex = /^([A-Z0-9]+)(tab|cap|ml|can|cup)(\d+)/i;
@@ -1776,7 +1824,7 @@
       },
 
     INTERVERTEBRAL_DISC_DISEASE: {
-      text: "Irreducible umbilical hernia",
+      text: "Intervertebral disc disease",
       rank: 6
       },
 
@@ -1833,6 +1881,11 @@
     OAK_TOXICOSIS: {
       text: "Oak toxicosis",
       rank: 206
+      },
+
+    ONYCHOGRYPHOSIS: {
+      text: "Onychogryphosis (overgrown nails)",
+      rank: 306
       },
 
     OSTEOARTHRITIS: {
@@ -1925,6 +1978,16 @@
       rank: 300
       },
 
+    SPRAIN_DIAGNOSED: {
+      text: "Sprain",
+      rank: 307
+      },
+
+    SPRAIN_PRESUMED: {
+      text: "Sprain (presumed)",
+      rank: 307
+      },
+
     STERILE_CYSTITIS: {
       text: "Sterile cystitis",
       rank: 504
@@ -1950,6 +2013,16 @@
       rank: 704
       },
 
+    URINARY_INCONTINENCE: {
+      text: "Urinary incontinence",
+      rank: 404
+      },
+
+    URINE_SCALDING: {
+      text: "Urine scalding",
+      rank: 302
+      },
+
     URINARY_TRACT_INFECTION_PRESUMED: {
       text: "Urinary tract infection (presumed)",
       rank: 207
@@ -1959,12 +2032,27 @@
       text: "Urinary tract infection",
       rank: 207
       },
-
-    URINE_SCALDING: {
-      text: "Urine scalding",
-      rank: 302
-      },
       };
+
+
+    // Precomputed lookups (built once at load, not once per header check)
+    const DIAG_LOOKUP = Object.values(DIAGNOSIS_REGISTRY).map(d => ({ text: d.text.toLowerCase(), rank: d.rank }));
+
+    const DIAG_RANK_BY_TEXT = new Map();
+    Object.values(DIAGNOSIS_REGISTRY).forEach(d => {
+    if (!DIAG_RANK_BY_TEXT.has(d.text)) DIAG_RANK_BY_TEXT.set(d.text, d.rank || 99); // first match wins, same as your old loop
+    });
+
+    // Sub-headers inside multi-paragraph templates -> the diagnosis they belong to.
+    // Keys are lowercase header text without the colon.
+    const SUBHEADER_PARENT = {
+    'overheating': 'BRACHYCEPHALIC_OBSTRUCTIVE_AIRWAY_SYNDROME',
+    'e collar':    'CORNEAL_ULCER',
+    '1st month':   'HEARTWORMS',
+    '2nd month':   'HEARTWORMS',
+    '3rd month':   'HEARTWORMS',
+    '4th month':   'HEARTWORMS'
+    };
 
   // Shared: Insert With Format Break
     let diagnosisBuffer = [];
@@ -2068,13 +2156,7 @@
       }
 
       // Identify the rank of the diagnosis already sitting on this line
-      let existingRank = null;
-      for (const key in DIAGNOSIS_REGISTRY) {
-      if (DIAGNOSIS_REGISTRY[key].text === pText) {
-      existingRank = DIAGNOSIS_REGISTRY[key].rank || 99;
-      break;
-      }
-      }
+      const existingRank = DIAG_RANK_BY_TEXT.has(pText) ? DIAG_RANK_BY_TEXT.get(pText) : null;
 
       // If we found a match and it's lower priority (higher rank #), cut in line!
       if (existingRank !== null && existingRank > newRank) {
@@ -2124,108 +2206,83 @@
     /* ------------------ Deep Fuzzy Diagnosis-Linked Insert ------------------ */
       function insertTemplatesIntoDocument() {
       if (templateBuffer.length === 0) return;
-
       const body = DocumentApp.getActiveDocument().getBody();
-      const allDiags = DIAGNOSIS_REGISTRY;
-
-      // FIX 1: Lenient Header Detection
-      // We check for Bold OR Underline at the start of the paragraph.
-      // This ensures "Weight:" (Bold only) is recognized as a header.
-      function isHeaderParagraph(p) {
-      const text = p.getText();
-      if (!text.trim().length) return false;
-      const textObj = p.editAsText();
-      return textObj.isBold(0) || textObj.isUnderline(0);
-      }
 
       // 1. Sort incoming buffer by rank
       templateBuffer.sort((a, b) => (a.rank || 999) - (b.rank || 999));
 
-      // 2. Find the "Comprehensive Summary" anchor
+      // 2. ONE pass over the document: record each paragraph in a plain JS list
+      const snap = [];
       let summaryIndex = -1;
-      for (let i = 0; i < body.getNumChildren(); i++) {
+      const n = body.getNumChildren();
+      for (let i = 0; i < n; i++) {
       const child = body.getChild(i);
-      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
-      const text = child.asParagraph().getText().trim().toLowerCase();
-      if (text === "comprehensive summary") {
-      summaryIndex = i;
-      break;
+      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) {
+      snap.push({ type: 'other' });
+      continue;
       }
-      }
-
-      // --- CLEANUP WHITESPACE ---
-      if (summaryIndex !== -1) {
-      let nextIdx = summaryIndex + 1;
-      while (nextIdx < body.getNumChildren()) {
-      const nextChild = body.getChild(nextIdx);
-      if (nextChild.getType() === DocumentApp.ElementType.PARAGRAPH && nextChild.asParagraph().getText().trim() === "") {
-      try { nextChild.removeFromParent(); } catch (e) { break; }
-      } else { break; }
-      }
-      }
-
-      const targetBase = summaryIndex === -1 ? body.getNumChildren() : summaryIndex + 1;
-
-      templateBuffer.forEach((newTmpl) => {
-      let inserted = false;
-      const newRank = newTmpl.rank || 999;
-
-      for (let i = targetBase; i < body.getNumChildren(); i++) {
-      const child = body.getChild(i);
-      if (child.getType() !== DocumentApp.ElementType.PARAGRAPH) continue;
-
       const p = child.asParagraph();
-      const pText = p.getText().replace(/\u00A0/g, " ").trim().toLowerCase();
+      const text = p.getText().replace(/\u00A0/g, ' ').trim().toLowerCase();
+      let isHeader = false;
+      if (text.includes(':')) { // formatting is only checked when the line could be a header
+      const t = p.editAsText();
+      isHeader = t.isBold(0) || t.isUnderline(0);
+      }
+      snap.push({ type: 'p', text, isHeader });
+      if (summaryIndex === -1 && text === 'comprehensive summary') summaryIndex = i;
+      }
 
-      // FIX 2: Continue, don't Break
-      // If the line is empty, skip it. If it's not a header, skip it.
-      // Do NOT 'break', otherwise we stop looking before we hit the Wellness header.
-      if (!pText) continue; 
-      if (!isHeaderParagraph(p) || !pText.includes(":")) continue;
+      // 3. Remove blank lines directly after "Comprehensive Summary" (keep snap in sync)
+      if (summaryIndex !== -1) {
+      while (
+      summaryIndex + 1 < snap.length &&
+      snap[summaryIndex + 1].type === 'p' &&
+      snap[summaryIndex + 1].text === ''
+      ) {
+      try { body.getChild(summaryIndex + 1).removeFromParent(); } catch (e) { break; }
+      snap.splice(summaryIndex + 1, 1);
+      }
+      }
+      const targetBase = summaryIndex === -1 ? snap.length : summaryIndex + 1;
 
-      const headerText = pText.split(":")[0];
+      // 4. Decide every insert position in memory (no document calls)
+      const plans = templateBuffer.map((tmpl, order) => {
+      const newRank = tmpl.rank || 999;
+      let at = -1;
+
+      for (let i = targetBase; i < snap.length; i++) {
+      const s = snap[i];
+      if (s.type !== 'p' || !s.isHeader || !s.text.includes(':')) continue;
+
+      const headerText = s.text.split(':')[0];
       let existingRank = null;
 
-      // FIX 3: Robust Fuzzy Matching
-      // We look for any overlap between the header (e.g. "Weight") 
-      // and the registry (e.g. "Overweight")
-      for (const key in allDiags) {
-      const diagText = allDiags[key].text.toLowerCase();
-
-      // Match if the header is inside the diagnosis (Weight is in Overweight)
-      // OR the diagnosis is inside the header (Overweight contains Weight)
-      if (diagText.includes(headerText) || headerText.includes(diagText)) {
-      existingRank = allDiags[key].rank;
-      break;
+      // Sub-headers inherit their parent diagnosis's rank
+      const parentKey = SUBHEADER_PARENT[headerText];
+      if (parentKey && DIAGNOSIS_REGISTRY[parentKey]) {
+      existingRank = DIAGNOSIS_REGISTRY[parentKey].rank;
+      } else {
+      for (const d of DIAG_LOOKUP) {
+      if (d.text.includes(headerText) || headerText.includes(d.text)) { existingRank = d.rank; break; }
       }
       }
+      const effectiveRank = existingRank !== null ? existingRank : 999;
 
-      // Default rank for recognized headers not in registry is 999 (like Wellness)
-      let effectiveRank = (existingRank !== null) ? existingRank : 999;
-
-      // If the header in the doc is lower priority (higher rank) than our new one, 
-      // insert the new one right here.
-      if (effectiveRank > newRank) {
-      insertTemplateAtIndex(body, newTmpl, i);
-      inserted = true;
-      break;
-      }
+      if (effectiveRank > newRank) { at = i; break; }
       }
 
-      // --- FALLBACK ---
-      if (!inserted) {
-      let fallbackIdx = targetBase;
-      while (fallbackIdx < body.getNumChildren()) {
-      const next = body.getChild(fallbackIdx);
-      // Put it at the first empty line or the end of the block
-      if (next.getType() !== DocumentApp.ElementType.PARAGRAPH || next.asParagraph().getText().trim() === "") {
-      break;
+      // Fallback: first empty line or end of the block
+      if (at === -1) {
+      at = targetBase;
+      while (at < snap.length && snap[at].type === 'p' && snap[at].text !== '') at++;
       }
-      fallbackIdx++;
-      }
-      insertTemplateAtIndex(body, newTmpl, fallbackIdx);
-      }
+      return { tmpl, at, order };
       });
+
+      // 5. Insert bottom-up so earlier positions never shift.
+      //    Ties go in reverse order so the final order stays rank-ascending.
+      plans.sort((a, b) => (b.at - a.at) || (b.order - a.order));
+      plans.forEach(p => insertTemplateAtIndex(body, p.tmpl, p.at));
 
       templateBuffer = [];
       }
@@ -2387,6 +2444,9 @@
 
     FLU_VXN:
     /The (?:initial |\d+ year )?influenza vaccine/i,
+
+    PROHEART_VXN:
+    /The Proheart (?:6|12) injection/i,
 
     NEXT_APPOINTMENT_HEADER: 'Next appointment:',
 
@@ -3296,6 +3356,10 @@
     ARTHRITIS_WEIGHT_MANAGEMENT: g =>
     `Keeping your ${g.dog} an appropriate weight can also help reduce joint pain.`,
 
+    BED_REST_ADVISED: "Give the pain medication prescribed & keep your dog calm and quiet until all the medicine is complete.",
+
+    BED_REST_NECESSARY: "This is a necessary part of the healing process & should be done as best as possible to improve chances of a full recovery.",
+
     CCL_OTHER_LEG: "dogs with a torn CCL tend to have problems in the other knee within 6 - 12 months of diagnosis.",
     
     CCL_SURGERY_ADVISED: "It is strongly advised that you go forward with surgical repair via the TPLO surgery. However, at this time you’ve elected to go forward with medical management.",
@@ -3303,6 +3367,11 @@
     CCL_TEAR_CAUSE: "Again, this is NOT caused by inappropriate animal care, excessive exercise, or anything that was or wasn’t done at home.",
 
     CLOSE_HERNIA_AT_STERILIZATION: "If you intend to sterilize your pet, the hernia can be closed at that time if it is still present.",
+
+    CONDITIONING_YOUR_DOG_TO_NAIL_TRIMS_ARTICLE: {
+    text: "Conditioning your Dog to Nail Trims",
+    url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&catId=102897&id=11052217`
+    },
     
     CRANIAL_CRUCIATE_LIGAMENT_REPAIR_EXTRACAPSULAR_REPAIR_ARTICLE: {
     text: "Cranial Cruciate Ligament Repair: Extracapsular Repair",
@@ -3341,6 +3410,11 @@
     JOINT_SUPPLEMENTS_KNOWN: g =>
     `Your ${g.dog} ${g.is} known to have arthritis & currently gets joint supplements.`,
 
+    KWIK_STOP_LINK: {
+    text: "Kwik Stop",
+    url: `https://www.chewy.com/miracle-care-kwik-stop-styptic-powder/dp/111484`
+    },
+
     LIBRELA_ADVERSE_RXN: 
     `Watch for signs of reaction including vomiting, diarrhea, lethargy, & excessive panting/fever.`,
 
@@ -3354,6 +3428,10 @@
     NSAID_MONITORING: 
     `Bloodwork is required every 6 - 12 months while on NSAIDs.`,
 
+    ONYCHOGRYPHOSIS_HEADER: `Onychogryphosis:`,
+
+    ONYCHOGRYPHOSIS_CAUSE: `This often happens in dogs if their nails aren’t trimmed regularly and can cause the paw pad to split open as the claw grows into it.`,
+
     OSTEOARTHRITIS_HEADER: 
     `Osteoarthritis:`,
 
@@ -3361,6 +3439,8 @@
     text: "Ruptured Cranial Cruciate Ligaments in Dogs article",
     url: `https://veterinarypartner.vin.com/default.aspx?pid=19239&id=4952244`
     },
+
+    SPRAIN_HEADER: "Sprain:",
 
     UMBILICAL_HERNIA_IN_DOGS_ARTICLE_ARTICLE: {
     text: "Umbilical Hernia in Dogs article",
@@ -4401,75 +4481,6 @@
     return template;
     }
 
-  // Initial Adult Vaccine Template
-    function generateInitialAdultTemplate(sex, plurality = 'singular', size) {
-    const g = getGrammar('wellness', plurality, sex);
-
-    const text = [
-        `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo ${g.shot} with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your ${g.dog} will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.`,
-        
-        `You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal. Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
-        
-        `Heartworms prevention: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
-        
-        `Early detection labwork: Yearly blood work is recommended for ${g.dogs} the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
-        
-        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
-
-        `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
-        
-        `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
-        
-        `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
-        
-        `Next appointment: Bring your ${g.dog} back in 3 - 4 weeks for a booster of ${g.his} vaccines.`
-    ].join('\n');
-
-    return {
-    sex,
-    plurality,
-    text,
-    boldKeys: [
-    'VACCINES_HEADER',
-    'HEARTWORMS_PREVENTION_HEADER',
-    'DIET_HEADER',
-    'DENTAL_HEADER',
-    'NEXT_APPOINTMENT_HEADER',
-    'RABIES_VXN',
-    'DAPP_VXN',
-    'LEPTO_INITIAL',
-    'BORDETELLA_VXN',
-    'LABWORK',
-    ],
-
-    boldUnderlineKeys: [
-    'VXN_BOOSTER',
-    'VXN_RXN',
-    'IMMEDIATELY',
-    'RARE_RXN',
-    'HEARTWORM_TEST',
-    'LAB_RESULTS',
-    'GRAIN_FREE',
-    'DENTAL_BRUSHING',
-    'DENTAL_BRUSHING_CORE',
-    'XYLITOL',
-    ],
-
-    linkKeys: [
-    'VOHC_DOG_LINK',
-    'SMALL_DOG_TOOTHBRUSH_LINK',
-    'LARGE_TOOTHBRUSH_LINK',
-    'TOOTHPASTE_LINK',
-    'HILLS_DOG_DRY_LINK',
-    'HILLS_DOG_WET_LINK',
-    'PURINA_DOG_DRY_LINK',
-    'PURINA_DOG_WET_LINK',
-    'ROYAL_CANIN_DOG_DRY_LINK',
-    'ROYAL_CANIN_DOG_WET_LINK',
-    ],
-    };
-    }
-
   // 1-Year Adult Vaccine Template
     function generate1YearAdultTemplate(sex, plurality = 'singular', size, vaxCodes = []) {
     const g = getGrammar('wellness', plurality, sex);
@@ -4517,6 +4528,7 @@
       'DAPP_VXN',
       'LEPTO_VXN',
       'FLU_VXN',
+      'PROHEART_VXN',
       'BORDETELLA_VXN',
       'LABWORK',
     ],
@@ -4596,7 +4608,104 @@
     return template;
     }
 
-  // Canine Overweight | 1st
+  // Healthy Weight
+    function generateCanineHealthyWeightTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    const text = [
+    `Weight: Your dog is a healthy weight for a dog of ${g.his} size. ${g.His} ribs can be felt without difficulty and ${g.he} has a slight waist. Keeping ${g.him} around ${g.his} current weight will help ${g.him} live approximately 1 ½ years longer than ${g.he} would if ${g.he} were over or underweight.`,
+    `Continue to monitor ${g.his} weight and feed ${g.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${g.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${g.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    rank: 100,
+    boldKeys: [
+    'WEIGHT_HEADER',
+    ],
+
+    boldUnderlineKeys: [
+    'HEALTHY_WEIGHT_LIFESPAN',
+    'OVERWEIGHT_DOG_SIGNS',
+    'UNDERWEIGHT_DOG_SIGNS',
+    ],
+
+    greenKeys: [],
+    linkKeys: [],
+    };
+    }
+
+  // Initial Adult Vaccine Template
+    function generateInitialAdultTemplate(sex, plurality = 'singular', size) {
+    const g = getGrammar('wellness', plurality, sex);
+
+    const text = [
+        `Vaccines: Your ${g.dog} ${g.has} received ${g.his} first ${g.round} of adult vaccinations. The 1 year rabies vaccine was given in the right hindlimb. The initial distemper, adenovirus, parvovirus, & parainfluenza (DAPP) vaccine was given as a combo ${g.shot} with the initial lepto vaccine in the left hindlimb. The 1 year bordetella vaccine was given orally. Your ${g.dog} will need a booster of the DAPP and lepto vaccines in 3 - 4 weeks.`,
+        
+        `You may notice that after vaccination your ${g.dog} ${g.is} more tired than usual, ${g.eats} less, or ${g.is} sore at the injection sites, & this is perfectly normal. Watch out for severe vaccine reactions including swelling/pain at the vaccine sites, vomiting, diarrhea, extreme lethargy, or fever (excessive panting/sweating from the paw pads). If you ever notice any of these within 24 hours of vaccination, bring your ${g.dog} back immediately for treatment during normal business hours or your nearest emergency animal hospital. These reactions are rare & not expected to occur in your ${g.dog}.`,
+        
+        `Heartworms prevention: A heartworm test was performed on your ${g.dog}. We will contact you in 3 - 4 business days with the results. Heartworms are spread by mosquitoes which don’t die in the Texas "winter", so our pets are at risk of infection year round. Furthermore, heartworms can be fatal & there is a risk of death even with proper treatment. Prevention is easier, cheaper, & less stressful than treatment, so it is recommended you keep your ${g.dog} on monthly preventatives such as Heartgard, Nexgard, Simparica Trio, Revolution, etc.`,
+        
+        `Early detection labwork: Yearly blood work is recommended for ${g.dogs} the same as it is in humans and starts at 3 years of age. This lets us get a baseline for your pet and allows us to catch abnormalities before they’re noticeable outwardly. Depending on the panel run, this can check for issues in the liver, kidneys, thyroid, bladder, glucose, and many other organs and values. At 6 years of age, a larger panel for “senior” pets is advised.`,
+        
+        `Food: A high quality diet is the best way to keep your ${g.dog} healthy. Food from Hill’s Science Diet (Hill's dog dry food or Hill's dog wet food), Purina Pro Plan (Purina dog dry food or Purina dog wet food), or Royal Canin (RC dog dry food or RC dog wet food) are all wonderful diets as they’re formulated by veterinary scientists. There is no significant difference between wet or dry food in ${g.dogs}, so either is wonderful to feed. It is not recommended to feed grain free or raw diets due to the increased risk of disease and parasites. Follow the instructions on the back of the bag or can for a dog of ${g.his} weight.`,
+
+        `Dental care: The best way to keep your ${g.dogs} teeth healthy is to brush them daily for 10 seconds total using a small dog toothbrush, medium/large dog toothbrush, & animal safe toothpaste. Animal safe toothpaste such as C.E.T. can be purchased from the clinic or from online stores. Getting your ${g.dog} used to having ${g.his} teeth brushed early will improve ${g.his} overall health.`,
+        
+        `You can start by having ${g.him} eat peanut butter (make sure xylitol isn’t listed as an ingredient), wet food, or treats off the toothbrush every day for a week, then applying the pet safe toothpaste & letting ${g.him} lick it off every day for a week. Finally, gently brush ${g.his} teeth with the toothpaste. Brushing the outside for 1.5 seconds is more than enough.`,
+        
+        `If your ${g.dog} resists having ${g.his} teeth brushed, dental cleanings can be performed under general anesthesia every few years as necessary for ${g.his} teeth. Dental chews and water additives can also help slow down dental accumulation. You can find a list of products that have proven efficacy on the Veterinary Oral Health Council website.`,
+        
+        `Next appointment: Bring your ${g.dog} back in 3 - 4 weeks for a booster of ${g.his} vaccines.`
+    ].join('\n');
+
+    return {
+    sex,
+    plurality,
+    text,
+    boldKeys: [
+    'VACCINES_HEADER',
+    'HEARTWORMS_PREVENTION_HEADER',
+    'DIET_HEADER',
+    'DENTAL_HEADER',
+    'NEXT_APPOINTMENT_HEADER',
+    'RABIES_VXN',
+    'DAPP_VXN',
+    'LEPTO_INITIAL',
+    'BORDETELLA_VXN',
+    'LABWORK',
+    ],
+
+    boldUnderlineKeys: [
+    'VXN_BOOSTER',
+    'VXN_RXN',
+    'IMMEDIATELY',
+    'RARE_RXN',
+    'HEARTWORM_TEST',
+    'LAB_RESULTS',
+    'GRAIN_FREE',
+    'DENTAL_BRUSHING',
+    'DENTAL_BRUSHING_CORE',
+    'XYLITOL',
+    ],
+
+    linkKeys: [
+    'VOHC_DOG_LINK',
+    'SMALL_DOG_TOOTHBRUSH_LINK',
+    'LARGE_TOOTHBRUSH_LINK',
+    'TOOTHPASTE_LINK',
+    'HILLS_DOG_DRY_LINK',
+    'HILLS_DOG_WET_LINK',
+    'PURINA_DOG_DRY_LINK',
+    'PURINA_DOG_WET_LINK',
+    'ROYAL_CANIN_DOG_DRY_LINK',
+    'ROYAL_CANIN_DOG_WET_LINK',
+    ],
+    };
+    }
+
+  // Overweight | 1st
     function generateCanineOverweightTemplate(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
 
@@ -4638,7 +4747,7 @@
     };
     }
 
-  // Canine Overweight | 2nd, Continue
+  // Overweight | 2nd, Continue
     function generateCanineOverweight2Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
     const g = getGrammar('wellness', plurality, sex);
 
@@ -4679,35 +4788,28 @@
     };
     }
 
-  // Canine Healthy Weight
-    function generateCanineHealthyWeightTemplate(sex, plurality = 'singular') {
+  // Quality of Life
+    function generateCanineQualityofLifeTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
-    const text = [
-    `Weight: Your dog is a healthy weight for a dog of ${g.his} size. ${g.His} ribs can be felt without difficulty and ${g.he} has a slight waist. Keeping ${g.him} around ${g.his} current weight will help ${g.him} live approximately 1 ½ years longer than ${g.he} would if ${g.he} were over or underweight.`,
-    `Continue to monitor ${g.his} weight and feed ${g.him} as you’ve been doing. Signs of an overweight dog include difficulty feeling the ribs and loss of a waist when viewed from above. You can switch ${g.his} treats to apple slices, carrots, green beans, ice cubes, or cucumbers if you notice ${g.him} starting to gain weight. Signs of an underweight dog are the spine being visible in the same fashion as your knuckles, ribs visible enough to be counted, and hips that can be felt when running your hand over your dog’s back end.`
-    ].join('\n');
-
     return {
     sex,
     plurality,
-    text,
-    rank: 100,
+    diagnoses: [""],
+    text: [
+    `Quality of life: Your dog shows concerning signs of disease and illness that may be life threatening. It’s never easy to make end of life decisions for our pets but I’ve found that the Ohio State University has a How Will I Know article that makes it easier to assess your pet’s quality of life. If you’d like to discuss end of life appointments, contact the clinic at your earliest convenience. `
+    ].join('\n'),
+
     boldKeys: [
-    'WEIGHT_HEADER',
+      "QUALITY_OF_LIFE_HEADER"
     ],
 
-    boldUnderlineKeys: [
-    'HEALTHY_WEIGHT_LIFESPAN',
-    'OVERWEIGHT_DOG_SIGNS',
-    'UNDERWEIGHT_DOG_SIGNS',
+    linkKeys: [
+      "HOW_WILL_I_KNOW_ARTICLE"
     ],
-
-    greenKeys: [],
-    linkKeys: [],
     };
     }
   
-  // Canine Underweight
+  // Underweight
     function generateCanineUnderweightTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
     const text = [
@@ -4735,7 +4837,7 @@
     };
     }
 
-  // Canine Vaccine Information
+  // Vaccine Information
     function generateCanineVaccineInformationTemplate(sex, plurality) {
     const text = [
     `Rabies: Rabies is a fatal virus that is spread from wild animal bites to our pets & humans. The most common spreaders in Texas are raccoons, skunks, bats, foxes, & coyotes. Signs of rabies start with voice changes & becoming shy. Next the pet acts aggressive or becomes paralyzed. The animal then dies if it isn't euthanized by then.`,
@@ -4780,27 +4882,6 @@
     'RABIES_IN_ANIMALS_LINK',
     'TEXAS_RABIES_LINK',
     ]
-    };
-    }
-
-  // Quality of Life
-    function generateCanineQualityofLifeTemplate(sex, plurality = 'singular') {
-    const g = getGrammar('wellness', plurality, sex);
-    return {
-    sex,
-    plurality,
-    diagnoses: [""],
-    text: [
-    `Quality of life: Your dog shows concerning signs of disease and illness that may be life threatening. It’s never easy to make end of life decisions for our pets but I’ve found that the Ohio State University has a How Will I Know article that makes it easier to assess your pet’s quality of life. If you’d like to discuss end of life appointments, contact the clinic at your earliest convenience. `
-    ].join('\n'),
-
-    boldKeys: [
-      "QUALITY_OF_LIFE_HEADER"
-    ],
-
-    linkKeys: [
-      "HOW_WILL_I_KNOW_ARTICLE"
-    ],
     };
     }
 
@@ -4880,7 +4961,7 @@
     }
 
   // Cherry Eye
-    function generateCanineCherryEyeTemplate(sex, plurality = 'singular') {
+    function generateCanineCherryEyeTemplate(sex, plurality = 'singular',) {
     const g = getGrammar('eyes', plurality, sex);
     return {
     sex,
@@ -5778,7 +5859,7 @@
     return {
     sex,
     plurality,
-    diagnoses: ["Hypothyroidism"],
+    diagnoses: ["HYPOTHYROIDISM"],
     text: [
     `Hypothyroidism: Your dog has been diagnosed with hypothyroidism. Hypothyroidism in dogs occurs when the thyroid gland doesn’t produce as much hormone as it should due to the body’s own immune system attacking the thyroid gland. This causes decreased energy, increased weight gain, & dry hair coat. Treatment involves giving thyroid hormone as a pill.`,
     `We will need to recheck thyroid hormone levels in 4 - 6 weeks to ensure we’re not giving too much thyroid & causing hyperthyroidism. Give the medicine 4 - 6 hours BEFORE the appointment. Medication must be given consistently as prescribed. You can learn more about hypothyroidism from the Hypothyroidism in Dogs article by Veterinary Partner.`
@@ -7628,6 +7709,33 @@
     };
     }
 
+  // Onychogryphosis (Overgrown Nails)
+    function generateCanineOnychogryphosisTemplate(sex, plurality = 'singular') {
+    const g = getGrammar('wellness', plurality, sex);
+    return {
+    sex,
+    plurality,
+    diagnoses: ["ONYCHOGRYPHOSIS"],
+    text: [
+    `Onychogryphosis: Your dog’s claws were overgrown and curling into the paw pad (onychogryphosis). This often happens in dogs if their nails aren’t trimmed regularly and can cause the paw pad to split open as the claw grows into it. Typically the front claws need to be cut every 3 weeks while the back need to be cut every 6 weeks. You can learn how to safely clip your dog’s claws on your own using the Conditioning your Dog to Nail Trims article on Veterinary Partner.`,
+    `Using products like Kwik Stop to stop bleeding is preferred, but corn starch will work in a pinch if necessary. Walking your dog on concrete will also help wear down the nails so that trimming isn’t necessary as often. Otherwise you can clip them yourself, bring your dog into the clinic, or take your dog to a groomer for nail trims as needed.`
+    ].join('\n'),
+
+    boldKeys: [
+      "ONYCHOGRYPHOSIS_HEADER"
+    ],
+
+    boldUnderlineKeys: [
+      "ONYCHOGRYPHOSIS_CAUSE"
+    ],
+
+    linkKeys: [
+      "CONDITIONING_YOUR_DOG_TO_NAIL_TRIMS_ARTICLE",
+      "KWIK_STOP_LINK"
+    ],
+    };
+    }
+
   // Osteoarthritis | 1st NSAID, Initial
     function generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality = 'singular') {
     const g = getGrammar('wellness', plurality, sex);
@@ -7851,7 +7959,29 @@
     ],
     };
     }  
-    
+
+  // Sprain | 1st, Diagnosed
+      function generateCanineSprainDiagnosedTemplate(sex, plurality = 'singular') {
+      const g = getGrammar('wellness', plurality, sex);
+      return {
+      sex,
+      plurality,
+      diagnoses: ["SPRAIN_DIAGNOSED"],
+      text: [
+      `Sprain: X-rays of your dog’s bones showed no signs of a fracture or torn ligament. At this time the suspected cause of the lameness is due to a sprain. Give the pain medication prescribed & keep your dog calm and quiet until all the medicine is complete. The best way to do this would be to use a kennel/cage or confinement in a small room such as a bathroom. Do not allow jumping, running, or playing, and limit walks to no more than 5 minutes. This is a necessary part of the healing process & should be done as best as possible to improve chances of a full recovery.`
+      ].join('\n'),
+
+      boldKeys: [
+        "SPRAIN_HEADER"
+      ],
+
+      boldUnderlineKeys: [
+        "BED_REST_ADVISED",
+        "BED_REST_NECESSARY"
+      ],
+    };
+    }
+
 /* ------------------ CANINE DERMATOLOGY ------------------ */
   // Atopic Dermatitis | Antihistamines 1
     function generateCanineAtopicDermatitisMild1Template(sex, plurality = 'singular', weight = 'UNKNOWN') {
@@ -8359,6 +8489,7 @@
     '/cIntervertebralDiscDisease': (sex, plurality) => generateCanineIntervertebralDiscDiseaseTemplate(sex, plurality),
     '/cMediallyLuxatingPatella': (sex, plurality, weight, vaxCodes, side) => generateCanineMediallyLuxatingPatellaTemplate(sex, "singular", side),
     '/cMediallyLuxatingPatellae': (sex, plurality, weight, vaxCodes, side) => generateCanineMediallyLuxatingPatellaTemplate(sex, "plural", side),
+    '/cOnychogryphosis': (sex, plurality) => generateCanineOnychogryphosisTemplate(sex, plurality),
     '/cOsteoarthritis1stNSAID': (sex, plurality) => generateCanineOsteoarthritis1NSAIDTemplate(sex, plurality),
     '/cOsteoarthritis2ndNSAID': (sex, plurality) => generateCanineOsteoarthritis2NSAIDTemplate(sex, plurality),
     '/cOsteoarthritis3rdNSAID': (sex, plurality) => generateCanineOsteoarthritis3NSAIDTemplate(sex, plurality),
@@ -8368,6 +8499,7 @@
     '/cOsteoarthritis2ndJointSupplements': (sex, plurality) => generateCanineOsteoarthritis2JointSupplementsTemplate(sex, plurality),
     '/cOsteoarthritis1stLibrela': (sex, plurality) => generateCanineOsteoarthritis1LibrelaTemplate(sex, plurality),
     '/cOsteoarthritis2ndLibrela': (sex, plurality) => generateCanineOsteoarthritis2LibrelaTemplate(sex, plurality),
+    '/cSprainDiagnosed': (sex, plurality) => generateCanineSprainDiagnosedTemplate(sex, plurality),
 
   // Immunology Definitions
     '/cVaccineInformation': (sex, plurality) => generateCanineVaccineInformationTemplate(sex, plurality),
@@ -8582,8 +8714,15 @@
 
     while ((searchResult = body.findText(combinedPattern, searchResult))) {
     const textElement = searchResult.getElement().asText();
-    const matchedText = textElement.getText().substring(
-    searchResult.getStartOffset(),
+    const fullText = textElement.getText();
+    const startOffset = searchResult.getStartOffset();
+
+    // Only treat it as a keyword if it begins the text or follows whitespace/opening punctuation
+    const prevChar = startOffset > 0 ? fullText.charAt(startOffset - 1) : '';
+    if (prevChar && !/[\s(\[{,;]/.test(prevChar)) continue;
+
+    const matchedText = fullText.substring(
+    startOffset,
     searchResult.getEndOffsetInclusive() + 1
     ).trim();
 
@@ -8591,7 +8730,7 @@
     text: matchedText,
     normalized: matchedText.toLowerCase(),
     element: textElement,
-    start: searchResult.getStartOffset(),
+    start: startOffset,
     end: searchResult.getEndOffsetInclusive()
     });
     }
@@ -8707,21 +8846,15 @@
     ? rawEntry({ dog: 'dog', has: 'has', him: 'him', his: 'his', resists: 'resists' }) 
     : rawEntry;
 
+    // Headers always start bold, so one check at index 0 is enough
     function isHeader(para) {
-    const textObj = para.editAsText();
-    const text = para.getText();
-    if (!text.length) return false;
-    for (let i = 0; i < text.length; i++) {
-    if (textObj.isBold(i)) return true;
-    }
-    return false;
+    return para.getText().length > 0 && para.editAsText().isBold(0);
     }
 
-    function isNextSubjectHeader(para, currentTarget) {
-      const text = para.getText().trim();
-      // Only treat as the "next" header if it has a colon AND isn't the one we just found
-      if (!isHeader(para) || !text.includes(":") || text.startsWith(currentTarget)) return false;
-      return true;
+    function isNextSubjectHeader(para, text, currentTarget) {
+    // Cheap string checks first; only touch formatting if they pass
+    if (!text.includes(":") || text.startsWith(currentTarget)) return false;
+    return isHeader(para);
     }
 
     let startIdx = -1;
@@ -8729,21 +8862,17 @@
 
     for (let i = 0; i < paragraphs.length; i++) {
     const p = paragraphs[i];
-    const rawText = p.getText();
-    const text = rawText.replace(/\u00A0/g, ' ').trim(); 
+    const text = p.getText().replace(/\u00A0/g, ' ').trim();
 
-    // Find start (using your working logic)
     if (startIdx === -1) {
+    // Find start
     if (text.startsWith(targetHeader) && isHeader(p)) {
     startIdx = body.getChildIndex(p);
     }
-    } 
+    } else if (isNextSubjectHeader(p, text, targetHeader)) {
     // Find end
-    else {
-      if (isNextSubjectHeader(p, targetHeader)) {
-        endIdx = body.getChildIndex(p);
-        break;
-      }
+    endIdx = body.getChildIndex(p);
+    break;
     }
     }
 
